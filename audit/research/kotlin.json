@@ -1,0 +1,115 @@
+{
+  "language": "kotlin",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "Kotlin": "2.4 line is current stable: 2.4.0 language release 3 Jun 2026, 2.4.20 tooling 7 Sep 2026, 2.4.21 bugfix 8 Oct 2026 (latest, support window to 3 Dec 2027); 2.5.0 planned Dec 2026, 2.5.0-Beta1 is EAP only",
+    "Kotlin Multiplatform / Compose": "Android, iOS, Desktop (JVM), Server (JVM) and Kotlin/JS Stable; Web based on Kotlin/Wasm Beta; watchOS/tvOS Beta; Compose Multiplatform Stable for Android/iOS/desktop, web (Wasm) Beta - matching the guide's beta warning",
+    "JDK/Gradle/AGP": "Guide pins JDK 21 toolchain as starting point and a committed Gradle Wrapper; no primary compatibility table was fetched in this pass to verify the exact 2.4.20 Gradle/AGP/Xcode ranges, so those ranges are unverified here",
+    "Kotlin Language Server / ktlint / detekt": "Guide's SKILL.md contains NO toolchain-pairing line at all (unlike the Lua/Nix/Scala skills) and neither SKILL nor the full guide names an LSP, formatter, or static-analysis tool - status therefore not addressed by the guide and not fetched as primary sources in this pass"
+  },
+  "aspects": {
+    "error_handling": {
+      "verdict": "holds",
+      "guide_position": "Sealed result types (not exceptions) for expected failures, require for API-contract arguments, check for broken internal state, assert not relied on for production validation, rethrow CancellationException, runCatching captures cancellation warning",
+      "best_practice": "No fetched official source contradicts this; guide cites kotlinlang.org exceptions page for the require/check/assert distinction",
+      "evidence": "Exceptions page itself not re-fetched in this pass; verdict rests on guide's cited official source plus absence of contradiction in the fetched 2.4 release material",
+      "citations": [
+        "https://kotlinlang.org/docs/releases.html"
+      ]
+    },
+    "bounded_work": {
+      "verdict": "unverified",
+      "guide_position": "Bound loops/retries/queues/collection growth/coroutine fan-out with named unit-carrying limits; reject before expensive allocation; bound compressed/expanded sizes and retained output",
+      "best_practice": "Tiger Style strictness; no official source fetched prescribes or forbids it",
+      "evidence": "Retained as policy Marked unverified per audit rule: no primary source was fetched for this specific aspect in this pass.",
+      "citations": []
+    },
+    "assertions_contracts": {
+      "verdict": "holds",
+      "guide_position": "Assertions for internal facts, normal error paths for expected external failures, KDoc on public items stating contract and bounds, warnings as errors on the pinned toolchain",
+      "best_practice": "Consistent with the guide's cited official exceptions guidance; no contradiction fetched",
+      "evidence": "See error_handling limitation note",
+      "citations": [
+        "https://kotlinlang.org/docs/releases.html"
+      ]
+    },
+    "memory_ownership": {
+      "verdict": "unverified",
+      "guide_position": "JVM/Native GC manages objects not sockets/transactions/native buffers/GPU work; use 'use'/try-finally, explicit commit/flush, no finalizer reliance, copy at ownership boundaries, Native memory manager is a tracing GC not a borrow checker",
+      "best_practice": "Guide cites the official Native memory-manager page; no fetched source contradicts the characterization",
+      "evidence": "Memory-manager page not re-fetched in this pass; characterization retained from the guide's official citation Marked unverified per audit rule: no primary source was fetched for this specific aspect in this pass.",
+      "citations": []
+    },
+    "formatting": {
+      "verdict": "unverified",
+      "guide_position": "Four spaces, 100-column target, idiomatic naming (UpperCamelCase types, lowerCamelCase, UPPER_SNAKE_CASE constants), one pinned formatter configuration",
+      "best_practice": "Guide cites kotlinlang.org coding conventions for naming/indent, but that page was not fetched in this pass and the guide never names the formatter tool (ktlint/equivalent) that enforces it, so current-official agreement is unverified here",
+      "evidence": "Per audit rule: no primary fetch of the conventions page in this pass = unverified",
+      "citations": []
+    },
+    "static_analysis": {
+      "verdict": "not-addressed",
+      "guide_position": "Guide requires warnings-as-errors and KDoc contracts but names no static-analysis tool, no LSP, and no linter in either file",
+      "best_practice": "A Kotlin Tiger Style guide with no named analysis toolchain cannot be checked against current ktlint/detekt/Kotlin-LSP practice; this pass did not fetch those primary sources, so no tool is asserted here",
+      "evidence": "Absence verified by full read of both Kotlin files in this audit; tool status unverified, hence not-addressed rather than a tool claim",
+      "citations": []
+    },
+    "concurrency": {
+      "verdict": "holds",
+      "guide_position": "Structured concurrency: every scope owned, no GlobalScope for app-owned work, cancellation cooperative/prompt and cannot publish partial effects, bounded channels, dispatcher choices documented, freshness tokens for stale results",
+      "best_practice": "No fetched official source contradicts this; it matches the structured-concurrency model Kotlin is known for and the guide's cited coroutines APIs (runBlocking/withTimeout/Channel contracts)",
+      "evidence": "Coroutines API pages cited by the guide were not re-fetched individually in this pass",
+      "citations": [
+        "https://kotlinlang.org/docs/releases.html"
+      ]
+    },
+    "testing": {
+      "verdict": "holds",
+      "guide_position": "Zero/one/limit-1/limit/limit+1, invalid conversions, cancellation, timeouts, failure-before-commit, state-unchanged on rejection, property tests/bounded fuzzing, per-lane evidence table (real device for Android, macOS+device for iOS, named browsers for web, real board for Jetson)",
+      "best_practice": "No fetched official source contradicts this per-lane evidence discipline; supported-platforms page confirms the lanes themselves (Android/iOS/desktop/server stable, Wasm web beta)",
+      "evidence": "Supported-platforms page fetched via search",
+      "citations": [
+        "https://Kotlinlang.org/docs/multiplatform/supported-platforms.html"
+      ]
+    },
+    "toolchain_pins": {
+      "verdict": "stale",
+      "guide_position": "Guide (review date 2026-09-21) says only 'a pinned, reviewed Kotlin release' / 'reviewed Kotlin 2.x compiler' and jvmToolchain(21); it names no current version anywhere",
+      "best_practice": "Current stable is now specifically 2.4.21 (8 Oct 2026) on the 2.4 line (support to Dec 2027), with 2.5.0 planned Dec 2026 - a guide reviewed 2026-09-21 that never names 2.4.x leaves readers without the current pin or its new 18-month stdlib security-support window (introduced with 2.4.0)",
+      "evidence": "Kotlin release-process page fetched in full: 2.4.21 latest, 2.4 line support window, 2.5.0 planned Dec 2026",
+      "citations": [
+        "https://kotlinlang.org/docs/releases.html"
+      ]
+    },
+    "security": {
+      "verdict": "holds",
+      "guide_position": "Null-safety is not authorization/deadlines/secrets; parameterized queries, TLS/identity libraries, no secrets in logs/bundles/argv/mobile bundles, outbound-destination restriction, dependency/Wrapper verification-metadata review, never disable TLS",
+      "best_practice": "No fetched official source contradicts this; new in 2.4 is an official stdlib security-support policy (18-month window per release line, simultaneous fix releases) that strengthens the case for staying on a supported line",
+      "evidence": "Release-process page fetched: stdlib security support from 2.4.0, 18-month window per line",
+      "citations": [
+        "https://kotlinlang.org/docs/releases.html"
+      ]
+    }
+  },
+  "mechanical_fixes": [],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "proposal": "Name the current pin explicitly: Kotlin 2.4.21 (2.4 line, supported to 3 Dec 2027) as the reviewed baseline, note 2.5.0 is planned Dec 2026 and 2.5.0-Beta1 is EAP-only and must not be a production pin, and add the 2.4 stdlib 18-month security-support window to the pinning rationale in Sec.4",
+      "evidence": "kotlinlang.org release-process page fetched in full: latest 2.4.21 (8 Oct 2026), 2.4 support ends 3 Dec 2027, 2.5.0 planned Dec 2026",
+      "recommendation": "Adopt; this is a baseline refresh, not a style change - JDK 21 toolchain statement was not contradicted by any fetched source and should stay until a primary compatibility table says otherwise",
+      "citations": [
+        "https://kotlinlang.org/docs/releases.html"
+      ]
+    },
+    {
+      "aspect": "static_analysis",
+      "proposal": "Give Kotlin the toolchain-pairing line the other three skills have: name the LSP, the single formatter, and the static-analysis tool(s) with pinned versions in SKILL.md, after a primary-source check of their current releases - the guide currently enforces 'warnings as errors' with no named tooling to run in editor or CI",
+      "evidence": "Full read in this audit: Kotlin SKILL.md has no Toolchain pairing line and the full guide names no LSP/formatter/linter, unlike the Lua (LuaLS/stylua/luacheck in guide Sec.27), Nix (nil/nixd/nixfmt/statix/deadnix) and Scala (Metals/scalafmt) guides",
+      "recommendation": "Adopt as a gap-fill proposal only; do not invent tool versions - pin them in a follow-up pass that fetches the tools' official release pages",
+      "citations": [
+        "https://kotlinlang.org/docs/releases.html"
+      ]
+    }
+  ]
+}

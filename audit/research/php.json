@@ -1,0 +1,135 @@
+{
+  "language": "php",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "php": "8.5 is newest stable branch (released 20 Nov 2025; 8.5.11 current patch line Sep 2026); 8.4 in active support until 31 Dec 2026; 8.3 security-only until 31 Dec 2027; 8.6 in RC (RC3 8 Oct 2026), GA planned Nov 2026 - not a production target",
+    "phpstan_psalm": "Practice current, exact latest versions not verified from phpstan.org/psalm.dev primary pages in this pass",
+    "php-cs-fixer_pint": "Still maintained; rule-set naming now centres on PER-CS (see formatting)",
+    "intelephense_xdebug": "Named in guide; exact latest versions not verified from primary pages in this pass",
+    "coding_standard": "PER-CS (PHP-FIG PER Coding Style, 3.x line) extends, expands and replaces PSR-12"
+  },
+  "aspects": {
+    "error_handling": {
+      "verdict": "holds",
+      "guide_position": "Domain exceptions, chaining with previous, no @ suppression, no casual catch Throwable, error/exception handlers at entry points",
+      "best_practice": "Still current PHP practice; 8.5/8.6 additions do not change exception discipline",
+      "evidence": "No primary source fetched contradicts the guide; php.net supported-versions confirms the language line the guide targets is still supported",
+      "citations": [
+        "http://php.net/supported-versions.php"
+      ]
+    },
+    "bounded_work": {
+      "verdict": "holds",
+      "guide_position": "Named bounds for input bytes, JSON depth, items, retries with shared deadline/backoff/jitter; memory_limit as backstop only",
+      "best_practice": "Still current; no official guidance endorses unbounded remote reads or retries",
+      "evidence": "Uncontradicted by php.net sources fetched in this pass",
+      "citations": [
+        "http://php.net/supported-versions.php"
+      ]
+    },
+    "assertions_contracts": {
+      "verdict": "unverified",
+      "guide_position": "assert() only for programmer invariants; external validation by explicit throw, explicitly because zend.assertions=-1 strips assertions in production",
+      "best_practice": "Guide position is the long-standing php.net recommendation, but the specific php.net assert/zend.assertions page was not fetched in this pass",
+      "evidence": "Marked unverified per audit rule: no citation fetched for this specific claim in this session",
+      "citations": []
+    },
+    "memory_ownership": {
+      "verdict": "not-addressed",
+      "guide_position": "No ownership system; guide covers resource lifetime (one owner per handle, try/finally, no destructor reliance) instead",
+      "best_practice": "Does not apply as an ownership aspect: PHP is reference-counted/GC; the applicable analogue is resource lifetime, which the guide addresses",
+      "evidence": "Aspect does not apply in the Rust/C++ sense; do not force a finding",
+      "citations": []
+    },
+    "formatting": {
+      "verdict": "stale",
+      "guide_position": "php-cs-fixer with PSR-12, or Laravel Pint; 4-space, 120 columns, ordered imports",
+      "best_practice": "PHP-FIG PER Coding Style extends, expands and replaces PSR-12 and is the living standard, adding rules for enums, match, promotion, readonly, attributes and newer syntax that PSR-12 does not cover",
+      "evidence": "PHP-FIG PER meta document states the PER extends, expands and replaces PSR-12",
+      "citations": [
+        "https://www.php-fig.org/per/coding-style/meta/"
+      ]
+    },
+    "static_analysis": {
+      "verdict": "unverified",
+      "guide_position": "PHPStan level max or Psalm strictest as a CI gate; no mixed escapes",
+      "best_practice": "The gate practice is current, but exact current PHPStan/Psalm major versions and level names were not verified from phpstan.org/psalm.dev primary pages in this pass",
+      "evidence": "Marked unverified for version/state claims; no version claim is made",
+      "citations": []
+    },
+    "concurrency": {
+      "verdict": "holds",
+      "guide_position": "Fibers (8.1+) cooperative not parallel; bound fiber counts; long-running workers (RoadRunner/FrankenPHP) break shared-nothing, reset per request",
+      "best_practice": "Still accurate for current PHP; 8.4/8.5 did not change the fiber model or the worker caveat",
+      "evidence": "Uncontradicted by php.net sources fetched; supported-versions confirms 8.4/8.5 are the current lines",
+      "citations": [
+        "http://php.net/supported-versions.php"
+      ]
+    },
+    "testing": {
+      "verdict": "holds",
+      "guide_position": "PHPUnit or Pest, half adversarial, static analysis and fixer in CI before tests, Infection mutation testing where budget allows",
+      "best_practice": "Still current practice; note PHPUnit 12 removed doc-comment test metadata, so metadata must be attributes - guide is silent on metadata style",
+      "evidence": "Secondary summary of PHPUnit 12.0 changes states doc-comment metadata was removed; guide does not mention it (see proposals)",
+      "citations": [
+        "https://github.com/cadasto/php-coding-plugin/blob/HEAD/AGENTS.md"
+      ]
+    },
+    "toolchain_pins": {
+      "verdict": "stale",
+      "guide_position": "Requires/targets PHP 8.3+; 8.4 property hooks and asymmetric visibility allowed where they clarify",
+      "best_practice": "8.3 is now security-only (active support ended 31 Dec 2025); newest stable is 8.5 (20 Nov 2025), so a 2026 baseline should require 8.4+ and describe 8.5 as current",
+      "evidence": "php.net supported versions table: 8.3 active until 31 Dec 2025, security until 31 Dec 2027; 8.5 initial release 20 Nov 2025, active until 31 Dec 2027",
+      "citations": [
+        "http://php.net/supported-versions.php"
+      ]
+    },
+    "security": {
+      "verdict": "holds",
+      "guide_position": "strict_types everywhere, === at boundaries, no unserialize/eval on untrusted data, PDO real prepares, hash_equals for secrets, password_hash, SSRF/CSRF/XSS controls",
+      "best_practice": "Still current official practice; 8.5 adds safer primitives (URI extension, FILTER_THROW_ON_FAILURE per 8.5 feature lists) that strengthen, not contradict, the guide",
+      "evidence": "Uncontradicted by php.net sources fetched in this pass",
+      "citations": [
+        "http://php.net/supported-versions.php",
+        "https://www.php.net/releases/8.5/en.php"
+      ]
+    }
+  },
+  "mechanical_fixes": [
+    {
+      "file": "~/workspace/skills/tiger-style-php/SKILL.md",
+      "current": "Requires PHP 8.3+ with intelephense (LSP), php-cs-fixer or Laravel Pint (formatting), Xdebug + php-debug adapter (DAP), and PHPStan or Psalm (static analysis).",
+      "correct": "Requires PHP 8.4+ with intelephense (LSP), php-cs-fixer or Laravel Pint (formatting), Xdebug + php-debug adapter (DAP), and PHPStan or Psalm (static analysis). Current stable line is PHP 8.5.",
+      "evidence": "php.net supported versions: PHP 8.3 active support ended 31 Dec 2025 (security-only thereafter); PHP 8.5 released 20 Nov 2025 and is the newest supported branch",
+      "citation": "http://php.net/supported-versions.php"
+    },
+    {
+      "file": "~/workspace/skills/tiger-style-php/references/TIGER_STYLE_PHP.md",
+      "current": "php-cs-fixer** with PSR-12",
+      "correct": "php-cs-fixer** with PER-CS (the PHP-FIG PER Coding Style, which extends, expands and replaces PSR-12)",
+      "evidence": "PHP-FIG PER Coding Style meta document: this PER extends, expands and replaces PSR-12, and adds guidelines for PHP functionality added after PSR-12",
+      "citation": "https://www.php-fig.org/per/coding-style/meta/"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "proposal": "Adopt PHP 8.5 features into the contract patterns where they earn it: pipe operator |> for validated transform pipelines, clone-with for readonly value-object withers, #[NoDiscard] on results that must be consumed, array_first/array_last, and the new URI extension for URL parsing/SSRF allowlist checks instead of parse_url string stitching",
+      "evidence": "PHP 8.5 release/feature lists name the pipe operator, clone with, NoDiscard, array_first/array_last and the always-available URI extension; guide (8.3 baseline, 8.4 hooks mentioned) covers none of the 8.5 set",
+      "recommendation": "Adopt selectively after raising the floor to 8.4/8.5: NoDiscard and URI first (safety), pipe/clone-with as style guidance",
+      "citations": [
+        "https://www.php.net/releases/8.5/en.php",
+        "http://php.net/supported-versions.php"
+      ]
+    },
+    {
+      "aspect": "static_analysis",
+      "proposal": "Re-verify and pin current PHPStan/Psalm majors from their primary sites, state the exact level names, and note the taint-analysis split (Psalm offers taint analysis; PHPStan core does not) so security-sensitive flows pick the analyser deliberately",
+      "evidence": "A current PHP template summary checked 2026-09-30 notes PHPStan has no taint analysis while citing phpstan.org rule levels; guide treats the two analysers as interchangeable",
+      "recommendation": "Adopt: one analyser per project, named with version and level, plus Psalm taint where untrusted-flow tracking is the goal",
+      "citations": [
+        "https://github.com/cadasto/php-coding-plugin/blob/HEAD/AGENTS.md"
+      ]
+    }
+  ]
+}

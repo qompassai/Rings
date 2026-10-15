@@ -1,0 +1,191 @@
+{
+  "language": "odin",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "odin": "dev-2026-10 (latest monthly release as of 2026-10-14; October 2026 newsletter dated 2026-10-06 highlights it; pkg.odin-lang.org docs generated with dev-2026-10 on 2026-10-14)",
+    "llvm": "No single bundled LLVM pin in official install docs: source builds support LLVM 17, 18, 19, 20, 21 and 22; Unix releases use system Clang for linking, Windows requires MSVC/Windows SDK; dev-2026-10 notes Ubuntu CI upgraded to LLVM 22",
+    "ols": "DanielGavin/ols — self-described as still in early development and made to be up to date with Odin master (not with monthly releases); provides ols plus odinfmt under tools/odinfmt",
+    "odinfmt": "Part of DanielGavin/ols, not the Odin compiler repo; configured via odinfmt.json; OLS README example uses character_width 80, tabs true, tabs_width 4; enable_format is on by default in ols",
+    "linker_windows": "dev-2026-10 makes radlink the default linker on Windows"
+  },
+  "aspects": {
+    "error_handling": {
+      "verdict": "holds",
+      "guide_position": "Use a result enum or (value, error) consistently, no plausible default after failure, preserve commit-point distinctions; validate external input with ordinary control flow.",
+      "best_practice": "Official FAQ rejects exceptions in favour of plain error handling through multiple return values; Overview documents the or_else, or_return, or_continue and or_break operators built on that idiom.",
+      "evidence": "FAQ and Overview fetched 2026-10-14 agree with the guide model. Gap is naming only: the guide never names the or_* operators that are the idiomatic propagation spelling.",
+      "citations": [
+        "https://odin-lang.org/docs/faq/",
+        "https://odin-lang.org/docs/overview/"
+      ]
+    },
+    "bounded_work": {
+      "verdict": "holds",
+      "guide_position": "Bound all loops, queues, retries, memory, nesting and time with named limits; check sizes before allocation, indexing and multiplication; keep bounds checks in release.",
+      "best_practice": "No official bounded-work style guide was found in Odin docs. Language support is bounds checking that can be toggled per statement and globally (ODIN_NO_BOUNDS_CHECK), which the guide's keep-checks-on policy uses as intended. Stricter-than-default Tiger policy, not a contradiction.",
+      "evidence": "FAQ lists togglable bounds checking; Overview lists ODIN_NO_BOUNDS_CHECK and ODIN_DISABLE_ASSERT as explicit opt-out switches, implying checks/asserts are the default posture.",
+      "citations": [
+        "https://odin-lang.org/docs/faq/",
+        "https://odin-lang.org/docs/overview/"
+      ]
+    },
+    "assertions_contracts": {
+      "verdict": "holds",
+      "guide_position": "Assertions enforce programmer-established invariants only; malformed external data returns a structured rejection; never put required state changes inside an assertion.",
+      "best_practice": "Overview exposes ODIN_DISABLE_ASSERT tied to the -disable-assert switch removing assert calls, and #assert for compile-time facts; core:testing provides expect_assert helpers for testing assertion behaviour. No official doc contradicts the assert-for-invariants / return-for-input split.",
+      "evidence": "Overview builtin-constants table fetched 2026-10-14 lists ODIN_DISABLE_ASSERT and ODIN_NO_TYPE_ASSERT; pkg testing page lists expect_assert_from and expect_assert_message.",
+      "citations": [
+        "https://odin-lang.org/docs/overview/",
+        "https://pkg.odin-lang.org/core/testing/"
+      ]
+    },
+    "memory_ownership": {
+      "verdict": "holds",
+      "guide_position": "Explicit allocator, owner, lifetime and failure path for every allocation; context.allocator is ambient and must be captured across threads/callbacks; arenas are not automatically bounded; tracking allocator exposes leaks but proves nothing.",
+      "best_practice": "core:mem states ownership in Odin is not strict unlike Rust, new/free and make/delete default to context.allocator, and documents Arena, Dynamic_Arena, Scratch, Rollback_Stack and Tracking_Allocator families. That matches the guide's model.",
+      "evidence": "pkg core:mem overview fetched 2026-10-14. Note dev-2026-10 reverted a change that misunderstood mem.Scratch semantics and added Scratch tests, reinforcing the guide's warning not to assume scratch semantics from old examples.",
+      "citations": [
+        "https://pkg.odin-lang.org/core/mem/",
+        "https://github.com/odin-lang/Odin/releases/tag/dev-2026-10"
+      ]
+    },
+    "formatting": {
+      "verdict": "stale",
+      "guide_position": "Baseline table: four-space house style, 100-column target, one reviewed formatter configuration; body admits four spaces is a house rule, not upstream, and says only to choose a formatter compatible with the pinned toolchain. SKILL.md names no formatter or language server at all.",
+      "best_practice": "The ecosystem formatter is odinfmt from the OLS repo, configured by odinfmt.json. Its documented example/default is tabs true with tabs_width 4 and character_width 80, and ols enables formatting by default. The compiler itself has no fmt subcommand in the docs fetched.",
+      "evidence": "OLS README Odinfmt configurations section fetched 2026-10-14 gives the 80 / tabs / 4 example and the option list (spaces is an option, tabs is the example default). The guide never names odinfmt, odinfmt.json or ols, so a reader cannot reproduce the claimed single formatter configuration.",
+      "citations": [
+        "https://github.com/DanielGavin/ols/"
+      ]
+    },
+    "static_analysis": {
+      "verdict": "improved-elsewhere",
+      "guide_position": "Compile with diagnostics at full strength, keep assertions and bounds checks, treat formatter/compiler/test/sanitizer as separate gates; no concrete flag set is named.",
+      "best_practice": "The compiler and OLS expose concrete check surfaces the guide should name: checker_args such as -strict-style passed through ols, per-file #+vet controls in the Overview, and -sanitize with Address, Memory and Thread flags surfaced as ODIN_SANITIZER_FLAGS.",
+      "evidence": "OLS README Neovim example uses checker_args -strict-style; Overview lists #+vet per-file vetting and ODIN_SANITIZER_FLAGS (.Address, .Memory, .Thread). Guide's vague full-strength wording is weaker than naming these.",
+      "citations": [
+        "https://github.com/DanielGavin/ols/",
+        "https://odin-lang.org/docs/overview/"
+      ]
+    },
+    "concurrency": {
+      "verdict": "holds",
+      "guide_position": "One owner or a documented synchronization protocol per mutable object, visible lock order, no broad lock across blocking/foreign calls, bounded queues, monotonic deadlines, generation tokens, ARM64-valid ordering arguments.",
+      "best_practice": "Official docs are thin here: core provides thread/sync primitives and, in dev-2026-10, core:sync/chan recv/try_recv were extended to .Recv channels. Nothing official contradicts the guide; its discipline is project policy layered on primitives.",
+      "evidence": "dev-2026-10 release notes fetched 2026-10-14 list the core:sync/chan change and a multithreaded semantic checker; no official concurrency style guide was found, so the guide's stricter rules stand as unverified-by-upstream but uncontradicted.",
+      "citations": [
+        "https://github.com/odin-lang/Odin/releases/tag/dev-2026-10",
+        "https://odin-lang.org/docs/overview/"
+      ]
+    },
+    "testing": {
+      "verdict": "improved-elsewhere",
+      "guide_position": "Tests via @(test) procedures taking ^testing.T, run with odin test . (including an -o:speed variant), covering boundaries, allocator exhaustion, failure-before-commit, races and stale handles; reference package is explicitly marked not compiled here.",
+      "best_practice": "That core model is exactly current: pkg core:testing, generated with dev-2026-10 on 2026-10-14, documents the same runner plus facilities the guide never names: ODIN_TEST_FAIL_ON_BAD_MEMORY, ODIN_TEST_ALWAYS_REPORT_MEMORY, ODIN_TEST_RANDOM_SEED, expect_leaks and set_fail_timeout.",
+      "evidence": "pkg testing page fetched 2026-10-14 lists those #config defineables and procedures (expect_leaks, set_fail_timeout, expect_signal). Guide's test taxonomy holds, but its tooling section is incomplete.",
+      "citations": [
+        "https://pkg.odin-lang.org/core/testing/",
+        "https://github.com/odin-lang/Odin/releases/tag/dev-2026-10"
+      ]
+    },
+    "toolchain_pins": {
+      "verdict": "stale",
+      "guide_position": "Pin the exact reviewed release/commit and matching base/core/vendor tree, record ODIN_ROOT, use a reviewed compatible LLVM/linker; review date 2026-09-21; no concrete version or LLVM range is actually named in the guide or SKILL.md.",
+      "best_practice": "Current release is dev-2026-10, one monthly cycle after the guide's review date. Install docs support LLVM 17-22 for source builds, require Clang for linking on Unix and MSVC/Windows SDK on Windows, and FAQ states Odin will never officially support a package manager, favouring manual vendoring and fixed versions, which matches the guide's no-lockfile stance.",
+      "evidence": "Release page and October newsletter confirm dev-2026-10; install page lists supported LLVM versions and host requirements; dev-2026-10 also removed macOS Intel from CI tests and releases and made radlink the Windows default linker, neither reflected in the guide.",
+      "citations": [
+        "https://github.com/odin-lang/Odin/releases/tag/dev-2026-10",
+        "https://odin-lang.org/docs/install/",
+        "https://odin-lang.org/docs/faq/",
+        "https://odin-lang.org/news/newsletter-2026-10/"
+      ]
+    },
+    "security": {
+      "verdict": "holds",
+      "guide_position": "Authenticate and authorize workers, validate framed messages before allocation, use established TLS/crypto with verification, keep secrets out of argv/logs/crash artifacts, parameterized DB work, bounded pools and results, narrow OS privileges.",
+      "best_practice": "No official Odin secure-coding guide was found. The language ships core:crypto packages (dev-2026-10 notes touch core:crypto/aegis docs and a P-256 fiat fix) and sanitizer flags, but application security remains a library/project responsibility, exactly as the guide assumes. Stricter Tiger policy, not contradicted.",
+      "evidence": "dev-2026-10 notes and Overview sanitizer constants fetched 2026-10-14; absence of an official security style doc is reported here rather than filled by inference.",
+      "citations": [
+        "https://github.com/odin-lang/Odin/releases/tag/dev-2026-10",
+        "https://odin-lang.org/docs/overview/"
+      ]
+    }
+  },
+  "mechanical_fixes": [
+    {
+      "file": "~/workspace/skills/tiger-style-odin/references/TIGER_STYLE_ODIN.md",
+      "current": "| macOS ARM64 / x86-64 | Separate supported product lanes when required | Apple SDK, linked frameworks, signing/notarization and runtime evidence |",
+      "correct": "macOS ARM64 as the released lane; macOS x86-64 is source-build only as of dev-2026-10 (removed from CI tests and releases, still buildable from source on Intel Macs)",
+      "evidence": "dev-2026-10 Miscellaneous notes state macOS Intel was removed from CI tests and releases due to CI flakiness, while noting Odin can still be built from source on Intel Macs. The guide presents x86-64 as a coequal supported product lane with no such caveat.",
+      "citation": "https://github.com/odin-lang/Odin/releases/tag/dev-2026-10"
+    },
+    {
+      "file": "~/workspace/skills/tiger-style-odin/references/TIGER_STYLE_ODIN.md",
+      "current": "Pin an Odin language server compatible with the compiler, and ensure editor and terminal agree on ODIN_ROOT",
+      "correct": "Pin ols by commit/nightly, not by compiler release: ols is early-development software that tracks Odin master, so compatibility is with master, not with the pinned monthly compiler release",
+      "evidence": "OLS README states the project is still in early development and is made to be up to date with the master branch of Odin. Treating ols as release-matched to a pinned compiler misstates its support model and can produce stale diagnostics the guide itself warns against.",
+      "citation": "https://github.com/DanielGavin/ols/"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "formatting",
+      "proposal": "Name the formatter explicitly in SKILL.md (a Toolchain pairing line: odin dev-2026-10 + ols/odinfmt) and in the guide: odinfmt with a committed odinfmt.json. Either adopt the upstream example defaults (tabs true, tabs_width 4, character_width 80) or keep the four-space / 100-column house rule but record it as explicit odinfmt.json values (tabs false / spaces 4, character_width 100) so the divergence is enforced by config, not prose.",
+      "evidence": "OLS README documents odinfmt.json with character_width, tabs, tabs_width and spaces options and an 80/tabs/4 example; ols enable_format defaults on.",
+      "recommendation": "Adopt: naming odinfmt and committing odinfmt.json is a pure reproducibility win; keep the house indent only if expressed in that file.",
+      "citations": [
+        "https://github.com/DanielGavin/ols/"
+      ]
+    },
+    {
+      "aspect": "static_analysis",
+      "proposal": "Replace vague diagnostics-at-full-strength wording with a named checked flag set for this project (for example odin check/build with -vet, -strict-style and -warnings-as-errors via ols checker_args, plus -sanitize:address and -sanitize:thread lanes where the target supports them), and note the per-file #+vet escape hatch requires the same exception record as other waivers.",
+      "evidence": "OLS README shows checker_args -strict-style in its Neovim example; Overview documents #+vet per-file controls and ODIN_SANITIZER_FLAGS with Address, Memory and Thread values from the -sanitize switch.",
+      "recommendation": "Adopt: concrete flags are auditable in CI; the guide currently cannot be checked against its own full-strength claim.",
+      "citations": [
+        "https://github.com/DanielGavin/ols/",
+        "https://odin-lang.org/docs/overview/"
+      ]
+    },
+    {
+      "aspect": "testing",
+      "proposal": "Add the current core:testing facilities to section 19: run leak-sensitive suites with -define:ODIN_TEST_FAIL_ON_BAD_MEMORY=true and ODIN_TEST_ALWAYS_REPORT_MEMORY, pin ODIN_TEST_RANDOM_SEED for reproducibility, and use testing.expect_leaks and testing.set_fail_timeout in the reference package's dynamic/FFI adaptations.",
+      "evidence": "pkg core:testing page generated with dev-2026-10 on 2026-10-14 lists those defineables and the expect_leaks and set_fail_timeout procedures.",
+      "recommendation": "Adopt: these directly serve the guide's allocator-exhaustion and bounded-time test goals at zero new tooling cost.",
+      "citations": [
+        "https://pkg.odin-lang.org/core/testing/"
+      ]
+    },
+    {
+      "aspect": "toolchain_pins",
+      "proposal": "Stamp the guide with the actual pin it was reviewed against (dev-2026-10, LLVM 17-22 supported, LLVM 22 in upstream Ubuntu CI, radlink default on Windows) and add a monthly re-review trigger, since Odin releases monthly and the 2026-09-21 review already lags one cycle; also note FAQ policy that there will never be an official package manager, so vendoring/submodule pins are the permanent mechanism, not a stopgap.",
+      "evidence": "dev-2026-10 release page, October 2026 newsletter, install page LLVM range, and FAQ package-manager statement, all fetched 2026-10-14.",
+      "recommendation": "Adopt: a dated snapshot without the version it snapshots invites exactly the stale-pin errors this audit exists to catch.",
+      "citations": [
+        "https://github.com/odin-lang/Odin/releases/tag/dev-2026-10",
+        "https://odin-lang.org/docs/install/",
+        "https://odin-lang.org/docs/faq/"
+      ]
+    },
+    {
+      "aspect": "error_handling",
+      "proposal": "Name the idiomatic propagation operators (or_return, or_else, or_continue, or_break) in section 10 as the preferred spelling for the guide's (value, error) pattern, with the caveat from the Overview that multi-value or_return requires named results.",
+      "evidence": "Overview dedicates sections to or_return, or_continue and or_break and explains the named-results requirement; FAQ confirms multiple return values are the error model and exceptions will not be added.",
+      "recommendation": "Adopt as a wording addition only; the underlying guide position already holds.",
+      "citations": [
+        "https://odin-lang.org/docs/overview/",
+        "https://odin-lang.org/docs/faq/"
+      ]
+    },
+    {
+      "aspect": "memory_ownership",
+      "proposal": "Add a dated caution that core:mem Scratch semantics were misunderstood by an upstream change that dev-2026-10 reverted, with tests added: when adapting allocator examples, verify Scratch/Dynamic_Arena semantics against the pinned release's pkg docs, not older blog/example code.",
+      "evidence": "dev-2026-10 package notes list a core:mem revert of a change that misunderstood mem.Scratch semantics and the addition of tests for the Scratch allocator.",
+      "recommendation": "Adopt as a one-line caution; it reinforces the guide's existing match-the-pinned-core-API rule with a concrete recent instance.",
+      "citations": [
+        "https://github.com/odin-lang/Odin/releases/tag/dev-2026-10",
+        "https://pkg.odin-lang.org/core/mem/"
+      ]
+    }
+  ]
+}

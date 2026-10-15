@@ -1,0 +1,135 @@
+{
+  "language": "lua",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "Lua": "5.5.1 (current version 5.5, released 2026-07-24 tarball on lua.org download page; supersedes 5.4 line as current)",
+    "LuaLS/lua-language-server": "3.19.x line seen in primary release listing (3.19.0 release page fetched via search); actively released",
+    "Luacheck": "README lists syntax support for Lua 5.1, 5.2, 5.3 and LuaJIT only - no 5.4/5.5 syntax claimed on its home repo",
+    "StyLua": "2.x line in active use (v2.5.2 pinned in multiple Sep 2026 CI references found in search); no primary StyLua release page fetched in this pass, exact latest unverified"
+  },
+  "aspects": {
+    "error_handling": {
+      "verdict": "holds",
+      "guide_position": "Return (nil, 'descriptive error') for expected failures; never bare pcall(do_work) - capture and propagate",
+      "best_practice": "Lua manual tradition is (nil,msg) / pcall-based; guide's convention is compatible and stricter, not contradicted by any fetched official source",
+      "evidence": "No official source fetched contradicts the (nil,err) convention; it is a Tiger Style strictness choice",
+      "citations": [
+        "https://Lua.org/download.html"
+      ]
+    },
+    "bounded_work": {
+      "verdict": "holds",
+      "guide_position": "Bound loops/retries/queues/caches with named *_MAX constants; no unexplained while true",
+      "best_practice": "No official Lua limit prescribes this; it is deliberate Tiger Style strictness beyond the manual",
+      "evidence": "Lua 5.5 adds incremental major GC and more compact arrays, which help memory bounds but do not replace application bounds - see 5.5 changes list",
+      "citations": [
+        "https://Lua.org/download.html",
+        "https://www.lua.org/manual/5.5/readme.html#changes"
+      ]
+    },
+    "assertions_contracts": {
+      "verdict": "stale",
+      "guide_position": "assert() for internal invariants, validation returns for external input; LuaCATS annotations; runtime list stops at 5.4+",
+      "best_practice": "Lua 5.5 adds declarations for global variables and read-only for-loop variables - a language-level contract mechanism the guide never mentions",
+      "evidence": "5.5 changes list fetched via search: global declarations, named vararg tables, for-loop variables read-only, table.create",
+      "citations": [
+        "https://Lua.org/download.html",
+        "https://www.lua.org/manual/5.5/readme.html#changes"
+      ]
+    },
+    "memory_ownership": {
+      "verdict": "improved-elsewhere",
+      "guide_position": "GC language: cap caches/queues, one owner per handle, idempotent teardown, table.concat over repeated concatenation",
+      "best_practice": "Lua 5.5 itself improves this area: more compact arrays (~60% less for large arrays per changes list) and incremental major GC - guide's 5.4-era GC discussion does not cover either",
+      "evidence": "5.5 changes list in search results quoting lua.org readme",
+      "citations": [
+        "https://Lua.org/download.html",
+        "https://www.lua.org/manual/5.5/readme.html#changes"
+      ]
+    },
+    "formatting": {
+      "verdict": "unverified",
+      "guide_position": "4-space, 100 cols, stylua.toml with column_width=100, indent_width=4, quote_style AutoPreferSingle",
+      "best_practice": "StyLua is the de facto formatter; guide's keys are StyLua keys, but no primary StyLua docs page was fetched in this pass to verify every key/default against the current 2.x line",
+      "evidence": "Search showed StyLua v2.5.2 in active CI use but did not fetch stylua.sh / repo docs directly; per audit rule this aspect is unverified rather than asserted",
+      "citations": []
+    },
+    "static_analysis": {
+      "verdict": "improved-elsewhere",
+      "guide_position": "luacheck in Sec.27 validation recipe (stylua --check, luacheck, lua tests) plus LuaLS/LuaCATS in the wider diver workflow",
+      "best_practice": "Luacheck's own README claims syntax support only for Lua 5.1/5.2/5.3/LuaJIT; LuaLS 3.19.x is actively released and is the tool that tracks 5.4/5.5 - relying on luacheck alone leaves a coverage gap for modern syntax",
+      "evidence": "Luacheck home repo text fetched via search; LuaLS 3.19.0 release page fetched via search",
+      "citations": [
+        "https://github.com/mpeterv/luacheck",
+        "https://github.com/LuaLS/lua-language-server/releases/tag/3.19.0"
+      ]
+    },
+    "concurrency": {
+      "verdict": "holds",
+      "guide_position": "Coroutines/async: generation tokens, reject stale callbacks, bound outstanding work, revalidate handles after delay",
+      "best_practice": "No fetched official source contradicts this; Neovim vim.uv/vim.system model is host-specific and guide correctly scopes it",
+      "evidence": "Guide correctly treats this as a host/Neovim discipline, not a Lua-language claim",
+      "citations": [
+        "https://Lua.org/download.html"
+      ]
+    },
+    "testing": {
+      "verdict": "holds",
+      "guide_position": "Boundary tests {0,1,M-1,M,M+1}, nil/false, malformed, cancellation, stale callbacks, cleanup after failure",
+      "best_practice": "Compatible with lua.org's own 'make all test' distribution practice; stricter Tiger Style split is not contradicted",
+      "evidence": "lua.org download page shows upstream ships tests via make all test",
+      "citations": [
+        "https://Lua.org/download.html"
+      ]
+    },
+    "toolchain_pins": {
+      "verdict": "stale",
+      "guide_position": "Primary targets: Lua 5.4+, LuaJIT, Neovim Lua, embedded Lua (Version 1.0 guide)",
+      "best_practice": "Current Lua is 5.5 / 5.5.1 as of the fetched download page (2026-07-24). A 5.4+ target that never names 5.5, its global declarations, or its incompatibilities is stale as a current-baseline statement",
+      "evidence": "lua.org download page fetched directly: 'The current version is Lua 5.5 and its current release is Lua 5.5.1'",
+      "citations": [
+        "https://Lua.org/download.html"
+      ]
+    },
+    "security": {
+      "verdict": "holds",
+      "guide_position": "Never interpolate untrusted input into shell strings (argv via vim.system), treat load/dofile/package.loadlib/FFI as privileged, empty load() env is not a sandbox",
+      "best_practice": "No fetched official source contradicts this; 5.5 global declarations strengthen, but do not replace, this posture",
+      "evidence": "Guide position is stricter than mainstream Lua practice - by audit rule that is not a contradiction",
+      "citations": [
+        "https://Lua.org/download.html"
+      ]
+    }
+  },
+  "mechanical_fixes": [
+    {
+      "file": "~/workspace/skills/tiger-style-lua/references/TIGER_STYLE_LUA.md",
+      "current": "**Primary targets:** Lua 5.4+, LuaJIT, Neovim Lua, embedded Lua",
+      "correct": "**Primary targets:** Lua 5.5+, LuaJIT, Neovim Lua, embedded Lua (note 5.5 incompatibilities and global-variable declarations; 5.4 remains a supported legacy target where declared)",
+      "evidence": "lua.org download page fetched 2026-10-14 states current version is Lua 5.5, current release 5.5.1 (2026-07-24)",
+      "citation": "https://Lua.org/download.html"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "assertions_contracts",
+      "proposal": "Add a Lua 5.5 section: when the declared runtime is 5.5, prefer/support global-variable declarations and read-only for-loop variables as contract mechanisms, and document the 5.4->5.5 incompatibilities behind the runtime boundary the guide already requires",
+      "evidence": "5.5 changes list: declarations for global variables, named vararg tables, for-loop variables read-only, table.create",
+      "recommendation": "Adopt as an optional 5.5 boundary note; do not rewrite 5.4/LuaJIT/Neovim code to require it, since Neovim/LuaJIT do not follow 5.5",
+      "citations": [
+        "https://Lua.org/download.html",
+        "https://www.lua.org/manual/5.5/readme.html#changes"
+      ]
+    },
+    {
+      "aspect": "static_analysis",
+      "proposal": "Demote luacheck from the sole lint gate for 5.4+/5.5 code: state its documented syntax ceiling (5.1-5.3/LuaJIT per its README) and make LuaLS diagnostics (--check with the project's .luarc.json) the primary static gate, with luacheck retained for the undefined-global sweep on syntax it can parse",
+      "evidence": "Luacheck README support list vs LuaLS 3.19.x active releases",
+      "recommendation": "Adopt wording change in Sec.27/28; keep the existing Matt per-file gate (LuaLS+stylua+luacheck) but document luacheck's ceiling so a parse failure on 5.5 syntax is not misread as a code defect",
+      "citations": [
+        "https://github.com/mpeterv/luacheck",
+        "https://github.com/LuaLS/lua-language-server/releases/tag/3.19.0"
+      ]
+    }
+  ]
+}

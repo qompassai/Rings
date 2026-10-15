@@ -1,0 +1,134 @@
+{
+  "language": "mojo",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "mojo": "1.1.0 stable (17 Sep 2026); nightly 1.2.0.dev2026101405 (14 Oct 2026); 1.0.0 was 11 Aug 2026",
+    "max": "26.6 shipped with Mojo 1.1 (MAX numbers separately from Mojo 1.x)",
+    "compiler": "Open source since 18 Aug 2026; external compiler contributions accepted from 1.1",
+    "docs": "Docs moved to mojolang.org (guide already uses mojolang.org links); docs.modular.com remains the MAX/Modular Cloud home"
+  },
+  "aspects": {
+    "error_handling": {
+      "verdict": "holds",
+      "guide_position": "raises on fallible public functions, typed/domain errors preferred over bare Error, preserve cause, no catch-all success",
+      "best_practice": "1.1 keeps def/raises semantics (fn removed in the 1.1 cleanup) and expanded error-handling docs; guide already uses def/raises/comptime/var",
+      "evidence": "Mojo v1.1.0 changelog: legacy fn/alias/__comptime_assert and @parameter if/for are gone; guide's conventions match the surviving forms",
+      "citations": [
+        "https://mojolang.org/releases/v1.1.0/",
+        "https://mojolang.org/releases/"
+      ]
+    },
+    "bounded_work": {
+      "verdict": "holds",
+      "guide_position": "Explicit budgets for inputs, buffers, queues, retries, device work, proven range arithmetic before allocation/indexing",
+      "best_practice": "Still the correct posture; 1.x stability policy makes bounded APIs more, not less, important",
+      "evidence": "No contradiction in 1.1 changelog; List growth fix in 1.1 does not remove caller-side allocation bounds",
+      "citations": [
+        "https://mojolang.org/releases/v1.1.0/"
+      ]
+    },
+    "assertions_contracts": {
+      "verdict": "holds",
+      "guide_position": "debug_assert with ASSERT modes (all/safe/none/warn); dev/CI ASSERT=all, deployment at least safe; never assertion-only validation of untrusted input",
+      "best_practice": "debug_assert still exists in 1.1 (its message paths were optimised and it migrated to unified closures); guide's mode policy is a project policy, not contradicted by upstream",
+      "evidence": "Mojo v1.1.0 changelog mentions debug_assert in TString optimisation and unified-closure migration",
+      "citations": [
+        "https://mojolang.org/releases/v1.1.0/"
+      ]
+    },
+    "memory_ownership": {
+      "verdict": "stale",
+      "guide_position": "Guide section 9 discusses Pointer, OwnedPointer, ArcPointer and warns against copying legacy UnsafePointer examples",
+      "best_practice": "1.0 unified Pointer/UnsafePointer; 1.1 removed the pre-unification pointer aliases (MutUnsafePointer, ImmUnsafePointer, ImmutPointer, OptionalUnsafePointer etc.) in favour of MutPointer/ImmPointer/ImmOpaquePointer/OptionalPointer, removed Pointer dealloc-era APIs, and renamed OwnedPointer.steal_data/take",
+      "evidence": "Mojo v1.1.0 Removed section lists the removed pointer aliases and the replacement spellings, and the OwnedPointer renames",
+      "citations": [
+        "https://mojolang.org/releases/v1.1.0/"
+      ]
+    },
+    "formatting": {
+      "verdict": "holds",
+      "guide_position": "mojo format governs; 4 spaces, 100-column target; CI gate via format + git diff rather than assuming a --check flag",
+      "best_practice": "Still sound; 1.1 does not document a changed formatter contract in its changelog",
+      "evidence": "No contradiction found in the 1.1 changelog fetched",
+      "citations": [
+        "https://mojolang.org/releases/v1.1.0/"
+      ]
+    },
+    "static_analysis": {
+      "verdict": "improved-elsewhere",
+      "guide_position": "Guide relies on compiler diagnostics at full strength and names no Mojo language server in its toolchain workflow",
+      "best_practice": "Mojo 1.0 shipped a new reliable LSP server and 1.1 improved LSP suggestions (e.g. off-by-one hints); a current guide should name the LSP as a paired tool like other Tiger Style guides do",
+      "evidence": "Mojo releases page is the version authority; LSP improvements are described in the 1.0/1.1 release coverage - exact LSP feature list was not fetched from a Modular primary page in this pass, hence proposal rather than mechanical fix",
+      "citations": [
+        "https://mojolang.org/releases/",
+        "https://mojolang.org/releases/v1.1.0/"
+      ]
+    },
+    "concurrency": {
+      "verdict": "stale",
+      "guide_position": "Guide discusses asynchronous operations, cancellation and stale-result suppression generically (sections 5, 8, 11)",
+      "best_practice": "1.1 removed the public async task API from std.runtime.asyncrt and removed AnyCoroutine/Coroutine/RaisingCoroutine from the prelude; any guidance assuming that public async surface is now dead",
+      "evidence": "Mojo v1.1.0 Removed section: async task API removed, coroutine prelude types removed",
+      "citations": [
+        "https://mojolang.org/releases/v1.1.0/"
+      ]
+    },
+    "testing": {
+      "verdict": "holds",
+      "guide_position": "std.testing TestSuite discovered from main, run via mojo run; explicitly do not invent a mojo test command; half contract/failure-path coverage",
+      "best_practice": "Testing remains listed in the official Mojo docs tools/workflow index for 1.1.0; no mojo test command is documented there",
+      "evidence": "Mojo docs index (version 1.1.0) lists Testing under Tools & workflow",
+      "citations": [
+        "https://mojolang.org/docs/"
+      ]
+    },
+    "toolchain_pins": {
+      "verdict": "holds",
+      "guide_position": "Pin compiler+stdlib+MAX together, record build evidence, never claim a moving nightly as reproducible; header says manual reviewed 2026-09-20 identifies version 1.1.0",
+      "best_practice": "Matches reality: latest stable is exactly 1.1.0 (17 Sep 2026); nightly is 1.2.0.dev2026101405 and must not be the reproducibility claim, as the guide says",
+      "evidence": "Official releases page: Latest release 1.1.0 (Sep 17, 2026); nightly Oct 14, 2026 is 1.2.0.dev2026101405",
+      "citations": [
+        "https://mojolang.org/releases/"
+      ]
+    },
+    "security": {
+      "verdict": "holds",
+      "guide_position": "Python interop as trust boundary, no silent package/device/network authorisation from imports, secrets out of logs/argv/build env, reviewed install channels",
+      "best_practice": "Strengthened, not contradicted, by 1.x: compiler is now open source and install is via uv/pixi packages per the official install page",
+      "evidence": "Official install page for 1.1.0 installs Mojo as a Python/Conda-style package via uv or pixi",
+      "citations": [
+        "https://mojolang.org/install/",
+        "https://mojolang.org/releases/"
+      ]
+    }
+  },
+  "mechanical_fixes": [
+    {
+      "file": "~/workspace/skills/tiger-style-mojo/references/TIGER_STYLE_MOJO.md",
+      "current": "Current documentation distinguishes `Pointer`, `OwnedPointer`, and `ArcPointer`.",
+      "correct": "Current documentation (Mojo 1.1) uses the unified pointer family - `MutPointer`, `ImmPointer`, `ImmOpaquePointer`, `OptionalPointer` - plus `OwnedPointer` and `ArcPointer`; the pre-unification `UnsafePointer` aliases were removed in 1.1.",
+      "evidence": "Mojo v1.1.0 Removed section: removed MutUnsafePointer/ImmUnsafePointer/ImmutUnsafePointer/ImmutPointer/OptionalUnsafePointer aliases, use MutPointer/ImmPointer/ImmOpaquePointer/OptionalPointer; OwnedPointer.steal_data/take renamed to unsafe_take_allocation/into_inner",
+      "citation": "https://mojolang.org/releases/v1.1.0/"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "memory_ownership",
+      "proposal": "Rewrite section 9 around the 1.1 pointer taxonomy (MutPointer/ImmPointer, unsafe_ operations marking unsafety per-operation, MaybeUninit replacing UnsafeMaybeUninit, deinit() lifetime extension) and add the read -> imm argument-convention rename (read is now a hard error)",
+      "evidence": "1.1 changelog: read convention is a hard error, use imm; UnsafeMaybeUninit renamed to MaybeUninit with conformance gating; deinit() free function added",
+      "recommendation": "Adopt as a section-4/5/9 refresh in one pass with the mechanical fix above; re-run the reference example under 1.1.0 before claiming it compiles",
+      "citations": [
+        "https://mojolang.org/releases/v1.1.0/"
+      ]
+    },
+    {
+      "aspect": "concurrency",
+      "proposal": "Delete or re-scope every generic async/cancellation passage that assumes the removed public async task API, and state the 1.1 reality: no public std.runtime.asyncrt task API and no prelude coroutine types; cancellation guidance applies to host/device work only",
+      "evidence": "1.1 Removed section removes the async task API and AnyCoroutine/Coroutine/RaisingCoroutine",
+      "recommendation": "Adopt: keep the state-machine/freshness guidance (it is host-side), remove language-async implications",
+      "citations": [
+        "https://mojolang.org/releases/v1.1.0/"
+      ]
+    }
+  ]
+}

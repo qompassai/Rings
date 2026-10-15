@@ -1,0 +1,140 @@
+{
+  "language": "wgsl",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "wgsl_spec": "W3C Candidate Recommendation Draft; current TR snapshot line includes CRD 16 Jul 2026 (per gpuweb-tracked snapshots); still not a final Recommendation",
+    "naga": "Versioned with wgpu, not 0.x: e.g. naga 27.0.3 via wgpu 27 and naga 30.0.1 via wgpu 30.0.1 in current projects",
+    "wgpu": "30.0.1 latest published line seen in current sources; Bevy pins its own wgpu - take the version from Bevy, not wgpu latest",
+    "wgsl-analyzer": "Actively maintained (commits Sep-Oct 2026)",
+    "wesl": "wesl-rs 0.6.0 released (WESL is the WGSL superset/tooling successor to the old wgsl-extensions direction)",
+    "wgslfmt": "Guide's formatter; current release state not verified from a primary page in this pass"
+  },
+  "aspects": {
+    "error_handling": {
+      "verdict": "holds",
+      "guide_position": "Shader-creation error -> log, fall back to a safe material, never black screen silently; requires/enable documented per shader",
+      "best_practice": "Spec still defines shader-creation and pipeline-creation errors as the failure surface; application-side fallback remains the correct host pattern",
+      "evidence": "WGSL TR defines creation-error behaviour and, for subgroups, pipeline-creation errors for override expressions",
+      "citations": [
+        "https://www.w3.org/TR/WGSL/"
+      ]
+    },
+    "bounded_work": {
+      "verdict": "holds",
+      "guide_position": "Named constants with units, guarded divisions, statically determinable or constant-bounded loops, per-pixel ALU/texture budgets",
+      "best_practice": "Still sound and uncontradicted; spec loop and override semantics unchanged in ways that affect this",
+      "evidence": "No contradiction in the current TR fetched",
+      "citations": [
+        "https://www.w3.org/TR/WGSL/"
+      ]
+    },
+    "assertions_contracts": {
+      "verdict": "holds",
+      "guide_position": "Contracts per shader (inputs, bindings, backends, fallback) plus requires directives as machine-checked documentation",
+      "best_practice": "Spec supports compile-time assumption checks on constant expressions and requires-style language extensions; contract-first documentation remains valid",
+      "evidence": "WGSL TR introduction notes statements can check assumptions at shader creation time on constant expressions",
+      "citations": [
+        "https://www.w3.org/TR/WGSL/"
+      ]
+    },
+    "memory_ownership": {
+      "verdict": "not-addressed",
+      "guide_position": "No ownership; guide covers address spaces, binding-slot ownership by the engine, and uniform/storage layout instead",
+      "best_practice": "Does not apply: WGSL has address spaces and host-owned resources, no in-shader ownership/lifetimes",
+      "evidence": "Aspect does not apply to a shader language; nearest analogue (bindings/layout) is covered in the guide",
+      "citations": []
+    },
+    "formatting": {
+      "verdict": "unverified",
+      "guide_position": "Format with wgslfmt; 4 spaces, no tabs",
+      "best_practice": "wgslfmt's current release/maintenance state was not verified from a primary source in this pass, and WESL tooling now provides its own formatting path",
+      "evidence": "Marked unverified: no citation fetched for wgslfmt's current state; do not claim it is dead or current",
+      "citations": [
+        "https://github.com/webgpu-tools/wesl-rs/releases/tag/v0.6.0"
+      ]
+    },
+    "static_analysis": {
+      "verdict": "stale",
+      "guide_position": "Validate with naga CLI (imports stripped), wgsl-analyzer diagnostics, portability test, screenshot; validation record says naga 0.x",
+      "best_practice": "Naga is no longer a 0.x standalone story: it ships versioned inside wgpu (27.x/30.x lines), and naga coverage lags the spec, so the validator version must be pinned to the wgpu/Bevy in use; WESL tooling (wesl-rs 0.6.0) is now an alternative front end",
+      "evidence": "Current projects pin naga 27.0.3 via wgpu 27 and wgpu/naga 30.0.1; wesl-rs v0.6.0 release exists",
+      "citations": [
+        "https://github.com/webgpu-tools/wesl-rs/releases/tag/v0.6.0",
+        "https://github.com/null3d-engine/null3d/blob/HEAD/.dev/decisions/D-01-gpu-layer.md"
+      ]
+    },
+    "concurrency": {
+      "verdict": "stale",
+      "guide_position": "Uniformity discipline for derivative/texture ops; blanket rule: no subgroup operations without the subgroups extension, restructure over suppressing derivative_uniformity",
+      "best_practice": "Spec now formalises subgroups, subgroup_id, subgroup_size_control and quad operations as named language extensions with uniformity scopes (subgroup_uniformity), so guidance should be extension-gated and specific, not a blanket avoidance",
+      "evidence": "WGSL TR: subgroups extension enables subgroup/quad builtins, subgroup_size_control enables the subgroup_size attribute, and uniformity analysis gained a subgroup scope",
+      "citations": [
+        "https://www.w3.org/TR/WGSL/"
+      ]
+    },
+    "testing": {
+      "verdict": "holds",
+      "guide_position": "Four gates: naga validation, portability test (tests/shader_render.rs), wgsl-analyzer, screenshot on target hardware",
+      "best_practice": "Still the right gate shape; naga alone cannot catch visual bugs, as the guide says",
+      "evidence": "Uncontradicted; version pinning caveat is under toolchain_pins/static_analysis",
+      "citations": [
+        "https://www.w3.org/TR/WGSL/"
+      ]
+    },
+    "toolchain_pins": {
+      "verdict": "stale",
+      "guide_position": "Pin the validator version and record it; spec baseline is the W3C TR; validation record dated 2026-10-06 says naga 0.x",
+      "best_practice": "Current TR line is the Jul 2026 CRD; validator must be recorded as the wgpu/naga version actually used by the pinned Bevy, not 0.x",
+      "evidence": "TR snapshots tracked at CRD-WGSL 16 Jul 2026; naga versions in current use are 27.x/30.x via wgpu",
+      "citations": [
+        "https://www.w3.org/TR/WGSL/",
+        "https://github.com/null3d-engine/null3d/blob/HEAD/.dev/decisions/D-01-gpu-layer.md"
+      ]
+    },
+    "security": {
+      "verdict": "holds",
+      "guide_position": "Portability-as-safety, no f64, feature checks before enable directives, fallback material defined before writing the shader",
+      "best_practice": "WGSL remains a sandboxed, statically typed shader language with creation-time validation; guide's defence-in-depth (feature check + fallback) matches the spec model",
+      "evidence": "WGSL TR: language is statically typed with limited implicit conversions and creation-time checks",
+      "citations": [
+        "https://www.w3.org/TR/WGSL/"
+      ]
+    }
+  },
+  "mechanical_fixes": [
+    {
+      "file": "~/workspace/skills/tiger-style-wgsl/references/TIGER_STYLE_WGSL.md",
+      "current": "const MIN_SOFNTESS: f32 = 1e-4;  // avoid divide-by-zero",
+      "correct": "const MIN_SOFTNESS: f32 = 1e-4;  // avoid divide-by-zero",
+      "evidence": "Constant name is misspelled (SOFNTESS for SOFTNESS) in the section 6 bounds example; the guide's own naming rules require names that expose role/units",
+      "citation": "https://www.w3.org/TR/WGSL/"
+    },
+    {
+      "file": "~/workspace/skills/tiger-style-wgsl/references/TIGER_STYLE_WGSL.md",
+      "current": "- naga 0.x: 4 shaders validated (glow, pulse, atmosphere, wipe).",
+      "correct": "- naga <version matching the pinned wgpu/Bevy, e.g. naga 30.0.1 via wgpu 30.0.1>: 4 shaders validated (glow, pulse, atmosphere, wipe).",
+      "evidence": "Naga ships versioned with wgpu in current releases (naga 27.0.3 via wgpu 27; naga 30.0.1 via wgpu 30.0.1); a 0.x record is a stale pin and section 2 of the same guide requires recording the exact validator version",
+      "citation": "https://github.com/null3d-engine/null3d/blob/HEAD/.dev/decisions/D-01-gpu-layer.md"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "concurrency",
+      "proposal": "Replace the blanket subgroup avoidance with extension-gated guidance: enable subgroups / subgroup_size_control only with a host feature check, document subgroup_uniformity diagnostics, and keep the GLES/WebGL2 fallback path subgroup-free",
+      "evidence": "Current WGSL TR defines subgroups, subgroup_id and subgroup_size_control as language extensions with defined uniformity scopes and creation/pipeline errors",
+      "recommendation": "Adopt for compute-capable targets only; keep the portable 2D subset subgroup-free as the default",
+      "citations": [
+        "https://www.w3.org/TR/WGSL/"
+      ]
+    },
+    {
+      "aspect": "static_analysis",
+      "proposal": "Evaluate WESL (wesl-rs 0.6.0) as the successor tooling path for imports/composition instead of hand-stripping Bevy #import lines for validation, and pin naga via the project's wgpu/Bevy version in the validation record",
+      "evidence": "wesl-rs v0.6.0 is a current release; the guide's strip-imports workaround is a manual step WESL-style tooling exists to eliminate; naga version is determined by wgpu in current projects",
+      "recommendation": "Trial on one shader first (guide's own trial-on-one rule); do not swap the validator fleet-wide without a screenshot gate pass",
+      "citations": [
+        "https://github.com/webgpu-tools/wesl-rs/releases/tag/v0.6.0"
+      ]
+    }
+  ]
+}

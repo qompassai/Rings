@@ -1,0 +1,134 @@
+{
+  "language": "aseprite",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "aseprite": "1.3.18.6 (latest release in the 1.3.18 line; 1.3.18 on 22 Jul 2026, 1.3.18.2 on 11 Aug 2026)",
+    "lua_api_version": "41 (bumped in v1.3.18.2); guide table stops at 39 / v1.3.17",
+    "libresprite": "1.1 line as described in guide; no newer primary release verified in this pass",
+    "lua_runtime": "Embedded Lua 5.3 libraries per guide; no primary source fetched in this pass contradicts it"
+  },
+  "aspects": {
+    "error_handling": {
+      "verdict": "holds",
+      "guide_position": "Batch scripts: no UI calls, status via print, failure via Lua error/non-zero exit; CLI exit 0 only means success and outputs must be verified",
+      "best_practice": "Still matches official behaviour: Dialog returns nil in batch, app.isUIAvailable false in --batch, per API docs/changes",
+      "evidence": "Official API changes log confirms Dialog nil-in-batch (api 18) and the app.* surface the guide relies on",
+      "citations": [
+        "https://aseprite.com/api/Changes",
+        "https://www.aseprite.org/docs/cli/"
+      ]
+    },
+    "bounded_work": {
+      "verdict": "holds",
+      "guide_position": "Bounded timeout (default 120s), bounded stdout/stderr capture, temp scripts cleaned up on success or failure",
+      "best_practice": "Project policy, not an official Aseprite prescription; no official source contradicts bounded automation",
+      "evidence": "CLI docs describe batch automation without prescribing timeouts; guide's bounds are its own Tiger Style layer",
+      "citations": [
+        "https://www.aseprite.org/docs/cli/"
+      ]
+    },
+    "assertions_contracts": {
+      "verdict": "holds",
+      "guide_position": "Validate/coerce every app.params value at script top, nil-check app.sprite/app.open, colour-mode gate before pixel math, skeleton uses assert for missing params",
+      "best_practice": "Still consistent with the official API surface (app.params, app.sprite nilability, ColorMode) as documented",
+      "evidence": "Official CLI docs confirm --script-param arrives for scripts and --batch mode; API changes log confirms the app object model",
+      "citations": [
+        "https://www.aseprite.org/docs/cli/",
+        "https://aseprite.com/api/Changes"
+      ]
+    },
+    "memory_ownership": {
+      "verdict": "not-addressed",
+      "guide_position": "No memory ownership in Aseprite Lua scripting; guide covers document ownership via saveCopyAs vs saveAs and transaction rollback instead",
+      "best_practice": "Does not apply: scripting is GC Lua driving an editor document model",
+      "evidence": "Aspect does not apply; nearest analogue (document/undo ownership) is covered under the transaction rule",
+      "citations": []
+    },
+    "formatting": {
+      "verdict": "not-addressed",
+      "guide_position": "No Aseprite-specific formatter; Lua formatting is delegated to the prerequisite tiger-style-lua skill",
+      "best_practice": "Does not apply as an Aseprite aspect",
+      "evidence": "Aspect does not apply to the Aseprite tool itself",
+      "citations": []
+    },
+    "static_analysis": {
+      "verdict": "unverified",
+      "guide_position": "Guide pairs no linter/analyser for Aseprite scripts beyond version guards and the Lua prerequisite",
+      "best_practice": "No primary source was fetched in this pass establishing a current official analyser recommendation for Aseprite Lua",
+      "evidence": "Marked unverified: no citation fetched for this aspect",
+      "citations": []
+    },
+    "concurrency": {
+      "verdict": "not-addressed",
+      "guide_position": "Single-threaded batch invocation model; no concurrency guidance",
+      "best_practice": "Does not apply: Aseprite CLI/Lua scripting has no concurrent execution model in the guide's scope",
+      "evidence": "Aspect does not apply",
+      "citations": []
+    },
+    "testing": {
+      "verdict": "not-addressed",
+      "guide_position": "Guide provides a review checklist and output-verification contract, no test framework for scripts",
+      "best_practice": "No official Aseprite script-testing framework is documented in the sources fetched; checklist-plus-output-verification is the guide's substitute",
+      "evidence": "Aspect is not addressed by the guide and no primary source fetched prescribes one",
+      "citations": []
+    },
+    "toolchain_pins": {
+      "verdict": "stale",
+      "guide_position": "Verified against official docs on 2026-09-27; minimum Aseprite 1.3, version-guard table ends at apiVersion 39 / v1.3.17; LibreSprite >=1.1 for the safe subset",
+      "best_practice": "Current is v1.3.18.6 with apiVersion 41 (bumped in 1.3.18.2, 11 Aug 2026), plus 1.3.18 features the references omit: --power-of-two-size CLI, Dialog:samerow, save/beforesave sprite events, batch mode no longer writing aseprite.ini",
+      "evidence": "Official release notes: v1.3.18.2 updates API version to 41 and adds Dialog:samerow and save/beforesave events; v1.3.18 adds power-of-two sheet size and the --batch ini change; GitHub release v1.3.18.6 is the latest patch",
+      "citations": [
+        "https://aseprite.com/release-notes/",
+        "https://github.com/aseprite/aseprite/releases/tag/v1.3.18.6",
+        "https://www.aseprite.org/release-notes/"
+      ]
+    },
+    "security": {
+      "verdict": "holds",
+      "guide_position": "Feature-detect/version-guard scripts, never use deprecated aliases, explicit output paths never defaulted to input, no silent downloads; table records the 1.3.17 fix where a script could gain another script's file access",
+      "best_practice": "That security fix is confirmed in the official API changes log for v1.3.17 (apiVersion 39), and the guide's least-authority posture remains sound for 1.3.18",
+      "evidence": "Official API changes log, v1.3.17 entry: fixed security issue where a script could gain already given access from another script",
+      "citations": [
+        "https://aseprite.com/api/Changes"
+      ]
+    }
+  },
+  "mechanical_fixes": [
+    {
+      "file": "~/workspace/skills/tiger-style-aseprite/references/aseprite-scripting-api.md",
+      "current": "| 39 | 1.3.17 | security fix: a script can no longer gain file access granted to another script |",
+      "correct": "| 39 | 1.3.17 | security fix: a script can no longer gain file access granted to another script |\n| 41 | 1.3.18.2 | `Dialog:samerow{}`, `save`/`beforesave` sprite events (apiVersion updated to 41 in v1.3.18.2; v1.3.18 line is current, latest patch v1.3.18.6) |",
+      "evidence": "Official Aseprite release notes: v1.3.18.2 (Aug 11, 2026) - Lua API: update API version to 41, new Dialog:samerow function, added save/beforesave sprite events; latest release is v1.3.18.6",
+      "citation": "https://aseprite.com/release-notes/"
+    },
+    {
+      "file": "~/workspace/skills/tiger-style-aseprite/references/aseprite-cli.md",
+      "current": "| `--sheet-pack` | Pack frames tightly (same as `--sheet-type packed`) |",
+      "correct": "| `--sheet-pack` | Pack frames tightly (same as `--sheet-type packed`) |\n| `--power-of-two-size` | Create sprite sheets with a power-of-two size (added in v1.3.18) |",
+      "evidence": "Official release notes/announcements for v1.3.18: new --power-of-two-size CLI parameter to create sprite sheets with a power of two size; the CLI reference table omits it entirely",
+      "citation": "https://www.aseprite.org/release-notes/"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "proposal": "Add the v1.3.18 Lua surface to the scripting reference: plugin API for custom file formats on load/save, eyedropper support in app.useTool, tag groups, and the --batch no longer writing aseprite.ini behaviour change (pipelines that relied on ini side effects will change)",
+      "evidence": "v1.3.18-beta2/1.3.18 release notes list the custom-file-format plugin API, app.useTool eyedropper support, and v1.3.18 notes state --batch no longer saves aseprite.ini",
+      "recommendation": "Adopt as a references refresh with app.apiVersion >=41 guards where the API allows; keep minimum at 1.3 and guard new calls",
+      "citations": [
+        "https://www.aseprite.org/release-notes/",
+        "https://aseprite.com/release-notes/"
+      ]
+    },
+    {
+      "aspect": "toolchain_pins",
+      "proposal": "Re-verify the CLI table against the real 1.3.18.6 binary (--help) for flags the docs page omits or lags (release-notes flags vs docs-page flags already diverge for --power-of-two-size), and record which flags are docs-verified vs binary-verified",
+      "evidence": "The fetched official CLI docs page does not list --power-of-two-size even though the official release notes announce it, proving docs/binary drift in this line",
+      "recommendation": "Adopt: one binary-verification pass on the installed Aseprite, flagged per-row in aseprite-cli.md, before any pipeline uses the new flags",
+      "citations": [
+        "https://www.aseprite.org/docs/cli/",
+        "https://www.aseprite.org/release-notes/"
+      ]
+    }
+  ]
+}

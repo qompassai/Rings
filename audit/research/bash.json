@@ -1,0 +1,140 @@
+{
+  "language": "bash",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "bash": "5.3 (first public release 3-5 Jul 2025, GNU announce; patches continue, e.g. 5.3.x)",
+    "shellcheck": "0.11.0 (Hackage listing)",
+    "shfmt": "3.12.0 pin seen in current tooling (mvdan/sh); exact latest not verified from mvdan primary release page in this pass",
+    "bash-language-server": "5.6.0 package listing seen; not verified from bash-lsp primary releases in this pass",
+    "bats": "guide does not pin a version; latest not verified from bats-core primary in this pass",
+    "bashdb": "guide does not pin a version; current state unverified from primary in this pass"
+  },
+  "aspects": {
+    "error_handling": {
+      "verdict": "stale",
+      "guide_position": "set -euo pipefail plus explicit checks; guide states a failing command in a command substitution assigned to a variable DOES trigger -e in bash 4.4+",
+      "best_practice": "Explicit checks remain best practice; errexit is disabled by default inside command substitution for function invocations unless inherit_errexit (bash 4.4+) is set, per ShellCheck SC2311; guide also omits set -E/errtrace for ERR traps in functions",
+      "evidence": "ShellCheck SC2311 documents the suppressed-errexit case and the inherit_errexit fix; guide text overgeneralises the substitution case",
+      "citations": [
+        "https://www.shellcheck.net/wiki/SC2311",
+        "https://lists.gnu.org/archive/html/bash-announce/2025-07/msg00000.html"
+      ]
+    },
+    "bounded_work": {
+      "verdict": "holds",
+      "guide_position": "Named UPPER_SNAKE bounds for timeouts, bytes, retries, loop counts, find depth; timeout/PIPESTATUS discipline",
+      "best_practice": "No official bash guidance contradicts bounded subprocess/input work; it remains the recognised hardening pattern",
+      "evidence": "Guide rules align with bash manual semantics for timeout-adjacent coreutils use as described; no primary source fetched contradicts them",
+      "citations": [
+        "https://lists.gnu.org/archive/html/bash-announce/2025-07/msg00000.html"
+      ]
+    },
+    "assertions_contracts": {
+      "verdict": "holds",
+      "guide_position": "Explicit [[ ... ]] || die guards for invariants and external validation; header/function contracts",
+      "best_practice": "Bash has no native assert; explicit guards are the standard substitute",
+      "evidence": "No primary source contradicts; guide correctly notes no optimizer strips shell guards",
+      "citations": [
+        "https://tiswww.cwru.edu/php/chet/bash/bashtop.html"
+      ]
+    },
+    "memory_ownership": {
+      "verdict": "not-addressed",
+      "guide_position": "No ownership model; guide instead covers temp-file ownership, cleanup traps and subprocess reaping",
+      "best_practice": "Does not apply: bash has no memory-ownership system",
+      "evidence": "Aspect does not apply to a shell language; nearest analogue (resource cleanup) is covered under bounded_work/error_handling",
+      "citations": []
+    },
+    "formatting": {
+      "verdict": "holds",
+      "guide_position": "One formatter: shfmt, 4-space indent, -ci; SKILL and full guide disagree on -bn (see mechanical_fixes)",
+      "best_practice": "shfmt remains the standard bash formatter; a single pinned flag set should be used consistently",
+      "evidence": "Internal inconsistency is objective: SKILL.md gives shfmt -i 4 -ci, full guide gives shfmt -i 4 -ci -bn",
+      "citations": [
+        "https://github.com/koalaman/shellcheck"
+      ]
+    },
+    "static_analysis": {
+      "verdict": "holds",
+      "guide_position": "shellcheck zero warnings as a CI gate, justified suppressions only; bash-language-server for LSP",
+      "best_practice": "ShellCheck remains actively maintained (0.11.0) and is the standard static analyser for bash/sh",
+      "evidence": "Hackage lists ShellCheck 0.11.0 with the same stated goals the guide relies on",
+      "citations": [
+        "https://libraries.io/hackage/ShellCheck",
+        "https://github.com/koalaman/shellcheck"
+      ]
+    },
+    "concurrency": {
+      "verdict": "holds",
+      "guide_position": "Track PIDs, wait for background jobs, bound job count; distinguish timeout 124",
+      "best_practice": "Still sound; note bash 5.3 changed wait -n / process-substitution job handling, which scripts relying on wait should re-check",
+      "evidence": "Bash 5.3 announce lists wait -n returning terminated process substitutions and related job-notification changes",
+      "citations": [
+        "https://lists.gnu.org/archive/html/bash-announce/2025-07/msg00000.html"
+      ]
+    },
+    "testing": {
+      "verdict": "holds",
+      "guide_position": "bats for behaviour tests, half adversarial, hermetic mktemp dirs",
+      "best_practice": "bats-core remains the standard bash test framework; guide does not pin a version, so no stale pin",
+      "evidence": "No primary bats release was fetched in this pass, so no version claim is made; the practice itself is uncontradicted",
+      "citations": []
+    },
+    "toolchain_pins": {
+      "verdict": "stale",
+      "guide_position": "Targets bash 4.4+, prefer 5.x where available; no tool versions pinned in SKILL compatibility beyond tool names",
+      "best_practice": "Current stable is bash 5.3 (Jul 2025); a 2026 guide should name 5.3 as the preferred baseline and re-check 5.3 changes (current-shell substitution, GLOBSORT, source -p, wait -n)",
+      "evidence": "GNU announce and maintainer page both state current version is bash-5.3; guide never mentions 5.3 or its features",
+      "citations": [
+        "https://lists.gnu.org/archive/html/bash-announce/2025-07/msg00000.html",
+        "https://tiswww.cwru.edu/php/chet/bash/bashtop.html"
+      ]
+    },
+    "security": {
+      "verdict": "holds",
+      "guide_position": "No eval, no curl|bash, checksum verification, mktemp only, -- before user paths, env/PATH distrust, no secrets in argv",
+      "best_practice": "Unchanged official/community best practice; ShellCheck SC2251/SC2311 family reinforces explicit status handling over blind errexit trust",
+      "evidence": "Guide bans match ShellCheck-documented failure modes; no primary source contradicts the bans",
+      "citations": [
+        "https://www.shellcheck.net/wiki/SC2251",
+        "https://www.shellcheck.net/wiki/SC2311"
+      ]
+    }
+  },
+  "mechanical_fixes": [
+    {
+      "file": "~/workspace/skills/tiger-style-bash/SKILL.md",
+      "current": "`shfmt -i 4 -ci` (4-space indent)",
+      "correct": "`shfmt -i 4 -ci -bn` (4-space indent)",
+      "evidence": "Full guide section 26 prescribes shfmt -i 4 -ci -bn; SKILL.md drops -bn, so the two files in the same skill prescribe different formatter invocations",
+      "citation": "https://github.com/koalaman/shellcheck"
+    },
+    {
+      "file": "~/workspace/skills/tiger-style-bash/references/TIGER_STYLE_BASH.md",
+      "current": "substitution assigned to a variable DOES trigger it in bash 4.4+",
+      "correct": "substitution does NOT reliably trigger it: bash disables errexit inside command substitution for function invocations by default; use shopt -s inherit_errexit (bash 4.4+) or check explicitly",
+      "evidence": "ShellCheck SC2311: bash implicitly disables set -e for a function invocation inside command substitution; fix is inherit_errexit or explicit set -e inside",
+      "citation": "https://www.shellcheck.net/wiki/SC2311"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "error_handling",
+      "proposal": "Add shopt -s inherit_errexit and, where an ERR trap is used, set -E (errtrace) to the strict-mode discussion, with the SC2311 function-in-substitution example",
+      "evidence": "SC2311 documents suppressed errexit in substitutions and the inherit_errexit remedy; guide currently omits both",
+      "recommendation": "Adopt as an explicit, documented option in section 3, not a silent header change, because inherit_errexit changes function-call semantics",
+      "citations": [
+        "https://www.shellcheck.net/wiki/SC2311"
+      ]
+    },
+    {
+      "aspect": "toolchain_pins",
+      "proposal": "Re-baseline to bash 5.3 as preferred, keep 4.4 as minimum only if needed, and document 5.3 additions relevant to Tiger Style: ${ command; } current-shell substitution (no fork/pipe, REPLY form), GLOBSORT, source -p PATH, trap -P, BASH_TRAPSIG",
+      "evidence": "GNU bash-5.3 announce lists all of these as new features; guide mentions none",
+      "recommendation": "Adopt: document them in sections 2/10/20 with the same bound-and-check discipline; do not raise the hard minimum without a platform survey",
+      "citations": [
+        "https://lists.gnu.org/archive/html/bash-announce/2025-07/msg00000.html"
+      ]
+    }
+  ]
+}

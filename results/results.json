@@ -1,0 +1,1219 @@
+{
+  "audit": "rings",
+  "fail_count": 0,
+  "languages": [
+    "aseprite",
+    "bash",
+    "c",
+    "cpp",
+    "go",
+    "kotlin",
+    "lua",
+    "mojo",
+    "nix",
+    "odin",
+    "php",
+    "python",
+    "rust",
+    "scala",
+    "typescript",
+    "wgsl",
+    "zig"
+  ],
+  "results": [
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [],
+        "pins_in_guide_not_in_skill": [],
+        "pins_in_skill_not_in_guide": [
+          "1.1",
+          "5.3",
+          "v1.2.35",
+          "v1.3.16"
+        ]
+      },
+      "coverage": {
+        "assertions_contracts": "thin",
+        "bounded_work": "thin",
+        "concurrency": "absent",
+        "error_handling": "thin",
+        "formatting": "covered",
+        "memory_ownership": "absent",
+        "security": "absent",
+        "static_analysis": "absent",
+        "testing": "absent",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 10821,
+            "sha256": "7af8c0da2676af8cd5e5efe5197b8cfa809396053fde1190176fc7537e9c1ebc"
+          },
+          "references/aseprite-cli.md": {
+            "bytes": 5800,
+            "sha256": "b1ecdd77d4fd9e367c2717fed4cd801c4edf23dfbdcf230a9f37a4d1f4ebfce9"
+          },
+          "references/aseprite-scripting-api.md": {
+            "bytes": 13393,
+            "sha256": "a4d92b09b8bc831dc4f0d8f5cd3662c1d016f3de6836d7fd478f7a02ae0c13be"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 10455,
+            "sha256": "ad11d7620ec77df375fe6262f0777fb7277e6c51f6489e65e5ddccafa529fb42"
+          },
+          "references/aseprite-cli.md": {
+            "bytes": 5800,
+            "sha256": "b1ecdd77d4fd9e367c2717fed4cd801c4edf23dfbdcf230a9f37a4d1f4ebfce9"
+          },
+          "references/aseprite-scripting-api.md": {
+            "bytes": 13393,
+            "sha256": "a4d92b09b8bc831dc4f0d8f5cd3662c1d016f3de6836d7fd478f7a02ae0c13be"
+          },
+          "skill.yaml": {
+            "bytes": 667,
+            "sha256": "c987a15f8327d57d7483ef0b585d54e5f66cdffaca15a8a0c5e41be631d93468"
+          }
+        },
+        "diver": {}
+      },
+      "language": "aseprite",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "bash-language-server",
+          "linting"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0",
+          "1.7",
+          "3.2",
+          "4.4"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "thin",
+        "security": "covered",
+        "static_analysis": "covered",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 7165,
+            "sha256": "5cecede8f022a239d799ff25ca584d50c7449bc7b51efbdfb027339f54184a82"
+          },
+          "references/TIGER_STYLE_BASH.md": {
+            "bytes": 25833,
+            "sha256": "1271187e5ea00e0b648313104119708752c7483ce5d8ea96adb24e6fa06b9350"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 5968,
+            "sha256": "10e88151352417c39b3779456a8da7296deedde49de1a577b57f9a2f08ba37d3"
+          },
+          "references/TIGER_STYLE_BASH.md": {
+            "bytes": 25833,
+            "sha256": "1271187e5ea00e0b648313104119708752c7483ce5d8ea96adb24e6fa06b9350"
+          },
+          "skill.yaml": {
+            "bytes": 982,
+            "sha256": "32d152f1cc55a6288802d6c2b5b34d1bd5752de00474cce0b19777dfb6cd78fd"
+          }
+        },
+        "diver": {}
+      },
+      "language": "bash",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "clangd",
+          "lldb-dap"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "thin",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 8565,
+            "sha256": "d90df948e09d40ac7569421f681c67a753612353398612ec6142ee02af38699f"
+          },
+          "references/TIGER_STYLE_C.md": {
+            "bytes": 33395,
+            "sha256": "0f72b10aae7d55b1793270200c30fa652e2c0cd103caeaf63f96b64e48329f81"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 7450,
+            "sha256": "31b4e9a2f3582693f05f2409cfc46405b83bc86efebc5c523e9652ba7a9a2877"
+          },
+          "references/TIGER_STYLE_C.md": {
+            "bytes": 33395,
+            "sha256": "0f72b10aae7d55b1793270200c30fa652e2c0cd103caeaf63f96b64e48329f81"
+          },
+          "skill.yaml": {
+            "bytes": 918,
+            "sha256": "24b13f9d0cd191f38a2e86b3dabdcc8c90924ec34e4510de7730e5533e1d265c"
+          }
+        },
+        "diver": {
+          ".gitkeep": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "language": "c",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "clangd",
+          "lldb-dap"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0",
+          "C++26"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "absent",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 6806,
+            "sha256": "728840629ff6031ab055c737f3a95fe3c2393068e9c772d5fbaeab1708937342"
+          },
+          "references/TIGER_STYLE_CPP.md": {
+            "bytes": 33254,
+            "sha256": "70eab8577907e7d91d17f795733530610b051e10869c5b099d91efc7d64493f5"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 5622,
+            "sha256": "2cf214240e06afcf87c4aebde199c750b876c18ec64b04d5df2011a41a11f335"
+          },
+          "references/TIGER_STYLE_CPP.md": {
+            "bytes": 33254,
+            "sha256": "70eab8577907e7d91d17f795733530610b051e10869c5b099d91efc7d64493f5"
+          },
+          "skill.yaml": {
+            "bytes": 969,
+            "sha256": "7c6f2885443b3ec5b497b92658bf87cb6ed388f1c0b5c5d4badf3b7842cbdaf8"
+          }
+        },
+        "diver": {
+          ".gitkeep": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "language": "cpp",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "delve",
+          "dlv",
+          "goimports",
+          "gopls"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0",
+          "1.24"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "absent",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 6461,
+            "sha256": "51db39ba957bef9c7dc6d536aba438d17b057ab207b8ff6a2d2b2a362cfe6023"
+          },
+          "references/TIGER_STYLE_GO.md": {
+            "bytes": 31451,
+            "sha256": "f60a90788720ab64b07a8d2d6a5c5c81531a6e4cba61debd008e54f84d15686a"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 5401,
+            "sha256": "8985dabd1008b7acb433e03ca261012296d53e6c55f66b180da74a495c71e18f"
+          },
+          "references/TIGER_STYLE_GO.md": {
+            "bytes": 31451,
+            "sha256": "f60a90788720ab64b07a8d2d6a5c5c81531a6e4cba61debd008e54f84d15686a"
+          },
+          "skill.yaml": {
+            "bytes": 898,
+            "sha256": "cbb0ceb7f99bdb3f3c216c6395dd753ed287eabe84129ba3fd4534a04bf002b9"
+          }
+        },
+        "diver": {
+          ".gitkeep": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "language": "go",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [],
+        "pins_in_guide_not_in_skill": [],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "thin",
+        "testing": "covered",
+        "toolchain_pins": "absent"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 4894,
+            "sha256": "10a0b0e6172432e635f4b730b4437bfb00f1c308c1bae7feec057dc0f8e0c91c"
+          },
+          "references/TIGER_STYLE_KOTLIN.md": {
+            "bytes": 38114,
+            "sha256": "57f75f360b73227356759102f539b81d71a80c3ee6fa459e2300e5b9f7424b99"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 4603,
+            "sha256": "b7e1f83bb4a4b71f7d8c1a8b634180f9d083925032eb15214e0889f903a4fa21"
+          },
+          "references/TIGER_STYLE_KOTLIN.md": {
+            "bytes": 38114,
+            "sha256": "57f75f360b73227356759102f539b81d71a80c3ee6fa459e2300e5b9f7424b99"
+          },
+          "skill.yaml": {
+            "bytes": 590,
+            "sha256": "28df177418f736c1207687ac094d344a2867a1f6da74540665cbedeb35e7b453"
+          }
+        },
+        "diver": {}
+      },
+      "language": "kotlin",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [],
+        "pins_in_guide_not_in_skill": [
+          "1.0",
+          "5.1",
+          "5.2",
+          "5.3"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "thin",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        },
+        {
+          "file": "SKILL.md",
+          "pair": "canonical_vs_diver",
+          "state": "DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 4703,
+            "sha256": "3d34902d0642cf6d6b1fa8d8cfe12227c2affbc857e8833148370e43685abc84"
+          },
+          "references/TIGER_STYLE_LUA.md": {
+            "bytes": 42974,
+            "sha256": "897af9d2142d9a915368911ee7482140dcd8d31b3409d4fe989b7078f5ff03bf"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 4476,
+            "sha256": "fd849c6a375bc9b756e1dbbf71f38392eeb9b58a87a81f60a9126ab57ac3bdca"
+          },
+          "references/TIGER_STYLE_LUA.md": {
+            "bytes": 42974,
+            "sha256": "897af9d2142d9a915368911ee7482140dcd8d31b3409d4fe989b7078f5ff03bf"
+          },
+          "skill.yaml": {
+            "bytes": 523,
+            "sha256": "709782bab718e79e98d117af19072e317086e015316a93b3ba14ce26bb5fe7ad"
+          }
+        },
+        "diver": {
+          "SKILL.md": {
+            "bytes": 26383,
+            "sha256": "3eb48ffd62250e508d6d347487adbdaa1a80c679ddb9448d63435dc0dce42367"
+          },
+          "love2d-audio/SKILL.md": {
+            "bytes": 2821,
+            "sha256": "c264b69836b6fbb17ed56bf1aec4dab2f6fc7f1dae7938e499202965a054bb7a"
+          },
+          "love2d-basics/SKILL.md": {
+            "bytes": 4001,
+            "sha256": "e91a0537e63e66b045fe8fa5a2372916a8c668c32a0903f243716929c8db9051"
+          },
+          "love2d-distribute/SKILL.md": {
+            "bytes": 3477,
+            "sha256": "d8305550e5da43144172b60e6f3eebc51daf6f7141f0f25087247accbbbaabfc"
+          },
+          "love2d-graphics/SKILL.md": {
+            "bytes": 4305,
+            "sha256": "5af88ee1e9ec23591713bdef87b2f40d3d3259df7243f180b7079cf34b6ecc4c"
+          },
+          "love2d-input/SKILL.md": {
+            "bytes": 3833,
+            "sha256": "10b658cde24805cf82a167ba8810966a7eb77ac8b276f7e4e59db5968bbeafaa"
+          },
+          "love2d-physics/SKILL.md": {
+            "bytes": 3654,
+            "sha256": "a7f86c64a386c2a024de7d56f9bb43d18634ce70c4967ec8b72da0f1a9887e30"
+          },
+          "love2d-platforms/SKILL.md": {
+            "bytes": 4515,
+            "sha256": "e30bc176f173130a87b2f264e2f66d36e9feebdf24c06c7e539c6f8eeb4cb47e"
+          },
+          "love2d-scaffold/SKILL.md": {
+            "bytes": 3480,
+            "sha256": "106073a41c5d1332f162d577d8265e2e0e77df405bc8848bd3752e8989cff708"
+          },
+          "love2d-scaffold/scripts/new-game.lua": {
+            "bytes": 16490,
+            "sha256": "7e8a88f555375b2a9c9a6846f053541ddde96f4e7d3870588d4801bc88cbe843"
+          }
+        }
+      },
+      "language": "lua",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [],
+        "pins_in_guide_not_in_skill": [
+          "0.13",
+          "1.1.0"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "covered",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 5200,
+            "sha256": "1d3b5fa84e3233af209543ecf5bd1592adf1dd576a3f0b8d367db20a3c03388d"
+          },
+          "references/TIGER_STYLE_MOJO.md": {
+            "bytes": 38029,
+            "sha256": "ac3ae56cf464c0c7bb686a82afcf90ee12218df33f5ac18b765eff7268d78c0a"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 4920,
+            "sha256": "adc01b478a408e0ad0a3c7594aa3c4afd3a0876cb4b7ac31793b6ade85aa2bc8"
+          },
+          "references/TIGER_STYLE_MOJO.md": {
+            "bytes": 38029,
+            "sha256": "ac3ae56cf464c0c7bb686a82afcf90ee12218df33f5ac18b765eff7268d78c0a"
+          },
+          "skill.yaml": {
+            "bytes": 577,
+            "sha256": "39da9578a444e60295c1188c0dfc57410b9bd69a1e7b11125bdc15e5cd90ac9c"
+          }
+        },
+        "diver": {}
+      },
+      "language": "mojo",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "alejandra",
+          "nil",
+          "nix-debug-adapter",
+          "nixd"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0",
+          "2.34"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "thin",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 7666,
+            "sha256": "509f83e5e29911664e3c31160728897a5ceea7a5ec603576a1a4eacc5b4ecd26"
+          },
+          "references/TIGER_STYLE_NIX.md": {
+            "bytes": 30209,
+            "sha256": "16d7cf8a3392278409d1af2952c5c320806de56ec1bccbdbe092d4d352271cc2"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 6622,
+            "sha256": "8d0e2b68fd529026dabd1c45873c42b328100b35b51c664a38aab489a6161f49"
+          },
+          "references/TIGER_STYLE_NIX.md": {
+            "bytes": 30209,
+            "sha256": "16d7cf8a3392278409d1af2952c5c320806de56ec1bccbdbe092d4d352271cc2"
+          },
+          "skill.yaml": {
+            "bytes": 843,
+            "sha256": "a8bcfda6711c1232b0f85bcd8ec23fe143717f5bd1d50b14b465ce901cd6a75e"
+          }
+        },
+        "diver": {
+          ".gitkeep": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "language": "nix",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [],
+        "pins_in_guide_not_in_skill": [],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "covered",
+        "testing": "covered",
+        "toolchain_pins": "absent"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 5278,
+            "sha256": "de2ebc2a87bdf2fa9941b2af96c19e76cdb7b44a973f203eaf52744fc0784e88"
+          },
+          "references/TIGER_STYLE_ODIN.md": {
+            "bytes": 44389,
+            "sha256": "835d6775f1dc22976905105a90ca3a8c430b5717aa55e697c4b34fa32d1d9d45"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 5007,
+            "sha256": "cb6087ac16f7154b18435181ce2e01541d18f5df3d257308e28640b4743ad53b"
+          },
+          "references/TIGER_STYLE_ODIN.md": {
+            "bytes": 44389,
+            "sha256": "835d6775f1dc22976905105a90ca3a8c430b5717aa55e697c4b34fa32d1d9d45"
+          },
+          "skill.yaml": {
+            "bytes": 568,
+            "sha256": "d81fc2ac36dff5f3891fe8577421999db80cfb49d07a31a3a37bf4903d569cf0"
+          }
+        },
+        "diver": {}
+      },
+      "language": "odin",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "intelephense"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "0.0",
+          "1.0",
+          "169.254.169",
+          "8.2",
+          "8.4"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "thin",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 7826,
+            "sha256": "3786cc53715795443d49dad3629d148a09e88d9292ab420b70437b4656c987ae"
+          },
+          "references/TIGER_STYLE_PHP.md": {
+            "bytes": 27697,
+            "sha256": "c7967c709b81f3e784f32b85f024afe6d1cf0ff6e4280113ac7c57cc9ab806ac"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 6596,
+            "sha256": "69088b89fcff7a09eb250a725ebbd03a3cd08ed6b9fbc209e7a6c71964859e59"
+          },
+          "references/TIGER_STYLE_PHP.md": {
+            "bytes": 27697,
+            "sha256": "c7967c709b81f3e784f32b85f024afe6d1cf0ff6e4280113ac7c57cc9ab806ac"
+          },
+          "skill.yaml": {
+            "bytes": 992,
+            "sha256": "bf1739d0f86b0460df40e7e74c3a702cb72589de6c78fc3d100953d09ab9b719"
+          }
+        },
+        "diver": {}
+      },
+      "language": "php",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "black",
+          "debugpy",
+          "ruff-format"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0",
+          "1.5"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "thin",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 7244,
+            "sha256": "751eeca708671f9988ddd86478e2d35faf8bfbbccfbb312f78622c7618abc792"
+          },
+          "references/TIGER_STYLE_PYTHON.md": {
+            "bytes": 32915,
+            "sha256": "1cc96ee42997cc61e60d5e80378d1dc3b5a658676c6a164dfe2f15ae94b46bc6"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 6177,
+            "sha256": "c74d906003ffdc47b8d343f2ce3cc338a30753840a61d298d3c379fda984d8d4"
+          },
+          "references/TIGER_STYLE_PYTHON.md": {
+            "bytes": 32915,
+            "sha256": "1cc96ee42997cc61e60d5e80378d1dc3b5a658676c6a164dfe2f15ae94b46bc6"
+          },
+          "skill.yaml": {
+            "bytes": 901,
+            "sha256": "17865cbf5b8780641c8992ce0568571aaca269503332a09cea7248469cf7752f"
+          }
+        },
+        "diver": {
+          ".gitkeep": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "language": "python",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [],
+        "pins_in_guide_not_in_skill": [
+          "1.88",
+          "1.90.0"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "covered",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 7096,
+            "sha256": "f63eff1a83a8c4925f2abe1e6466d46086ccc2e1d0c4a04a80f5482d4b597724"
+          },
+          "references/TIGER_STYLE_RUST.md": {
+            "bytes": 34107,
+            "sha256": "0f034fdb6a95916a50860f3aaa3b0af3fa96d8f70b6eaf026f9b6aa7805659dd"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 6825,
+            "sha256": "fe4a0ca8588d49026f54b1911ad6e0659826ffbbf0c321136dbd62c6f5f80963"
+          },
+          "references/TIGER_STYLE_RUST.md": {
+            "bytes": 34107,
+            "sha256": "0f034fdb6a95916a50860f3aaa3b0af3fa96d8f70b6eaf026f9b6aa7805659dd"
+          },
+          "skill.yaml": {
+            "bytes": 568,
+            "sha256": "1fd9ea93ba33f754183d230f5bf38d7d30b94e3e411c6586c5aae94922cf4ecd"
+          }
+        },
+        "diver": {}
+      },
+      "language": "rust",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "Metals"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0",
+          "2.13.16",
+          "3.3",
+          "3.3.6"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "absent",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 7232,
+            "sha256": "12e5c84cfbc61f71a05ffadfc92295a931976637b9d95276cc19329f5097f206"
+          },
+          "references/TIGER_STYLE_SCALA.md": {
+            "bytes": 32121,
+            "sha256": "173cc5b2827d28d236fac96f2c1388ae5296180a9aad7b16d0bcfeb37667d985"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 6104,
+            "sha256": "a0e2d4dee1399723e2b74f658143971563bc84f743c0cac977d808feb3d13d70"
+          },
+          "references/TIGER_STYLE_SCALA.md": {
+            "bytes": 32121,
+            "sha256": "173cc5b2827d28d236fac96f2c1388ae5296180a9aad7b16d0bcfeb37667d985"
+          },
+          "skill.yaml": {
+            "bytes": 951,
+            "sha256": "2ebbdf20659702b9f37280ce14fcf15fc2598e6c711000913e39e98b1815b3ea"
+          }
+        },
+        "diver": {
+          ".gitkeep": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "language": "scala",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "Deno",
+          "biome",
+          "deno_ls",
+          "ts_ls",
+          "tsgo_ls"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0",
+          "1.5",
+          "ES2022"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "thin",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 7273,
+            "sha256": "99f5738aeece2b3757bf7706f6c465fe4d10fdb3d52322765e130776b29437b0"
+          },
+          "references/TIGER_STYLE_TYPESCRIPT.md": {
+            "bytes": 32697,
+            "sha256": "ef7cea5fd9ba66814e2f5dbb6c84a3a174a580b702723733cfa2d52bc6bf8e6c"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 6087,
+            "sha256": "1b78e2cffc18d1f4e8d7509d506c47f77e1578665286d150d420dc2162d112de"
+          },
+          "references/TIGER_STYLE_TYPESCRIPT.md": {
+            "bytes": 32697,
+            "sha256": "ef7cea5fd9ba66814e2f5dbb6c84a3a174a580b702723733cfa2d52bc6bf8e6c"
+          },
+          "skill.yaml": {
+            "bytes": 960,
+            "sha256": "e6e891933d337b4791fe2872217be75adb55aa0c045e1b8a00a9a4c5574b767b"
+          }
+        },
+        "diver": {
+          ".gitkeep": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "language": "typescript",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [],
+        "pins_in_guide_not_in_skill": [
+          "0.0",
+          "0.5",
+          "1.0",
+          "15.7",
+          "2.0",
+          "4.1.2",
+          "7.3"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "absent",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "thin",
+        "security": "absent",
+        "static_analysis": "covered",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 4086,
+            "sha256": "80fa055ac0b2d22382a5158693531aff2d6357d1ff1389dc2a65a037348883f0"
+          },
+          "references/TIGER_STYLE_WGSL.md": {
+            "bytes": 15413,
+            "sha256": "c259dd51c08a0facb127d6cce8ce8f1d81714196bb4d51fac926db20692eb960"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 3761,
+            "sha256": "250ce33ffb1794b80b2be7613353479da1ee158ad15b16454da3aa536b36ec50"
+          },
+          "references/TIGER_STYLE_WGSL.md": {
+            "bytes": 15413,
+            "sha256": "c259dd51c08a0facb127d6cce8ce8f1d81714196bb4d51fac926db20692eb960"
+          },
+          "skill.yaml": {
+            "bytes": 622,
+            "sha256": "d2d4ff228266bdf9d7c3704cf54e023d637d69041d257ef03c3365a7e5152dfb"
+          }
+        },
+        "diver": {}
+      },
+      "language": "wgsl",
+      "research": {
+        "status": "missing"
+      }
+    },
+    {
+      "claims": {
+        "pairing_tokens_not_in_guide": [
+          "lldb-dap",
+          "zls"
+        ],
+        "pins_in_guide_not_in_skill": [
+          "1.0"
+        ],
+        "pins_in_skill_not_in_guide": []
+      },
+      "coverage": {
+        "assertions_contracts": "covered",
+        "bounded_work": "covered",
+        "concurrency": "covered",
+        "error_handling": "covered",
+        "formatting": "covered",
+        "memory_ownership": "covered",
+        "security": "covered",
+        "static_analysis": "absent",
+        "testing": "covered",
+        "toolchain_pins": "covered"
+      },
+      "drift": [
+        {
+          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
+          "file": "SKILL.md",
+          "pair": "canonical_vs_custom",
+          "state": "FORMAT_DRIFT"
+        }
+      ],
+      "fails": [],
+      "inventory": {
+        "canonical": {
+          "SKILL.md": {
+            "bytes": 7383,
+            "sha256": "c45479488c400476609dcd6a8f4c1b3b4eeaba2cce4afd3faf23c64c0b056e31"
+          },
+          "references/TIGER_STYLE_ZIG.md": {
+            "bytes": 31915,
+            "sha256": "de1548c0af646bde9c4fe2802055448531d9bf0fd7a2c2255207bd837c0504ab"
+          }
+        },
+        "custom_skills": {
+          "SKILL.md": {
+            "bytes": 6297,
+            "sha256": "064933101ff7dc638f7cefc4f6e427cbd069ed00c2e3e8bbf5c2d080e592a9be"
+          },
+          "references/TIGER_STYLE_ZIG.md": {
+            "bytes": 31915,
+            "sha256": "de1548c0af646bde9c4fe2802055448531d9bf0fd7a2c2255207bd837c0504ab"
+          },
+          "skill.yaml": {
+            "bytes": 933,
+            "sha256": "d7ad596409c4822ac1300fd41fd98a274df07490c7817cc43a38f4db7d30fc86"
+          }
+        },
+        "diver": {
+          ".gitkeep": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "language": "zig",
+      "research": {
+        "status": "missing"
+      }
+    }
+  ],
+  "verdict_counts": {}
+}

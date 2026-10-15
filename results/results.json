@@ -46,14 +46,7 @@
         "testing": "absent",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -72,8 +65,8 @@
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 10455,
-            "sha256": "ad11d7620ec77df375fe6262f0777fb7277e6c51f6489e65e5ddccafa529fb42"
+            "bytes": 10821,
+            "sha256": "7af8c0da2676af8cd5e5efe5197b8cfa809396053fde1190176fc7537e9c1ebc"
           },
           "references/aseprite-cli.md": {
             "bytes": 5893,
@@ -240,7 +233,8 @@
           "1.0",
           "1.7",
           "3.2",
-          "4.4"
+          "4.4",
+          "5.3"
         ],
         "pins_in_skill_not_in_guide": []
       },
@@ -256,34 +250,27 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
           "SKILL.md": {
-            "bytes": 7169,
-            "sha256": "18c610acbd086229980598b00f5cffcd8f442a16208ac549f0529a3fa7a60677"
+            "bytes": 7185,
+            "sha256": "ca1e123a313756a5adf080d943640e7fe448ebe1e6307c57f87a3a3abe991a1f"
           },
           "references/TIGER_STYLE_BASH.md": {
-            "bytes": 25959,
-            "sha256": "e34f7c7014a46a51440c2f2a92aad0568f79ef2b713da773f783cc4c19efe801"
+            "bytes": 26564,
+            "sha256": "958fdbf26ecdf6c6894bec1a53933a397c3348359ac366fbf1f73baac3505a10"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 5972,
-            "sha256": "3ed2bc75af6a4397b7a25245c8073105492ddb40d92f4c3e6590558376a54819"
+            "bytes": 7185,
+            "sha256": "ca1e123a313756a5adf080d943640e7fe448ebe1e6307c57f87a3a3abe991a1f"
           },
           "references/TIGER_STYLE_BASH.md": {
-            "bytes": 25959,
-            "sha256": "e34f7c7014a46a51440c2f2a92aad0568f79ef2b713da773f783cc4c19efe801"
+            "bytes": 26564,
+            "sha256": "958fdbf26ecdf6c6894bec1a53933a397c3348359ac366fbf1f73baac3505a10"
           },
           "skill.yaml": {
             "bytes": 982,
@@ -461,14 +448,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -477,18 +457,18 @@
             "sha256": "e4af5726377097e745753758927e39615b6f987703dd74366eb7fa30ffa52f4a"
           },
           "references/TIGER_STYLE_C.md": {
-            "bytes": 33477,
-            "sha256": "a775bdffe242e8f05a9aded193de5f638799991190565bae78393b693dac78a0"
+            "bytes": 33864,
+            "sha256": "0f9f9026047bdc4f0cfc3c52d60d9bafd92636a53928cd6cbfdc5c3caed6c295"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 7494,
-            "sha256": "9b6eaedfa0865bad4f27e119ba5191c1f74b7fe2e4a3cb7473c73c928c91608e"
+            "bytes": 8609,
+            "sha256": "e4af5726377097e745753758927e39615b6f987703dd74366eb7fa30ffa52f4a"
           },
           "references/TIGER_STYLE_C.md": {
-            "bytes": 33477,
-            "sha256": "a775bdffe242e8f05a9aded193de5f638799991190565bae78393b693dac78a0"
+            "bytes": 33864,
+            "sha256": "0f9f9026047bdc4f0cfc3c52d60d9bafd92636a53928cd6cbfdc5c3caed6c295"
           },
           "skill.yaml": {
             "bytes": 918,
@@ -697,14 +677,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -719,8 +692,8 @@
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 5622,
-            "sha256": "2cf214240e06afcf87c4aebde199c750b876c18ec64b04d5df2011a41a11f335"
+            "bytes": 6806,
+            "sha256": "728840629ff6031ab055c737f3a95fe3c2393068e9c772d5fbaeab1708937342"
           },
           "references/TIGER_STYLE_CPP.md": {
             "bytes": 33254,
@@ -916,14 +889,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -932,18 +898,18 @@
             "sha256": "5ddf01eb416a812e0bb3456e518264dc44a8ab5e82d3cb9c5c479421b7f5e122"
           },
           "references/TIGER_STYLE_GO.md": {
-            "bytes": 31468,
-            "sha256": "68c39e07914d5f6b686e04d79a523faa008f57dd6bafd88556b1fe8249c5d707"
+            "bytes": 31593,
+            "sha256": "0f6287675a0519a279149bf2b8472fdc3a93b3f3b335cb928929fe44dc061b30"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 5401,
-            "sha256": "8985dabd1008b7acb433e03ca261012296d53e6c55f66b180da74a495c71e18f"
+            "bytes": 6460,
+            "sha256": "5ddf01eb416a812e0bb3456e518264dc44a8ab5e82d3cb9c5c479421b7f5e122"
           },
           "references/TIGER_STYLE_GO.md": {
-            "bytes": 31468,
-            "sha256": "68c39e07914d5f6b686e04d79a523faa008f57dd6bafd88556b1fe8249c5d707"
+            "bytes": 31593,
+            "sha256": "0f6287675a0519a279149bf2b8472fdc3a93b3f3b335cb928929fe44dc061b30"
           },
           "skill.yaml": {
             "bytes": 898,
@@ -1123,7 +1089,11 @@
     {
       "claims": {
         "pairing_tokens_not_in_guide": [],
-        "pins_in_guide_not_in_skill": [],
+        "pins_in_guide_not_in_skill": [
+          "2.4",
+          "2.4.0",
+          "2.4.21"
+        ],
         "pins_in_skill_not_in_guide": []
       },
       "coverage": {
@@ -1136,16 +1106,9 @@
         "security": "covered",
         "static_analysis": "thin",
         "testing": "covered",
-        "toolchain_pins": "absent"
+        "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -1154,18 +1117,18 @@
             "sha256": "10a0b0e6172432e635f4b730b4437bfb00f1c308c1bae7feec057dc0f8e0c91c"
           },
           "references/TIGER_STYLE_KOTLIN.md": {
-            "bytes": 38114,
-            "sha256": "57f75f360b73227356759102f539b81d71a80c3ee6fa459e2300e5b9f7424b99"
+            "bytes": 38288,
+            "sha256": "b2524ec55fa3956b3c077c3f5c814cc3ceec6a98d6dee3137ec590c124e7e2f8"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 4603,
-            "sha256": "b7e1f83bb4a4b71f7d8c1a8b634180f9d083925032eb15214e0889f903a4fa21"
+            "bytes": 4894,
+            "sha256": "10a0b0e6172432e635f4b730b4437bfb00f1c308c1bae7feec057dc0f8e0c91c"
           },
           "references/TIGER_STYLE_KOTLIN.md": {
-            "bytes": 38114,
-            "sha256": "57f75f360b73227356759102f539b81d71a80c3ee6fa459e2300e5b9f7424b99"
+            "bytes": 38288,
+            "sha256": "b2524ec55fa3956b3c077c3f5c814cc3ceec6a98d6dee3137ec590c124e7e2f8"
           },
           "skill.yaml": {
             "bytes": 590,
@@ -1321,12 +1284,6 @@
       },
       "drift": [
         {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        },
-        {
           "file": "SKILL.md",
           "pair": "canonical_vs_diver",
           "state": "DRIFT"
@@ -1340,18 +1297,18 @@
             "sha256": "3d34902d0642cf6d6b1fa8d8cfe12227c2affbc857e8833148370e43685abc84"
           },
           "references/TIGER_STYLE_LUA.md": {
-            "bytes": 43090,
-            "sha256": "01585f91ab30ace1a88dd725630c01817c3610fc62e79df64491bc8a312d98e8"
+            "bytes": 43779,
+            "sha256": "6128bd3b6ddc59af7b409db8ae37eacf1806c9bffdd409157972ba7810dc071a"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 4476,
-            "sha256": "fd849c6a375bc9b756e1dbbf71f38392eeb9b58a87a81f60a9126ab57ac3bdca"
+            "bytes": 4703,
+            "sha256": "3d34902d0642cf6d6b1fa8d8cfe12227c2affbc857e8833148370e43685abc84"
           },
           "references/TIGER_STYLE_LUA.md": {
-            "bytes": 43090,
-            "sha256": "01585f91ab30ace1a88dd725630c01817c3610fc62e79df64491bc8a312d98e8"
+            "bytes": 43779,
+            "sha256": "6128bd3b6ddc59af7b409db8ae37eacf1806c9bffdd409157972ba7810dc071a"
           },
           "skill.yaml": {
             "bytes": 523,
@@ -1564,14 +1521,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -1580,18 +1530,18 @@
             "sha256": "1d3b5fa84e3233af209543ecf5bd1592adf1dd576a3f0b8d367db20a3c03388d"
           },
           "references/TIGER_STYLE_MOJO.md": {
-            "bytes": 38186,
-            "sha256": "56494cbd920345ece27e923b2c288035f81374a340c6e30e9be683e32655eb15"
+            "bytes": 38670,
+            "sha256": "134618d8ef3c36da9d9a72948ff8906fb438adaff82e9b814045a505ce086a02"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 4920,
-            "sha256": "adc01b478a408e0ad0a3c7594aa3c4afd3a0876cb4b7ac31793b6ade85aa2bc8"
+            "bytes": 5200,
+            "sha256": "1d3b5fa84e3233af209543ecf5bd1592adf1dd576a3f0b8d367db20a3c03388d"
           },
           "references/TIGER_STYLE_MOJO.md": {
-            "bytes": 38186,
-            "sha256": "56494cbd920345ece27e923b2c288035f81374a340c6e30e9be683e32655eb15"
+            "bytes": 38670,
+            "sha256": "134618d8ef3c36da9d9a72948ff8906fb438adaff82e9b814045a505ce086a02"
           },
           "skill.yaml": {
             "bytes": 577,
@@ -1743,14 +1693,26 @@
     {
       "claims": {
         "pairing_tokens_not_in_guide": [
-          "alejandra",
+          "RFC",
           "nil",
           "nix-debug-adapter",
           "nixd"
         ],
         "pins_in_guide_not_in_skill": [
           "1.0",
-          "2.34"
+          "2.28.8",
+          "2.29",
+          "2.30.6",
+          "2.31.6",
+          "2.32",
+          "2.33",
+          "2.34",
+          "2.34.8",
+          "2.34.9",
+          "2.35",
+          "2.35.2",
+          "2.35.3",
+          "26.05"
         ],
         "pins_in_skill_not_in_guide": []
       },
@@ -1766,34 +1728,27 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
           "SKILL.md": {
             "bytes": 7666,
-            "sha256": "509f83e5e29911664e3c31160728897a5ceea7a5ec603576a1a4eacc5b4ecd26"
+            "sha256": "2283c298048c931daa90f9b5c4b820c148ff038a6976f0c4262aa8d5359c268f"
           },
           "references/TIGER_STYLE_NIX.md": {
-            "bytes": 30209,
-            "sha256": "16d7cf8a3392278409d1af2952c5c320806de56ec1bccbdbe092d4d352271cc2"
+            "bytes": 30723,
+            "sha256": "f05cef2098fbda5dc37ef0bba642c4728083d4d8013780cb53d0099aa5f8ea1c"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 6622,
-            "sha256": "8d0e2b68fd529026dabd1c45873c42b328100b35b51c664a38aab489a6161f49"
+            "bytes": 7666,
+            "sha256": "2283c298048c931daa90f9b5c4b820c148ff038a6976f0c4262aa8d5359c268f"
           },
           "references/TIGER_STYLE_NIX.md": {
-            "bytes": 30209,
-            "sha256": "16d7cf8a3392278409d1af2952c5c320806de56ec1bccbdbe092d4d352271cc2"
+            "bytes": 30723,
+            "sha256": "f05cef2098fbda5dc37ef0bba642c4728083d4d8013780cb53d0099aa5f8ea1c"
           },
           "skill.yaml": {
             "bytes": 843,
@@ -1950,14 +1905,7 @@
         "testing": "covered",
         "toolchain_pins": "absent"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -1966,18 +1914,18 @@
             "sha256": "de2ebc2a87bdf2fa9941b2af96c19e76cdb7b44a973f203eaf52744fc0784e88"
           },
           "references/TIGER_STYLE_ODIN.md": {
-            "bytes": 44501,
-            "sha256": "37e9a9ec8bf2bebe9d918d157402b21eebb106f506d029379db2c9b8b001b500"
+            "bytes": 45647,
+            "sha256": "f55f1f9697728f2a96fe082085742c946f472d78dbcd7bff15f84131eebe7f9b"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 5007,
-            "sha256": "cb6087ac16f7154b18435181ce2e01541d18f5df3d257308e28640b4743ad53b"
+            "bytes": 5278,
+            "sha256": "de2ebc2a87bdf2fa9941b2af96c19e76cdb7b44a973f203eaf52744fc0784e88"
           },
           "references/TIGER_STYLE_ODIN.md": {
-            "bytes": 44501,
-            "sha256": "37e9a9ec8bf2bebe9d918d157402b21eebb106f506d029379db2c9b8b001b500"
+            "bytes": 45647,
+            "sha256": "f55f1f9697728f2a96fe082085742c946f472d78dbcd7bff15f84131eebe7f9b"
           },
           "skill.yaml": {
             "bytes": 568,
@@ -2209,14 +2157,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -2231,8 +2172,8 @@
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 6596,
-            "sha256": "69088b89fcff7a09eb250a725ebbd03a3cd08ed6b9fbc209e7a6c71964859e59"
+            "bytes": 7858,
+            "sha256": "b767e472f87923beab2fd08b0508a814ccc475c168b7f0d0cdc9566fc3e7096f"
           },
           "references/TIGER_STYLE_PHP.md": {
             "bytes": 27772,
@@ -2389,7 +2330,6 @@
     {
       "claims": {
         "pairing_tokens_not_in_guide": [
-          "black",
           "debugpy",
           "ruff-format"
         ],
@@ -2412,34 +2352,27 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
           "SKILL.md": {
-            "bytes": 7239,
-            "sha256": "93edf905d3b0692fa5612137046fc44d285ca76b91b6df7ff080bda78e40fb48"
+            "bytes": 7220,
+            "sha256": "9ff2d9a7a6df44a3bb6295c6d6ec78360bff9cf406893be8c73e1c2989a76f47"
           },
           "references/TIGER_STYLE_PYTHON.md": {
-            "bytes": 32931,
-            "sha256": "076a8a2fb8cd3b7e87e8f704b3d87035cc32ca979c8b9ee1d5a121f5a951000a"
+            "bytes": 33569,
+            "sha256": "0bf8dc932b73ed3dfb24cc7fb7e13dd860b2e605b8587f08bd1e847efd50060e"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 6177,
-            "sha256": "c74d906003ffdc47b8d343f2ce3cc338a30753840a61d298d3c379fda984d8d4"
+            "bytes": 7220,
+            "sha256": "9ff2d9a7a6df44a3bb6295c6d6ec78360bff9cf406893be8c73e1c2989a76f47"
           },
           "references/TIGER_STYLE_PYTHON.md": {
-            "bytes": 32931,
-            "sha256": "076a8a2fb8cd3b7e87e8f704b3d87035cc32ca979c8b9ee1d5a121f5a951000a"
+            "bytes": 33569,
+            "sha256": "0bf8dc932b73ed3dfb24cc7fb7e13dd860b2e605b8587f08bd1e847efd50060e"
           },
           "skill.yaml": {
             "bytes": 901,
@@ -2625,7 +2558,7 @@
         "pairing_tokens_not_in_guide": [],
         "pins_in_guide_not_in_skill": [
           "1.88",
-          "1.90.0"
+          "1.99.0"
         ],
         "pins_in_skill_not_in_guide": []
       },
@@ -2641,14 +2574,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -2657,18 +2583,18 @@
             "sha256": "f63eff1a83a8c4925f2abe1e6466d46086ccc2e1d0c4a04a80f5482d4b597724"
           },
           "references/TIGER_STYLE_RUST.md": {
-            "bytes": 34107,
-            "sha256": "0f034fdb6a95916a50860f3aaa3b0af3fa96d8f70b6eaf026f9b6aa7805659dd"
+            "bytes": 34297,
+            "sha256": "ff9200d38666845def5e3af94b0c5337fe4b94b462cc30cdbe31b81f8a48fc62"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 6825,
-            "sha256": "fe4a0ca8588d49026f54b1911ad6e0659826ffbbf0c321136dbd62c6f5f80963"
+            "bytes": 7096,
+            "sha256": "f63eff1a83a8c4925f2abe1e6466d46086ccc2e1d0c4a04a80f5482d4b597724"
           },
           "references/TIGER_STYLE_RUST.md": {
-            "bytes": 34107,
-            "sha256": "0f034fdb6a95916a50860f3aaa3b0af3fa96d8f70b6eaf026f9b6aa7805659dd"
+            "bytes": 34297,
+            "sha256": "ff9200d38666845def5e3af94b0c5337fe4b94b462cc30cdbe31b81f8a48fc62"
           },
           "skill.yaml": {
             "bytes": 568,
@@ -2840,7 +2766,10 @@
           "1.0",
           "2.13.16",
           "3.10",
+          "3.3.7",
+          "3.7.1",
           "3.8",
+          "3.8.0",
           "3.9",
           "3.9.0"
         ],
@@ -2858,14 +2787,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -2874,18 +2796,18 @@
             "sha256": "12e5c84cfbc61f71a05ffadfc92295a931976637b9d95276cc19329f5097f206"
           },
           "references/TIGER_STYLE_SCALA.md": {
-            "bytes": 32191,
-            "sha256": "a11858051e2f0a24cdccfca36fc5f81aa2cde42cc2505da4e7f81d552f4fb405"
+            "bytes": 32475,
+            "sha256": "87da72d9ebb3e560cd04c0d48f14fa7a8887769fb43eea4de43985c68ab271cf"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 6104,
-            "sha256": "a0e2d4dee1399723e2b74f658143971563bc84f743c0cac977d808feb3d13d70"
+            "bytes": 7232,
+            "sha256": "12e5c84cfbc61f71a05ffadfc92295a931976637b9d95276cc19329f5097f206"
           },
           "references/TIGER_STYLE_SCALA.md": {
-            "bytes": 32191,
-            "sha256": "a11858051e2f0a24cdccfca36fc5f81aa2cde42cc2505da4e7f81d552f4fb405"
+            "bytes": 32475,
+            "sha256": "87da72d9ebb3e560cd04c0d48f14fa7a8887769fb43eea4de43985c68ab271cf"
           },
           "skill.yaml": {
             "bytes": 951,
@@ -3043,7 +2965,6 @@
       "claims": {
         "pairing_tokens_not_in_guide": [
           "Deno",
-          "biome",
           "deno_ls",
           "ts_ls",
           "tsgo_ls"
@@ -3053,6 +2974,8 @@
           "1.5",
           "6.0",
           "7.0",
+          "7.0.2",
+          "7.1",
           "ES2022",
           "ES2025"
         ],
@@ -3072,34 +2995,27 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
           "SKILL.md": {
-            "bytes": 7477,
-            "sha256": "03c625040aa094609c26e9a8fb11af273047393fb09f682c0b0d907daf30119f"
+            "bytes": 7495,
+            "sha256": "388610832deb1ba4b78c56618caab5fa15f1f5c9392de36298638117ff8e3e76"
           },
           "references/TIGER_STYLE_TYPESCRIPT.md": {
-            "bytes": 32800,
-            "sha256": "0bc894d8a22d4213adedd4f6020ec2a3e7f202a5cbbc211c0159e2f7791bca0c"
+            "bytes": 33365,
+            "sha256": "05eba885c4b32db7dfef993b6b1e5eb8a344b45d19138d8dde192a5067330c72"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 6087,
-            "sha256": "1b78e2cffc18d1f4e8d7509d506c47f77e1578665286d150d420dc2162d112de"
+            "bytes": 7495,
+            "sha256": "388610832deb1ba4b78c56618caab5fa15f1f5c9392de36298638117ff8e3e76"
           },
           "references/TIGER_STYLE_TYPESCRIPT.md": {
-            "bytes": 32800,
-            "sha256": "0bc894d8a22d4213adedd4f6020ec2a3e7f202a5cbbc211c0159e2f7791bca0c"
+            "bytes": 33365,
+            "sha256": "05eba885c4b32db7dfef993b6b1e5eb8a344b45d19138d8dde192a5067330c72"
           },
           "skill.yaml": {
             "bytes": 960,
@@ -3316,14 +3232,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -3332,18 +3241,18 @@
             "sha256": "80fa055ac0b2d22382a5158693531aff2d6357d1ff1389dc2a65a037348883f0"
           },
           "references/TIGER_STYLE_WGSL.md": {
-            "bytes": 15434,
-            "sha256": "068765f17eb8979240b1248fa37ff27a9f585a2aba0cfd14f333c61baca96829"
+            "bytes": 16187,
+            "sha256": "cca7300bb246924de0542acbd2685c1e1ecc9a68cdfdc267a402566e5a56bfbb"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 3761,
-            "sha256": "250ce33ffb1794b80b2be7613353479da1ee158ad15b16454da3aa536b36ec50"
+            "bytes": 4086,
+            "sha256": "80fa055ac0b2d22382a5158693531aff2d6357d1ff1389dc2a65a037348883f0"
           },
           "references/TIGER_STYLE_WGSL.md": {
-            "bytes": 15434,
-            "sha256": "068765f17eb8979240b1248fa37ff27a9f585a2aba0cfd14f333c61baca96829"
+            "bytes": 16187,
+            "sha256": "cca7300bb246924de0542acbd2685c1e1ecc9a68cdfdc267a402566e5a56bfbb"
           },
           "skill.yaml": {
             "bytes": 622,
@@ -3521,14 +3430,7 @@
         "testing": "covered",
         "toolchain_pins": "covered"
       },
-      "drift": [
-        {
-          "detail": "bytes differ; content identical after registration-format normalization (frontmatter stripped + recovery boilerplate)",
-          "file": "SKILL.md",
-          "pair": "canonical_vs_custom",
-          "state": "FORMAT_DRIFT"
-        }
-      ],
+      "drift": [],
       "fails": [],
       "inventory": {
         "canonical": {
@@ -3543,8 +3445,8 @@
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 6297,
-            "sha256": "064933101ff7dc638f7cefc4f6e427cbd069ed00c2e3e8bbf5c2d080e592a9be"
+            "bytes": 7383,
+            "sha256": "c45479488c400476609dcd6a8f4c1b3b4eeaba2cce4afd3faf23c64c0b056e31"
           },
           "references/TIGER_STYLE_ZIG.md": {
             "bytes": 31915,

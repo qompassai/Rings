@@ -477,3 +477,119 @@ Recorded but **not applied**:
 - **[testing]** Add Zig's built-in fuzzing (zig build test --fuzz / fuzzable test cases) to the testing workflow for byte parsers and decoders, alongside the existing Debug/ReleaseSafe/ReleaseFast matrix. — *Recommendation:* Adopt for parser-shaped code; keep the enumerated boundary matrix as the deterministic gate and treat fuzzing as a corpus-growing supplement. Evidence: The 0.16 toolchain's test/build system includes fuzzing of test inputs; the guide's testing section - otherwise the most complete of the four guides - relies solely on enumerated boundary cases, the exact weakness fuzzin <https://ziglang.org/download/0.16.0/release-notes.html>
 - **[error_handling]** Name the 0.16 C-interop route in the FFI/security sections: prefer translate-c via the build system over @cImport, which 0.16 deprecates - otherwise readers will copy pre-0.16 @cImport snippets the guide elsewhere warns against transplanting. — *Recommendation:* Adopt as a one-paragraph addition to §18/§26; flag for re-verification against the pinned toolchain because this audit could not fetch ziglang.org directly (HTTP 403). Evidence: 0.16 release-note summaries list @cImport deprecation in favour of translate-c (b.addTranslateC()) among the release's breaking/deprecating changes; the guide's language-specific section lists five review boundaries (all <https://ziglang.org/download/0.16.0/release-notes.html>
 
+
+---
+
+## Remediation addendum — pass 2 (2026-10-14)
+
+The 30 stale verdicts from the first run are dispositioned. Method, as in
+pass 1: every edit applied to the canonical guide
+(`~/workspace/skills/tiger-style-<lang>/`) after verifying the target string
+occurred exactly once, then mirrored into the custom-skills registration
+copy wherever the same string occurred there. Diver copies untouched.
+Pre-pass backups of both trees are retained outside this repo
+(`~/workspace/backups/rings-pass2-20261014/`). The research records in
+`audit/research/` are **not** modified — they are first-run evidence.
+
+**Why `results.json` still shows 97 / 30 / 0 / 18 / 9 / 16:** the runner
+merges verdicts verbatim from the frozen research records (see
+`audit/run_audit.py`); it has no mechanism to re-derive a verdict from
+guide text, and this pass was barred from rewriting the records. The
+stale count therefore stands in the record set by design. The remediation
+is proven where it can be proven mechanically, in the same results file:
+
+- **Drift: 17 FORMAT_DRIFT entries → 0.** `INVENTORY.md` now reports
+  canonical vs custom-skills **identical** for all 17 languages.
+- **Claims/coverage deltas:** the bash guide gained pin `5.3`; the kotlin
+  guide went from no pins to `2.4 / 2.4.0 / 2.4.21` and its
+  `toolchain_pins` coverage flipped absent → covered; the nix guide
+  gained the advisory's version pins and `alejandra` left its SKILL
+  pairing tokens; the rust guide's pin moved `1.90.0` → `1.99.0`; the
+  scala guide gained `3.3.7 / 3.7.1 / 3.8.0`; the typescript guide
+  gained `7.0.2 / 7.1` and `biome` is no longer a pairing token missing
+  from the guide.
+- **FAIL-class checks: 0** (runner exit 0).
+
+**Effective disposition of the 30 stale verdicts: 30 closed, 0 surviving
+in guide text** — 11 closed by pass 1's mechanical fixes (re-verified in
+the text during this pass: aseprite toolchain_pins, c toolchain_pins,
+go toolchain_pins, lua toolchain_pins, mojo memory_ownership, php
+formatting, php toolchain_pins, python formatting, scala toolchain_pins,
+typescript toolchain_pins, wgsl static_analysis) and 19 closed here:
+
+| # | Verdict | Fix |
+|---|---|---|
+| 1 | bash toolchain_pins | Guide §2 now names Bash 5.3 (July 2025) as the preferred line and lists its relevant additions (`${\| …; }`, `GLOBSORT`, `source -p`, `wait -n` on process substitutions); the 4.4+ floor and guard are unchanged. SKILL compatibility: "Bash 4.4+ (5.3 preferred)". |
+| 2 | bash error_handling (residual) | §3 gains the missing half: an `ERR` trap is not inherited by functions, command substitutions, or subshells unless `set -E` (`errtrace`) is set; a script relying on one must set it explicitly. (The SC2311 half was pass 1.) |
+| 3 | c assertions_contracts | §2 and §9 corrected: the guide's own baseline is C23 (pass 1), yet §2 still said "reference uses C17" and gated checked arithmetic as an optional extra. Both now state that core C23 — `static_assert` harmonisation, `[[nodiscard]]`, `nullptr`, `constexpr`, `typeof`, `#embed`, `<stdckdint.h>` — is baseline (`-std=c23` since Clang 18; GCC 15+ defaults gnu23), gated only beyond the pinned compiler's verified subset. |
+| 4 | kotlin toolchain_pins | Baseline table now names the pin: Kotlin 2.4.21 (2026-10-08), 2.4 line supported to Dec 2027, 18-month stdlib security-support window from 2.4.0. The §17 recipe text now says "reviewed Kotlin 2.4.x compiler". |
+| 5 | lua assertions_contracts | §4 gains the Lua 5.5 contract mechanisms: `global` declarations (undeclared-global writes fail at load), read-only for-loop variables, named varargs (`...name`), `table.create` — gated on the declared runtime. The §2 runtime list now enumerates 5.4 and 5.5 separately instead of "5.4+". |
+| 6 | mojo concurrency | §2 currency note: Mojo 1.1 removed the public async task API (`std.runtime.asyncrt`) and the prelude coroutine types (`AnyCoroutine`, `Coroutine`, `RaisingCoroutine`); the guide's async/cancellation discipline is scoped to host-driven boundaries (Python interop §12, GPU `DeviceContext` §11). |
+| 7 | nix formatting | SKILL.md only (guide §23 already preferred nixfmt): pairing, compatibility, and metadata now name nixfmt alone — "the RFC 166 official formatter" — and the diver formatter pointer moves `formatters/alejandra` → `formatters/nixfmt` (both adapters exist in diver; the skill now prescribes the official one). No claim is made about alejandra's maintenance state. |
+| 8 | nix toolchain_pins (security) | §2 gains a security-floor paragraph for the 2026-10-13 Nix/Lix advisory: affected ≤ 2.34.8 / ≤ 2.35.2 and corresponding older-line ranges; fixed 2.34.9 / 2.35.3 / 2.31.6 / 2.30.6 / 2.28.8; 2.29/2.32/2.33 unsupported; newest line 2.35; NixOS 26.05 ships the 2.34 line, so the §41 2.34 manual links carry a "2.34.9+ only" condition. |
+| 9 | odin formatting | The guide now names the ecosystem formatter: baseline table cites odinfmt (from ols) configured by `odinfmt.json`; §19 states ols ships odinfmt, enables formatting by default, the compiler has no fmt subcommand, and the OLS example defaults (tabs, `tabs_width: 4`, `character_width: 80`) differ from the house rule (four-space, 100-column), which must therefore be set explicitly in `odinfmt.json`. |
+| 10 | odin toolchain_pins | §4 gains the current-facts paragraph: current release dev-2026-10; source builds support LLVM 17–22; Unix linking via system Clang, Windows requires MSVC/Windows SDK; `radlink` is the default Windows linker as of dev-2026-10; `ols` tracks Odin master, so pin it by commit/nightly (this is pass 1's recorded-but-unapplied ols item, landed in substance); FAQ's no-package-manager stance matches the guide's. |
+| 11 | python concurrency | §2: free-threaded CPython is officially supported in 3.14 (PEP 779), with a stable ABI for free-threaded extensions in 3.15 — the "optional free-threaded configurations" framing is gone. §21 gains PEP 734 (`concurrent.interpreters`, `InterpreterPoolExecutor`) beside the TaskGroup/process guidance. The guide's synchronization caution is kept and is now labelled guidance against a supported feature, not a description of one. |
+| 12 | python toolchain_pins (residual) | §2 frames the floor honestly: 3.12 is security-only under the five-year cycle; new work targets 3.14+ (header already names 3.15 current). §41 sources P1–P6 now link docs.python.org/3.15 (P1 retitled "Python free-threading documentation"). Guide swept for `ruff-lsp`: zero occurrences (SKILL was pass 1). The `py312` Ruff target stays — it is the declared floor, now framed as one. |
+| 13 | rust memory_ownership (R-2) | §9 reworded: on edition 2024, `unsafe_op_in_unsafe_fn` warns by default — explicit unsafe blocks in an `unsafe fn` are the edition baseline, not an opt-in — and the guide **denies** it. "Consider" is gone. |
+| 14 | rust toolchain_pins (R-1) | §16 validation record re-run, not re-typed (evidence below). Version line now records Rust 1.99.0. |
+| 15 | scala concurrency | §21 gains the JDK baseline facts: Scala 3.8+ requires JDK 17 minimum; JDK 21/25 LTS are first-class lines (JDK 25 requires 3.3.7 / 3.7.1 / 3.8.0+); virtual threads are a standard JDK 21+ facility, not a preview. The positive virtual-thread decision rule remains a proposal (below), not applied. |
+| 16 | typescript static_analysis | §27 gains the API caveat: TS 7.0 ships no programmatic compiler API (new API expected in 7.1); API consumers such as typescript-eslint run against the documented side-by-side install — pin `typescript@^7.0.2` for checking, alias `typescript` → `npm:@typescript/typescript6` for API consumers. |
+| 17 | wgsl concurrency | §8 gains extension-gated subgroup guidance: the TR formalises `subgroups`, `subgroup_id`, `subgroup_size_control`, and quad operations with `subgroup_uniformity` scopes; compute-capable targets may use them behind `enable` + the §9 feature check. The §9 portable-subset bullet is reworded to label subgroup-freedom **house policy**, not a language limit. |
+| 18 | wgsl toolchain_pins (residual) | Baseline table's Spec row now records the spec status: WGSL TR, Candidate Recommendation Draft 16 Jul 2026 — still a CRD, not a final Recommendation. (The naga pin half was pass 1.) |
+| 19 | spot-verifications | go: header states 1.27+ (1.26 supported) ✓ — with one clarification fix: §2's "Go 1.24 is this guide's minimum for `os.Root`" now reads as an API-availability floor, not a support claim. scala: 3.9 LTS header, `--scala 3.9.0` example pin, no 3.3.x pin survives ✓. php: guide carries no "8.3 is current/active" claim (floor language only; the floor move stays a proposal) ✓. aseprite: version-guard table includes apiVersion 41 ✓. c assertions: verified via item 3 ✓. |
+
+**Item 14 evidence (R-1, re-run on primo, 2026-10-14):** the §13
+`BoundedBytes` module was extracted from the guide and built with the
+guide's own recipe under `rustc 1.99.0 (b940084d7 2026-09-28)`:
+`rustc --edition=2024 --deny warnings --test` → **6 passed, 0 failed**;
+repeated with `-O` → **6 passed, 0 failed**. The §7 `checked_end` helper
+was separately exercised at zero, exact bounds, invalid bounds, and
+`usize::MAX` — all points passed. The §16 record now states 1.99.0
+because that is what ran; the record's remaining sentences (scope
+disclaimers) are unchanged and still true.
+
+**Extra fix found by this pass (python formatting residue):** pass 1
+fixed the python SKILL's metadata (`formatter: ruff`) and output
+contract, but its description and compatibility lines still paired
+"black and ruff-format" / "black or ruff-format" — a formatter the guide
+forbids running in sequence. Both lines now name ruff-format only; the
+SKILL sweep across all 17 skills for superseded pairings
+(`ruff-lsp`, `ruff_ls`, `gop_ls`, stray `alejandra`) is clean.
+
+### Judgment calls applied in this pass
+
+Ruled by Pax under Matt's overnight best-judgment authorization
+(2026-10-14); both are reversible and flagged here for his review.
+
+**(a) TypeScript formatting — Biome-only pilot adopted** (closes the
+typescript formatting verdict, the last open stale item). SKILL.md,
+the operating rules, guide §23, and the §27 validation recipe now agree
+on one stack: Biome, pinned in `biome.json`, for format and lint
+(`biome ci .` in the recipe). This follows the audit's own
+recommendation (pilot Biome-only) and Tiger Style's one-tool
+determinism. typescript-eslint is untouched where it belongs — as an
+API consumer under the item-16 side-by-side install, for type-aware
+rules Biome does not provide.
+
+**(b) Proposal P-00 — applied.** The custom-skills registration copies
+of SKILL.md had their YAML frontmatter (name + description) stripped
+by the earlier recovery and a "## Available connectors" boilerplate
+appended — the reason the skills surfaced as "Recovered local skill"
+and the source of all 17 FORMAT_DRIFT entries. Each registration copy
+was first verified to match its canonical counterpart under the
+runner's own normalization (the only body difference anywhere was the
+typescript Biome line from call (a)); the copies were then regenerated
+from canonical. All 17 SKILL.md pairs are now byte-identical, the
+registration files (`skill.yaml`) are untouched, and the runner reports
+zero drift of any class.
+
+### What remains open (unchanged by this pass)
+
+Everything under "Proposals — for decision, not applied" above stays a
+proposal: P-0 (toolchain-pairing sections inside the full guides), the
+per-language practice proposals (including the rust-analyzer template
+line and the Box::leak rule as *adoptions* — their facts are now in the
+guides via items 13/14, the Scala JDK-21+ virtual-thread decision rule,
+the TS §23 tsconfig rebuild, the WGSL WESL trial, the PHP 8.5 feature
+set). The stale backlog itself is empty.

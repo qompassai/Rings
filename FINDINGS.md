@@ -1190,3 +1190,13 @@ formal pairing line (uniformity, if wanted); the python
 0.13/0.14 delta gap, which closes the day ziglang.org serves
 the notes to a fetcher. The stale backlog is empty for the
 second consecutive pass.
+
+## Zig version-overlay pilot — 2026-10-15 (structural landing, ruled by Matt)
+
+The Tiger Style versioning doctrine assessment (2026-10-15) found zig the only guide meeting all three tests for a base + per-version delta architecture: a machine-readable version signal in the project (`build.zig.zon`), divergence that invalidates code rather than merely adding features, and one version in force at a time. Matt ruled the pilot; this landing restructures the zig pair accordingly. Guide version 1.1 → 1.2.
+
+- **Architecture.** The full guide is now the 0.17.0 baseline. New `references/deltas/` files — 0.16.md, 0.15.md, 0.14.md, 0.13.md — state only how each older line deviates from the baseline, cross-referenced by section. SKILL.md carries a "Version resolution" protocol: `minimum_zig_version` from `build.zig.zon`, else the toolchain's version, else the baseline assumed; compose baseline + the one delta for an older pin; a delta statement replaces the baseline statement it cross-references, and the baseline wins any other conflict.
+- **Preservation.** A statement-level audit of all 35 version-bearing blocks in the pre-pilot guide: 25 verbatim, 10 restructured with every fact retained, 0 lost (one paraphrase — the 0.15.1 ArrayList allocator mechanism — caught by the audit and restored verbatim into deltas/0.15.md). Headings 46 → 46. §31's compile-verified gate record untouched.
+- **Honest gaps.** The 0.13/0.14 deltas contain only what the guide already verified for those lines and say so; the run-3 flag stands — the gap closes when ziglang.org serves those release notes to a fetcher, not by invention.
+- **Verification.** Pair byte-identical after restructure (only the by-design registration `skill.yaml` differs); guide SHA-256 39bf9df5… in both trees; this audit re-run: exit 0, FAIL-class 0, zig pair status identical, verdict counts unchanged (frozen by runner design).
+- **Efficacy criterion.** The pilot is judged in real use: whether version detection ever misfires on a real project. A misfire is evidence against the architecture; a clean season extends the question to the doctrine's two-lane languages (powershell, scala), not before.

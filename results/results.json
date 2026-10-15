@@ -6137,13 +6137,11 @@
         "pairing_tokens_not_in_guide": [],
         "pins_in_guide_not_in_skill": [
           "0.13.0",
-          "0.14",
           "0.14.0",
           "0.14.1",
-          "0.15",
           "0.15.1",
           "1.0",
-          "1.1"
+          "1.2"
         ],
         "pins_in_skill_not_in_guide": []
       },
@@ -6164,22 +6162,54 @@
       "inventory": {
         "canonical": {
           "SKILL.md": {
-            "bytes": 9087,
-            "sha256": "8b4eefa65f3b71e683eb25a318324c9fde7a0349f5abb728c3e85552cbe29e88"
+            "bytes": 10273,
+            "sha256": "935084b56f9579eabf30c19d729a98ad5672096455b84a62c8f60374d6cb911c"
           },
           "references/TIGER_STYLE_ZIG.md": {
-            "bytes": 41221,
-            "sha256": "ec381a1d2fd32c8446ec334166461003bda3f1cdbaee6f1106f64675b85bdb77"
+            "bytes": 42102,
+            "sha256": "39bf9df5ff591ba7fbad5d9a725cc438079d54a5e2eed8effceed665240ec1cb"
+          },
+          "references/deltas/0.13.md": {
+            "bytes": 2787,
+            "sha256": "0109c330e0c15ec01ab0ed1928aa439a7407b5bfc1ca66baa30fd0881966ee62"
+          },
+          "references/deltas/0.14.md": {
+            "bytes": 2892,
+            "sha256": "d9569d2f14ceec55d476562a3a1d8ddc4ff60e77976329b6d6297c45568ee7eb"
+          },
+          "references/deltas/0.15.md": {
+            "bytes": 3421,
+            "sha256": "6869de818e4a99807b9c5c47da471ae402cea71dc9c3e3e1e9cdc661d2281d88"
+          },
+          "references/deltas/0.16.md": {
+            "bytes": 2010,
+            "sha256": "f5eadbf9508eb5a2df7d229d6469af8c9a2f102a1be7703b824d38fb812c8a1b"
           }
         },
         "custom_skills": {
           "SKILL.md": {
-            "bytes": 9087,
-            "sha256": "8b4eefa65f3b71e683eb25a318324c9fde7a0349f5abb728c3e85552cbe29e88"
+            "bytes": 10273,
+            "sha256": "935084b56f9579eabf30c19d729a98ad5672096455b84a62c8f60374d6cb911c"
           },
           "references/TIGER_STYLE_ZIG.md": {
-            "bytes": 41221,
-            "sha256": "ec381a1d2fd32c8446ec334166461003bda3f1cdbaee6f1106f64675b85bdb77"
+            "bytes": 42102,
+            "sha256": "39bf9df5ff591ba7fbad5d9a725cc438079d54a5e2eed8effceed665240ec1cb"
+          },
+          "references/deltas/0.13.md": {
+            "bytes": 2787,
+            "sha256": "0109c330e0c15ec01ab0ed1928aa439a7407b5bfc1ca66baa30fd0881966ee62"
+          },
+          "references/deltas/0.14.md": {
+            "bytes": 2892,
+            "sha256": "d9569d2f14ceec55d476562a3a1d8ddc4ff60e77976329b6d6297c45568ee7eb"
+          },
+          "references/deltas/0.15.md": {
+            "bytes": 3421,
+            "sha256": "6869de818e4a99807b9c5c47da471ae402cea71dc9c3e3e1e9cdc661d2281d88"
+          },
+          "references/deltas/0.16.md": {
+            "bytes": 2010,
+            "sha256": "f5eadbf9508eb5a2df7d229d6469af8c9a2f102a1be7703b824d38fb812c8a1b"
           },
           "skill.yaml": {
             "bytes": 933,

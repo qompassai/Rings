@@ -847,3 +847,346 @@ independently primary-fetched; scala.static_analysis rests partly
 on run 1's Metals fetch. The json guide's §7 omits jq exit code 4 —
 noted in the record's evidence; the aspect holds and no fix was
 applied (the gap was not primary-sourced in-session).
+
+
+---
+
+## Remediation addendum — pass 3 (2026-10-15)
+
+Ruled by Matt 2026-10-15 as a **full pass**: the three structural
+stale verdicts, the four unverified verdicts, the kotlin gap, P-0,
+and the carried per-language proposals — plus two mid-pass rulings
+folded in as they arrived (the Zig version-awareness refinement,
+06:12 PDT, and the PowerShell 7.x-primary restructure, 06:19 PDT).
+Method as in pass 2: every edit applied to the canonical guide and
+mirrored into the custom-skills registration copy; pairs verified
+byte-identical after every workstream; primary sources only; no
+version pinned that an official release page did not show. Nothing
+was committed or pushed by this pass; Pax verifies and lands.
+Pre-pass backups: `~/workspace/backups/rings-run3-20261015/` and
+`~/workspace/backups/rings-run3-p0-20261015/` (see the backup
+incident record below for confidence grades).
+
+**Why `results.json` still shows run 2's distribution (273 / 21 /
+9 / 3 / 4):** the runner merges verdicts verbatim from the frozen
+research records and has no re-derivation path; this pass, like
+pass 2, was barred from rewriting the records. The pass is proven
+where it can be proven mechanically: **FAIL-class checks 0
+(runner exit 0), drift 0, and all 31 canonical ↔ registration
+pairs byte-identical** under the coordinator's own `diff -r`
+sweep. Every run-2 adverse verdict is dispositioned in guide text
+below.
+
+### The three stale verdicts — closed in guide text
+
+| # | Verdict | Disposition |
+|---|---|---|
+| 1 | zig toolchain_pins | **Re-baselined to 0.17.0 with compile verification** (see the Zig refinement below for the full version-aware treatment). §31's array multiplication replaced by `@splat`; the repaired module was extracted verbatim from the edited guide and run on a checksum-verified official Zig 0.17.0 toolchain (sha256 `1cbe9df9…e2026`, matching the download index): `zig test` **2 passed / 0 failed** in Debug, ReleaseSafe, and ReleaseFast. The legacy `**` form compiles on 0.16.0 (2/0, primo's `/usr/bin/zig`) and **fails to compile on 0.17.0** — proven, not asserted. ZLS stated truthfully: newest verified pairing is ZLS 0.16.0 ↔ Zig 0.16.0; **no ZLS 0.17.0 tagged release was found** as of 2026-10-15, and the guide pins nothing beyond that. Sources: ziglang.org download index + 0.17 notes, ZLS releases. |
+| 2 | php toolchain_pins | **Floor moved: operative floor is now PHP 8.4** (8.3 named below-floor with its dates: active support ended 31 Dec 2025, security-only to 31 Dec 2027); 8.5 adopted selectively — `#[NoDiscard]` and the URI extension as safety features (§5/§9, §19), pipe operator and clone-with as style guidance (§27, §13), `array_first`/`array_last` noted with the set. Static analysis pinned per the run-1 proposal: **one analyser per project, named with version and level — PHPStan 2.3 (`level: max`) or Psalm 6.19 (`errorLevel="1"`)** — with the taint split stated (Psalm offers taint analysis; PHPStan core does not). Sources: php.net supported-versions + 8.5 release page + URI manual; phpstan.org rule levels; psalm.dev error levels + security analysis; both tools' GitHub release pages. |
+| 3 | aseprite toolchain_pins | **LibreSprite divergence table re-verified against upstream v1.3 (October 2026)**, row by row against the v1.3 `SCRIPTING.md` and release page: framing renamed from the 1.1 era to v1.3 with a dated re-verification note; two rows (Commands, Active objects) precised; the **Extensions and CLI rows are marked unverified in the guide itself** (no v1.3 primary source settles them). Run-1 gaps also filled: apiVersion-40 guard row, the custom-file-format plugin API (guard by version/feature detection — the beta notes name no dedicated apiVersion, and the guide says so rather than inventing one), `app.useTool` eyedropper, tag groups (UI-only; no Lua field documented), `--batch` no longer writing `aseprite.ini`. The CLI table is now **binary-verified** against the estate's Aseprite 1.3.18.6-dev (`--help` captured): all flags binary-verified except `--noinapp` (marked docs-verified only); `--shrink-to` and `--play-subtags` added from the binary. |
+
+### The four unverified verdicts — resolved
+
+- **sql toolchain_pins (sqruff) — resolved, and the run-2 record
+  is corrected.** Run 2 recorded that no 0.41 release exists
+  (latest verifiable 0.40.0). That rested on lagging index
+  snapshots: a live fetch of the crates.io version lists (via
+  docs.rs) on 2026-10-15 shows **sqruff, sqruff-lib, and
+  sqruff-lsp all at 0.41.0, released 2026-10-06** — the guide's
+  "0.41 series" was imprecise, not false. The pin now reads
+  exactly 0.41.0 (2026-10-06), re-verified 2026-10-15, with the
+  version lists cited in §41 [S4].
+- **aseprite static_analysis — resolved by honest rewrite.** A
+  Static analysis section now states plainly that Aseprite's
+  scripting surface ships no upstream static analyzer (checked
+  2026-10-15 against the aseprite.org API reference, changes
+  log, scripting and CLI docs) and prescribes the guide's actual
+  gate instead (batch-mode execution; a Lua error or non-zero
+  exit is failure) — with an explicit instruction not to record
+  that gate as "static analysis."
+- **nix concurrency — resolved by sourcing.** §21 rewritten to
+  exactly what the pinned Nix manual (2.34 line) supports, with
+  new sources [N7]–[N9]: `max-jobs` caps parallel local builds,
+  `cores` only sets `NIX_BUILD_CORES` (respecting it is the
+  builder's decision), `max-substitution-jobs` is a separate
+  cap, and the per-build limits default to *no limit* so a bound
+  must be set explicitly. The one documented stop behaviour is
+  stated; **user-initiated cancellation semantics for daemon
+  builds are documented nowhere in the manual, and §21 now says
+  so**, with the remaining sentences relabelled as guide policy.
+- **visualforce formatting — resolved by estate check.** The
+  live diver config on primo (read-only) wires **no formatter
+  for Visualforce markup**: `formatters_by_ft` has no
+  `visualforce` entry, the coverage table lists
+  `visualforce = { formatters = {} }`, and `.page` files are
+  hand-formatted (`.component` routes to `html`). §23 now
+  records that dated fact and keeps the hand-formatting
+  discipline; SKILL metadata corrected `formatter: prettier`
+  → `formatter: none`.
+
+### The two not-addressed gaps — closed
+
+- **kotlin static_analysis:** SKILL.md gains the Toolchain
+  pairing line the other skills carry, and the guide gains a §4
+  Toolchain pairing subsection with a pinned table — **Kotlin
+  LSP v263.6379.0** (JetBrains; the guide states its Alpha
+  status and that the compiler remains the authority),
+  **ktlint 1.8.0** as the single formatter (chosen over ktfmt
+  because its rules live in the project's own `.editorconfig`,
+  enforcing the guide's baseline rather than replacing it),
+  **detekt 1.23.8** (with its built-against-Kotlin-2.0.21
+  caveat printed in the guide). Each pin from its official
+  release page, fetched this pass; the 2.4.21 language pin was
+  re-confirmed against kotlinlang.org.
+- **zig static_analysis:** §27 and SKILL now state honestly
+  that upstream names no standalone analyzer and ZLS provides
+  diagnostics only (re-verified against the ZLS project pages).
+
+### P-0 — applied (all 31 guides)
+
+Every full guide now mirrors its SKILL.md toolchain pairing, in
+its own structure. Dispositions across the 31: **new `### Toolchain
+pairing` subsections in §2** for bash, go, nix, php, python, scala,
+typescript (go's gap was the starkest — gopls, goimports, and
+delve were named nowhere in the guide); **gap-fills inside
+existing tooling sections** for c and cpp (§26: clangd, lldb-dap),
+zig (§2: lldb-dap, with the ZLS caveat mirrored unsimplified),
+java (§27: java-debug DAP), powershell (§27: the PSES debug
+adapter as the DAP route), systemd (§23: the pairing's DAP
+absence stated), yaml (§2: "no debug adapter applies" stated);
+**verified in substance, no edit** for the remaining 17 (incl.
+kotlin via its new §4, odin via §19/§4, css §27, json §2,
+soql §2, visualforce §23/§27). The deliberate-split disposition
+was needed **zero** times — every "does not apply" case
+(formatter/DAP absences) was already recorded inside its guide.
+
+Flags recorded, not silently fixed (P-0 mirrored; it did not
+improvise): **six SKILLs carry no formal "Toolchain pairing:"
+line** — aseprite, lua, mojo, odin, rust, wgsl — their pairings
+live in workflow prose, so P-0's premise holds loosely for
+them; a few SKILLs' metadata lines are narrower than their own
+description pairings (go, php, bash, c/cpp); and **python §27's
+ty pilot sits in tension with its SKILL's ruff-LSP pairing**
+(the §2 block mirrors the SKILL and frames §27 as a separate
+gate). Uniformity rulings are Matt's, separately.
+
+**Coordinator fix (found by the P-0 pass, fixed by the
+coordinator):** soql's SKILL metadata and guide §2 both pointed
+at "section 23" for formatting; formatting is §22 (§23 is
+Comments and Documentation). Both pointers corrected to
+section 22 in both files of the pair; pair re-verified
+byte-identical.
+
+### Carried per-language proposals — dispositions
+
+Applied with evidence unless noted. **apex** formatting:
+Prettier + prettier-plugin-apex recorded as the
+vendor-documented route ([A12]); apexfmt stays the guide's
+formatter, a switch only via one-project trial. **c**
+static_analysis: clang-tidy paired in SKILL + guide §26/§27
+with the pinned starter set. **cmake** testing:
+`discover_tests()` added to §28, gated as CMake 4.4+ against
+the 3.25 floor [C9]. **cpp**: clang-tidy pairing mirroring C;
+libc++ hardening mode must be named (_LIBCPP_HARDENING_MODE
+fast/debug, _GLIBCXX_ASSERTIONS as the libstdc++ equivalent,
+vendor-default-none stated); C++26 contracts (P2900) as a
+watch item with a concrete trigger; `std::inplace_vector`
+noted (its GCC-16 status rests on the run-1 research record —
+see could-not-verify); the `assert(false)` pitfall added as
+guide policy wording (side-effect-free assertions; NDEBUG
+semantics), plainly not dressed as a sourced language claim.
+**css** §2: container style queries "Newly Available
+(May 2026)"; cascade layers "(Newly Available Mar 2022;
+Widely Available Sep 2024)". **dockerfile** §39: re-verified
+against Podman 6 — claim 1 confirmed and now cites the
+mechanism (OCI is the default build format; `Healthcheck` is
+reserved in the OCI image-spec, Docker-only) [D10][D11];
+claims 2–3 hold; re-verification dated in §39. **go**:
+govulncheck as a required gate; testing/synctest as the
+prescribed controlled clock (§28); goroutineleak profile as
+the diagnostics start (§21). **java**: citation swaps
+[J5]→OpenJDK JDK 27 project page, [J7]→JEP 533,
+[J11]→junit.org — claim text unchanged; the [J11] note's
+unverified "6.1.3" figure was dropped rather than carried.
+**json** §7: jq exit code 4 added with the manual's exact
+semantics — under `-e`, exit 4 means no valid result was ever
+produced (not a parse error) — explicitly distinguished so a
+gate cannot misread it; this also corrects the loose
+implication in run 2's note. **lua**: LuaLS diagnostics are
+now the primary static gate (§27/§28) with luacheck's
+documented 5.1–5.3/LuaJIT ceiling stated and luacheck
+retained for the undefined-global sweep; one 5.5 memory note
+(incremental major GC, compact arrays) gated on the declared
+runtime. **mojo**: the LSP named — `mojo-lsp-server`, shipped
+with the full `mojo` package — in SKILL + §16; §9 rewritten
+onto the 1.1 pointer taxonomy (MutPointer/ImmPointer,
+per-operation `unsafe_` marking, MaybeUninit, `deinit()`);
+§4 gains the `imm` row and the `read`-is-a-hard-error note;
+concurrency verified already-scoped in substance (no edit).
+The `unreachable` ownership caveat was **not applied**: the
+guide contains no `unreachable`-style construct anywhere and
+the fetched 1.1 sources say nothing about it — nothing was
+invented (could-not-verify). **nix** security: §18 now names
+unprivileged daemon `repair` as a privilege boundary [N10].
+**odin**: or_* operator naming applied (§10 — it was absent);
+the named static-analysis flag set replaces the vague
+full-strength wording (§19 + SKILL); core:testing facilities
+added (`ODIN_TEST_*` defines, `expect_leaks`,
+`set_fail_timeout`); the core:mem Scratch caution added;
+odinfmt/pin-stamp items verified already-applied in pass 2.
+**python**: PEP 661 sentinel + PEP 814 frozendict on the
+3.15 baseline (hand-rolled idiom retained for 3.12–3.14);
+PEP 750 t-strings at injection boundaries (§18); ty pilot
+wording in §27 (mypy --strict stays the gate). **rust**:
+rust-analyzer added to the §2 toolchain template components;
+the Box::leak rule added (no round-trip reclamation;
+`into_raw`/`into_non_null` where reclamation is contractual).
+**scala**: the virtual-thread decision rule added to §21;
+the two-track pin policy (LTS 3.9.x / Next 3.10.x with a
+source-migration check) written into §2. **systemd**:
+`Type=notify-reload` added (§6 + §20 cross-reference) with
+man-page semantics; [S6] swapped from Wikipedia to the
+official systemd v262 release. **typescript**: §23 tsconfig
+example rebuilt for the 6/7 world (explicit rootDir/types,
+nodenext/bundler, the "removed in 7.0, never use" list);
+the §27 dual-install verified present and untouched, as was
+the Biome-only settlement. **wgsl**: WESL trial wording
+added (trial on one shader; strip-and-naga stays
+authoritative until a passed trial is recorded) and the
+naga-pin rule made explicit in §2.
+
+### Mid-pass ruling 1 — Zig version-awareness (Matt, 06:12 PDT)
+
+The guide is now **version-aware across 0.13–0.17**, not
+merely re-pinned: 0.17.0 is the baseline; a version-differences
+treatment lives in §2 subsections (placed there to avoid
+renumbering), covering only deltas that touch the guide's own
+prescriptions; version-gated guidance is marked inline
+(§10 unmanaged-since-0.15.1; §18/§26 the translate-c route by
+era — pre-0.16 `@cImport`, 0.16 `addTranslateC`, 0.17 the
+official translate-c package with `@cImport` removed; §19–§21
+the 0.16 I/O model; §31 `@splat` with the ≤0.16 `**` form
+noted); a consistencies statement (§2, "What holds unchanged
+across 0.13–0.17") is scoped to the contracts actually
+verified; and the ecosystem reality is addressed in §25 —
+check `minimum_zig_version` in a package's `build.zig.zon`
+(the field grounded in the 0.17.0 toolchain's own
+`lib/init/build.zig.zon` template), with what to do when a
+package's floor differs from your pin. The 0.15.1/0.16/0.17
+rows rest on the run-1 cited record plus direct verification
+against the two real toolchains (0.17 std has `DebugAllocator`
+and no `GeneralPurposeAllocator`; the 0.17 langref contains
+zero `@cImport`; `zig test --help` lists `-ffuzz`); **the
+detailed 0.13.0/0.14.x release-notes deltas could not be
+fetched** (ziglang.org returned HTTP 403 to this pass's
+fetcher and the denial was not routed around) — only their
+release dates, from the official download index, are stated.
+That gap is recorded in the guide and in could-not-verify
+below, per the ruling's own terms.
+
+### Mid-pass ruling 2 — PowerShell 7.x primary (Matt, 06:19 PDT)
+
+The powershell pair is restructured: **7.x is the primary
+line throughout** — §2 opens by stating every prescription,
+example, and pin assumes it (7.6 LTS / 7.6.7 target,
+re-verified against the PowerShell releases page and the
+Microsoft lifecycle page; 7.6 supported to 2028-11-14 now
+recorded). All surviving 5.1 material is gathered into one
+headed subsection in §2, **"The legacy lane: Windows
+PowerShell 5.1"** — entry rules plus a divergence table
+re-headed "pwsh 7.x (this guide's answer) | Legacy lane" —
+expanded only where the Microsoft differences article
+substantiates a divergence the guide treats (`$OutputEncoding`,
+`-AsByteStream` vs `-Encoding Byte`, `pwsh.exe` vs
+`powershell.exe`, the removed-surface paragraph with
+`Import-Module -UseWindowsPowerShell` as the documented
+exception path). Outside §2, a 5.1 divergence appears only as
+an inline note prefixed **Legacy (5.1):** — exactly three
+(§20, §23, §26); where behaviour is identical the guide now
+says nothing about 5.1 at all. SKILL.md matches the posture.
+The run-2 cures survive verbatim in substance (the
+`$PSNativeCommandArgumentPassing` platform default in §2 and
+§20; [S6]/[S7] at PSES v4.7.0); §31 was already 7-only and is
+unchanged. Sources [S9]–[S11] added.
+
+### Backup incident — process record (2026-10-15)
+
+Mid-pass, the run-3 backup tree
+(`~/workspace/backups/rings-run3-20261015/`) lost the backup
+subdirectories of 10 languages. Cause, established from the
+workers' own factual statements: **one worker (zig) ran
+`rm -rf` on the backup root once**, after a failed `cp -a`,
+recreating only its own backups, without having listed the
+tree's contents first. Every other worker's statement
+accounts for copies-in and reads only. The coordinator
+snapshotted the surviving tree
+(`rings-run3-20261015.snapshot-1319z`) and instructed all
+running workers to re-establish backups before further
+edits. Final confidence grades: **original + hash-verified**
+— php, sql, rust, python, scala, typescript, wgsl, nix and
+visualforce (the last two reconstructed mid-pass by their
+worker and verified byte-exact against pre-edit SHA-256s it
+had recorded), c, cpp, go, lua, mojo, odin (created before
+that worker's first edit, diff-verified, hashes recorded),
+powershell, and both P-0 backup sets (145 files,
+SHA-256-verified). **Reconstructed, not hash-verified** —
+the seven batch-3 guides (apex, cmake, css, dockerfile,
+java, json, systemd), reversed from 19 recorded edits with
+every reversal asserted to match exactly one occurrence and
+sentinel-checked (reconstruction source retained at
+`rings-run3-20261015-seven/`), and the zig guide, reversed
+against its then-unedited registration twin with full hunk
+accounting (8 hunks = its 7 recorded edits). The live trees
+were never at risk — every pair was verified byte-identical
+independently of the backups — but rollback fidelity for
+those eight guides rests on reversal accounting, not
+hashes. Standing fix adopted mid-pass and applied to all
+later workstreams: record SHA-256 before editing, verify
+the backup copy against it, and no delete/move operation
+under the backup tree, ever.
+
+### What could not be verified (consolidated)
+
+- Zig 0.13.0 / 0.14.x detailed release-notes deltas (HTTP
+  403 from ziglang.org; not routed around) — dates only.
+- ZLS's full tag list (releases page only partially
+  extractable): the guide's claim is "no 0.17.0 tag found as
+  of 2026-10-15," not an absolute.
+- The Mojo `unreachable` ownership caveat (no such construct
+  in the guide; nothing in the fetched 1.1 sources).
+- LibreSprite Extensions and CLI divergence rows — marked
+  unverified in the guide itself.
+- Java [J10] (Oracle JDK 21 licensing) — untouched since
+  run 2; still no primary source.
+- PHPStan's taint absence in explicit form: no phpstan.org
+  page states it in so many words; the split rests on
+  Psalm's documented feature vs PHPStan core's documented
+  feature set — the strongest primary basis available.
+- C++ `std::inplace_vector`'s GCC-16 experimental status:
+  the fetched GCC page contained no quotable line; the note
+  rests on the run-1 research record. P5000R1 was recorded
+  from FINDINGS, not re-fetched (the operative P2900 status
+  claim rests on the fetched Clang status page).
+- Exact release dates for PHPStan 2.3.1 / Psalm 6.19.1 (the
+  fetched release pages did not expose them; the guides pin
+  version + level with review context instead of inventing
+  dates). Bevy's wesl 0.6.0 bump date (run-2 note) was not
+  re-fetched and was not relied on.
+- Noted, out of scope: `visualforce_ls`'s spec exists in the
+  diver config but its server entry is commented out
+  (`--TODO: install/validate`) in both `lsp/init.lua` and
+  `lua/config/lsp.lua`, while `coverage.lua` lists it — a
+  diver-config state question, not a guide claim.
+
+### What remains open after pass 3
+
+Nothing from the run-2 adverse list survives in guide text:
+stale 3 closed, unverified 4 resolved, both not-addressed
+gaps closed, P-0 applied to all 31, the carried proposals
+dispositioned above, and both mid-pass rulings landed. Left
+for Matt as rulings, not defects: the six SKILLs without a
+formal pairing line (uniformity, if wanted); the python
+§27/SKILL checker tension; java [J10]; and the zig
+0.13/0.14 delta gap, which closes the day ziglang.org serves
+the notes to a fetcher. The stale backlog is empty for the
+second consecutive pass.

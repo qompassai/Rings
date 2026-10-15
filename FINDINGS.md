@@ -593,3 +593,257 @@ line and the Box::leak rule as *adoptions* — their facts are now in the
 guides via items 13/14, the Scala JDK-21+ virtual-thread decision rule,
 the TS §23 tsconfig rebuild, the WGSL WESL trial, the PHP 8.5 feature
 set). The stale backlog itself is empty.
+
+---
+
+## Run 2 — 2026-10-14 (second audit; all 31 guides)
+
+Run 2 re-audited the full estate: the 17 original guides (fresh records
+replacing run 1's — git history preserves run 1) plus the 14 guides
+authored 2026-10-14 (apex, cmake, csharp, css, dockerfile, html, java,
+json, powershell, soql, sql, systemd, visualforce, yaml), audited here
+for the first time. Every record was judged against current primary
+sources under the runner's citation rule: a stale, contradicted, or
+improved-elsewhere verdict without a primary-source citation is
+downgraded to unverified by the runner itself. The runner regenerated
+INVENTORY.md (31 guides; no diver copies exist for the 14 new guides)
+and reports canonical ↔ registration pairs byte-identical for all 31.
+
+### Distribution — 310 verdicts
+
+| Verdict | Run 2 | Run 1 (170 verdicts, 17 guides) |
+|---|---|---|
+| holds | 273 | 97 |
+| stale | 3 | 30 |
+| contradicted | 0 | 0 |
+| improved-elsewhere | 21 | 18 |
+| not-addressed | 9 | 9 |
+| unverified | 4 | 16 |
+
+FAIL-class checks: 0. The run-1 stale backlog (30) is verified closed
+in the guide text: every remediated item was re-judged against the
+current text and holds. Run 2 found 14 fresh adverse verdicts of the
+stale/contradicted class across 8 guides; 11 were genuine small text
+defects and were cured in the coordinator pass below, flipping those
+aspects to holds. The 3 remaining stale verdicts are structural (see
+"Remaining adverse verdicts").
+
+Per-aspect (holds / adverse):
+
+| Aspect | Holds | Adverse |
+|---|---|---|
+| assertions_contracts | 29 | 2 improved-elsewhere |
+| bounded_work | 30 | 1 improved-elsewhere |
+| concurrency | 28 | 1 not-addressed, 1 improved-elsewhere, 1 unverified |
+| error_handling | 30 | 1 improved-elsewhere |
+| formatting | 28 | 1 improved-elsewhere, 1 not-addressed, 1 unverified |
+| memory_ownership | 25 | 4 not-addressed, 2 improved-elsewhere |
+| security | 28 | 3 improved-elsewhere |
+| static_analysis | 21 | 7 improved-elsewhere, 2 not-addressed, 1 unverified |
+| testing | 27 | 3 improved-elsewhere, 1 not-addressed |
+| toolchain_pins | 27 | 3 stale, 1 unverified |
+
+Twelve guides hold on all 10 aspects: csharp, css, dockerfile, html,
+java, json, powershell, rust, scala, soql, typescript, yaml. Apex holds
+9 (formatting improved-elsewhere). Every other guide's adverse verdicts
+are listed with reasons below.
+
+### Curative fixes applied in the run-2 coordinator pass
+
+28 exact-string cures across 16 guides, each applied to BOTH trees of
+the pair (canonical `~/workspace/skills/` + registration
+`~/workspace/custom-skills/`); all 31 pairs verified byte-identical
+afterward (SKILL.md + references/). Both trees were backed up first to
+`~/workspace/backups/rings-run2-20261014/`. The affected research
+records mark each fix `applied — run-2 coordinator pass 2026-10-14`
+and the 11 verdicts that rested solely on a cured defect were
+re-judged to holds on the cured text.
+
+- **apex** (6): governor heap row and both restatements updated to the
+  Winter '27 values (10 MB synchronous / 25 MB asynchronous — the guide
+  named Winter '27 current but carried the Summer '26 numbers); §2's
+  unqualified "system mode by default" given the API 67.0 fork (at
+  67.0+ database operations default to user mode, omitted sharing
+  defaults to `with sharing`); §18 and the §29 checklist now mark
+  `WITH SECURITY_ENFORCED` as legacy (removed at API 67.0+, does not
+  compile; use `WITH USER_MODE`) — the sibling SOQL guide already
+  stated this correctly. Flipped bounded_work, memory_ownership,
+  toolchain_pins (stale) and security (contradicted) to holds.
+  Citations: Salesforce Winter '27 developer guide; Apex security and
+  sharing chapter.
+- **c** (1): §27's `-DNDEBUG` companion recipe now uses `-std=c23`,
+  matching §2, the §27 sanitizer recipe, and SKILL.md. Flipped
+  toolchain_pins to holds.
+- **cmake** (1): §20's `execute_process` environment guidance now
+  scopes `ENVIRONMENT_MODIFICATION` to CMake 4.4+ (where it was added)
+  with the set/restore `ENV{}` form at the guide's own 3.25 floor.
+  Flipped toolchain_pins (contradicted) to holds.
+- **dockerfile** (3): Podman 5 → 6 in SKILL.md compatibility, the
+  guide header, and source [D8] (link now the Podman releases index,
+  "the Podman 6 line"; 6.1.2 is the current patch and the 5.8 line
+  reached EOL 2026-09-26). Flipped toolchain_pins to holds.
+- **html** (1): §26's "`inert` … widely available since 2023"
+  corrected — Baseline newly available April 2023, widely available
+  since October 2025 (web-features dataset, the guide's own [H3]).
+  Flipped toolchain_pins to holds.
+- **java** (1): §23 no longer calls google-java-format 1.36.1 "the
+  current upstream release" — the estate pin stays 1.36.1 and the text
+  now states the current upstream release is 1.37.0. Flipped
+  formatting to holds.
+- **kotlin** (1) and **odin** (1): baseline-table review dates
+  (2026-09-21) predated the guides' own pins (Kotlin 2.4.21,
+  2026-10-08); advanced to 2026-10-14. Verdicts already held.
+- **lua** (1): SKILL.md workflow step 1 aligned to the guide baseline
+  (Lua 5.5+; 5.4 legacy where declared). Filed as a proposal by the
+  researcher; cured as the same SKILL-lag class as the python fix.
+- **php** (3): SKILL.md (×2) and the guide §30 checklist now name
+  PER-CS with php-cs-fixer, matching the guide's own §24 (PER-CS
+  "extends, expands and replaces PSR-12", php-fig.org). Flipped
+  formatting to holds.
+- **powershell** (3): §20 and the §2 lane table no longer claim
+  `Standard` is the universal default for
+  `$PSNativeCommandArgumentPassing` since 7.3 — the default is
+  `Windows` on Windows, `Standard` on non-Windows (Microsoft Learn);
+  source [S7] link advanced v4.6.0 → v4.7.0 (matching [S6]). Flipped
+  toolchain_pins (contradicted) to holds.
+- **python** (1): SKILL.md workflow step 1 now matches the guide
+  header (primary target CPython 3.15; 3.14 supported; 3.12
+  security-only floor). Verdict already held.
+- **rust** (1): SKILL.md unsafe policy no longer says "consider
+  `#![deny(unsafe_op_in_unsafe_fn)]`" — it denies it, matching the
+  full guide §9 edition-2024 baseline. Verdict already held.
+- **sql** (1): §41 source [S1] note updated — PostgreSQL 19 Beta 4
+  released 2026-09-24 (the note cited Beta 3). §2's ruling (19 is
+  beta, not a target) unchanged; toolchain_pins stays unverified for
+  the separate sqruff reason below.
+- **systemd** (1): §41 source [S1] — stray `?ref=hackernoon.com`
+  stripped from the freedesktop.org systemd.exec URL.
+- **typescript** (2): SKILL.md workflow step 1 now pins TypeScript
+  7.0+ (6.0 only as the API sidecar) instead of "5.9+"; the
+  description's LSP pairing now matches the file's own compatibility
+  line (ts_ls against the 6.x API, or TypeScript 7's bundled native
+  language server; deno_ls for Deno) instead of naming the superseded
+  tsgo_ls. Verdicts already held.
+
+### Remaining adverse verdicts
+
+**Stale (3) — all structural, deliberately not string-fixed:**
+
+- **aseprite.toolchain_pins** — the run-1 stale items are verified
+  fixed, but the guide's LibreSprite divergence table frames the 1.1
+  era; upstream shipped v1.3 (October 2026; Aseprite itself at
+  v1.3.18.6, 22 Sep 2026). Whether the divergence rows still hold
+  against 1.3 needs a re-verification pass, not a version bump.
+- **php.toolchain_pins** — the 8.3 support floor is the unapplied
+  run-1 proposal (8.3 has been security-only since 2025-12-31). The
+  SKILL compatibility line already says 8.4+/8.5; moving the
+  operative floor is Matt's adoption call, not a text defect.
+- **zig.toolchain_pins** — new in run 2 (run 1 missed it): Zig
+  0.17.0 shipped 2026-10-01; the guide pins 0.16.0, and its §31
+  reference module uses `[_]i64{0} ** item_count` array
+  multiplication, removed in 0.17.0 (correct spelling `@splat`).
+  Re-baselining needs compile verification of the reference module —
+  its own pass.
+
+**Unverified (4) — no primary source settles the claim either way:**
+
+- **aseprite.static_analysis** — no Aseprite-specific primary source
+  exists for a static-analysis practice; unverified in both passes.
+- **nix.concurrency** — no primary source for daemon job-parallelism
+  or cancellation semantics; the guide's scoping is internally
+  correct. Unverified in both passes.
+- **sql.toolchain_pins** — the guide's sqruff "0.41 series" pin: no
+  0.41 release could be found (latest verifiable 0.40.0 for the
+  lib/lsp crates, 2026-08-14; main crate listing 0.39.0). Not
+  refuted, so unverified; the record carries a proposal to confirm
+  against crates.io and pin an exact version.
+- **visualforce.formatting** — Salesforce's Prettier documentation
+  does not name Visualforce .page/.component; whether the estate's
+  Prettier setup formats VF markup needs a local diver-config check
+  no primary source settles.
+
+**Not-addressed (9):** aseprite.concurrency, aseprite.formatting,
+aseprite.memory_ownership, aseprite.testing — the aspects genuinely
+do not apply to the Aseprite tool itself (nearest analogues are
+covered under other aspects, documented in the record's
+aspect_adaptations). bash.memory_ownership, php.memory_ownership,
+wgsl.memory_ownership — same honest non-applicability (shell, PHP,
+shader language; analogues covered elsewhere in each guide).
+kotlin.static_analysis — a real gap: neither file names an LSP,
+formatter, or static-analysis tool at all. zig.static_analysis —
+neither file names an analyzer or states that none exists upstream.
+
+**Improved-elsewhere (21) — better practice exists that the guides
+do not yet carry; nearly all are the unapplied run-1 practice
+proposals, re-verified against the current text:** apex.formatting
+(Prettier + prettier-plugin-apex is Salesforce's officially
+documented formatting route; apexfmt remains legitimate — trial
+proposed); c.static_analysis (clang-tidy still unnamed);
+cmake.testing (§28 never names CMake 4.4's `discover_tests()`);
+cpp ×4 (libc++ hardening mode, C++26 contracts migration note,
+clang-tidy, `std::inplace_vector` — plus the `assert(false)` pitfall
+proposal, still unaddressed); go ×3 (govulncheck,
+testing/synctest, the goroutineleak pprof profile); lua ×2 (Lua 5.5
+GC / compact-arrays note; luacheck support ceiling + LuaLS gate);
+mojo.static_analysis (the Mojo LSP ships upstream but is unnamed);
+nix.security (§18 still does not name the
+unprivileged-daemon-repair boundary); odin ×2 (the `-vet` flag set;
+`ODIN_TEST_*` defines); python ×4 (PEP 661 sentinel, PEP 814
+frozendict, PEP 750 t-strings, the ty/Pyrefly checker landscape);
+systemd.error_handling (`Type=notify-reload` never mentioned).
+
+### Recorded but not introduced by run 2
+
+- The runner records one canonical↔diver drift: lua SKILL.md.
+  Pre-existing: diver carries a 1,012-line layered variant of the
+  Lua skill (canonical is 89 lines); the files differed long before
+  run 2, and the runner treats diver agreement as recorded state,
+  not a failure. Canonical ↔ registration remains byte-identical
+  for all 31 guides. Diver mirrors stay Matt's live-first call.
+
+### Deliberately not fixed (findings for Matt)
+
+- zig re-baseline to 0.17.0 and the php 8.3 floor move (above).
+- typescript §23's tsconfig example (ES2022/CommonJS) — subsumed by
+  the carried tsconfig-rebuild proposal; the record's fix entry is
+  marked not-applied/proposal.
+- css §2 wording precisions (container style queries are Baseline
+  Newly Available since May 2026; the cascade-layers "Widely
+  Available (since 2022)" phrasing is ambiguous — 2022 was Newly
+  Available). Recorded as proposals in css.json.
+- mojo `imm` convention row and `unreachable` caveat — content
+  additions, carried as proposals (the `unreachable` proposal is a
+  reconstruction; its run-1 wording survives only in run 1's
+  FINDINGS headline).
+- java Sources [J5]/[J7]/[J11] cite non-primary pages for claims
+  verified true against OpenJDK primaries; citation swaps proposed,
+  not applied. [J10]'s Oracle JDK 21 licensing claim could not be
+  verified from a primary source in-session.
+- dockerfile §39 OCI/HEALTHCHECK claims should be re-verified
+  against Podman 6 — proposed, not part of the Podman 5→6 cure.
+- systemd [S6] (Wikipedia) → official-release citation swap —
+  proposed.
+
+### Carried over — still awaiting Matt
+
+Proposal P-0 (toolchain-pairing sections inside the full guides) and
+the per-language practice proposals from run 1 remain unapplied by
+design: the rust-analyzer template line, the Box::leak adoption
+rule, the Scala virtual-thread decision rule + 3.10 migration check,
+the TypeScript dual-install policy + §23 tsconfig rebuild, the WGSL
+WESL trial (strengthened in run 2: Bevy bumped wesl 0.6.0 on
+2026-10-07), the PHP floor/feature moves, and the improved-elsewhere
+items above, which are those proposals wearing verdicts.
+
+### What could not be verified
+
+nix.concurrency and aseprite.static_analysis (no primary source
+exists — see Unverified). Zig 0.17.0's ship is well-evidenced
+(download index + release notes) though ziglang.org fetches were
+unreliable in-session (403 / stale snapshot). Biome's exact current
+patch, Pester 6.1.0's currency, JDT LS 1.61.0, and netcoredbg's
+state were taken from the guides' own cited pages rather than
+independently primary-fetched; scala.static_analysis rests partly
+on run 1's Metals fetch. The json guide's §7 omits jq exit code 4 —
+noted in the record's evidence; the aspect holds and no fix was
+applied (the gap was not primary-sourced in-session).

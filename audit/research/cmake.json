@@ -1,0 +1,136 @@
+{
+  "aspect_adaptations": "All 10 aspects apply with two honest adaptations: concurrency is read as parallel build and parallel test semantics (declared DEPENDS edges as the correctness condition, job pools as the budget, CTest RESOURCE_LOCK and fixtures under -j); memory_ownership is read as target and artifact discipline (who owns each target, generated file and build directory, configure-time cost and cache retention as the bounded resources, the disposable build directory as the lifetime unit). static_analysis is the language-server pairing (neocmakelsp) plus configure-time policy, CMake having no separate linter in the guide's toolchain.",
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "Matches the documented command set: message levels, DEFINED-vs-truthiness separation under if(), and the documented false-constant list are all as the guide states them, and failing the configure is the only enforcement a build description has. Nothing in current CMake documentation offers a stronger contract primitive the guide omits.",
+      "citations": [
+        "https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html"
+      ],
+      "evidence": "Guide sections 4, 7 and 8 state the contract forms with worked examples; the reference project in section 31 implements the in-source-build precondition as its first check after project(), and the consumer-smoke build passed on the authoring night.",
+      "guide_position": "CMake has no assertion statement, so the assertion is an explicit check that fails the configure: message(FATAL_ERROR) for a violated precondition with the variable named, its actual value and the legal values; message(SEND_ERROR) when several independent problems should be reported in one pass with generation still suppressed; validation happens early, at the boundary where the bad value enters; existence is guarded before value (if(NOT DEFINED VAR) first) because if() on an undefined variable is silently false; postconditions are properties of the generated graph (sources exist on disk, exported targets name their export set, every test has a timeout) checked by the validation recipes.",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "No Kitware source contradicts the bounds; the mechanisms the guide binds (test TIMEOUT, execute_process TIMEOUT, job pools, hash-pinned downloads) are the documented ones, and banning file(GLOB) for sources reflects the documented configure-time evaluation of glob results. Stricter than mainstream practice by design.",
+      "citations": [
+        "https://cmake.org/cmake/help/latest/command/target_sources.html"
+      ],
+      "evidence": "Guide section 5 enumerates each bound with its mechanism, and section 38 models the suite's worst case as a computable number from the per-test timeouts.",
+      "guide_position": "Explicit source lists and file sets only (file(GLOB) banned for sources; CONFIGURE_DEPENDS is the named, commented exception); a TIMEOUT on every add_test and every execute_process; downloads pinned by URL_HASH or full commit hash; compile and link job pools bounding peak parallel memory; generated files declared as bounded OUTPUT/BYPRODUCTS with real DEPENDS edges and nothing generated into the source tree; the supported configuration space is the committed preset list, not the cross product of every cache variable; a failed configure is fixed at the input and re-run from the same preset, never retried as a strategy.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "Consistent with the documented build model: the generator schedules from the declared graph, job pools are the documented memory-bounding mechanism for Ninja, and CTest's RESOURCE_LOCK and FIXTURES_* properties are the documented tools for exclusive resources and ordered setup under parallel test runs.",
+      "citations": [
+        "https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html"
+      ],
+      "evidence": "Guide sections 14, 16 and 21 state the dependency-edge rule, the pool mechanism and the CTest contracts together, so a parallel build's correctness claim rests on declared edges rather than on build order.",
+      "guide_position": "CMake configures serially, so concurrency lives in the generated build and the test run, and both are correct only when dependencies are declared: any file target B reads from target A's build is a target-level dependency (target_link_libraries, add_dependencies, or an OBJECT/INTERFACE carrier), never preset build order or a comment; named job pools defined in the root listfile (CMAKE_JOB_POOL_COMPILE/LINK or per-target assignment) bound peak memory, with the link pool as the usual ceiling; ExternalProject steps that share a prefix need explicit step dependencies or separate prefixes; under ctest -j, exclusive resources declare RESOURCE_LOCK and fixture pairs use FIXTURES_SETUP/CLEANUP/REQUIRED; test processes that spawn grandchildren own reaping them.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "The message-level discipline and call-site result checking match the documented behavior of message, execute_process, try_compile/try_run and find_package; execute_process even documents COMMAND_ERROR_IS_FATAL (since 3.19), which complements rather than replaces the guide's checked-result pattern where the captured output must appear in the error message.",
+      "citations": [
+        "https://cmake.org/cmake/help/git-stage/command/execute_process.html"
+      ],
+      "evidence": "Guide sections 7 and 20 state the level discipline, the immediate result check with the command line in scope for the message, and the three distinct failure kinds (exit code, signal string, not started).",
+      "guide_position": "Configure-time errors are the build system's type errors, caught where the bad value enters: FATAL_ERROR stops because the graph cannot be trusted, SEND_ERROR records and suppresses generation, WARNING is reserved for deprecations and surprising-but-legal states (a warning that fires every configure will be ignored), STATUS/VERBOSE/DEBUG carry progress and diagnostics; every execute_process result is checked immediately at the call site and a failure names the command line, the result and the captured output; try_compile/try_run results are variables and an unchecked one is an unhandled error; find_package(... REQUIRED) failing is the error handling, with optional packages decided in exactly one place via <pkg>_FOUND; error messages name the variable to change, the value found and the constraint violated.",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "cmake-format from the cmakelang project is a real, maintained-enough formatter whose 0.6.13 release the guide pins; pinning a slow-cadence formatter and gating it in CI is a defensible reading of the project's actual release behavior, and no Kitware-provided formatter exists to prefer instead.",
+      "citations": [
+        "https://cmake-format.readthedocs.io/en/latest/release_notes.html"
+      ],
+      "evidence": "Guide section 23 states the pinned version, the committed config requirement (including the cmakelang[yaml] extra needed for the YAML config form), and the one-formatter/one-server rule; sections 27 and 28 put cmake-format --check into the validation recipes.",
+      "guide_position": "One formatter, pinned: cmake-format (cmakelang, 0.6.13) with a committed .cmake-format.yaml at the repository root (line_width 100, indent choice stated explicitly rather than inherited), run as cmake-format --check over every listfile and module in CI; formatting exceptions go through the config (# cmake-format: off around the smallest region), never per-file argument; one LSP (neocmakelsp) and never two formatters or two servers against one file; a diff that mixes a reformat with a logic change is two diffs.",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "No official source contradicts the ownership model; the bounded-inspection route the guide prefers (the CMake file API) over parsing CMakeCache.txt or generated build files is the documented external interface, and treating the cache as user input is the documented consequence of its persistence semantics.",
+      "citations": [
+        "https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html"
+      ],
+      "evidence": "Guide sections 11, 14 and 15 state the four state owners, the disposable-directory rule and the quadratic-list and unbounded-regex hazards with their bounded alternatives (file(STRINGS) with LIMIT_INPUT/LIMIT_COUNT, the file API for inspection).",
+      "guide_position": "State has four owners: normal variables (the default), the cache (the build directory's persistent, public, user-input surface: typed, docstringed, never hand-edited, and a stale cache is deleted with its whole directory rather than surgically patched), properties (attached state with a named owner; global properties are append-only registries owned by one module), and the filesystem (generated files under the binary dir, declared as OUTPUT/BYPRODUCTS, consumed through declared dependencies; configure leaves no litter in the source tree); configure-time cost is the memory discipline: list operations stay in one scope to avoid quadratic copying, string(REGEX) never runs over unbounded input, and project data is never parked in the cache to keep it around.",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "Consistent with Kitware's documented model: listfiles execute with the user's full authority, script mode is not a sandbox, and the download-pinning mechanisms (URL_HASH, full-commit GIT_TAG, OVERRIDE_FIND_PACKAGE) are the documented FetchContent controls. The guide's registry and PATH-poisoning cautions follow from the documented find_package/find_program search behavior.",
+      "citations": [
+        "https://cmake.org/cmake/help/latest/release/4.0.html"
+      ],
+      "evidence": "Guide sections 18, 19 and 25 state the supply-chain rules per dependency class, the containment-check discipline (cmake_path IS_PREFIX and file(REAL_PATH) before comparison), and the staged-install rule that an install is never rehearsed against a real prefix.",
+      "guide_position": "A configure step is code execution with the developer's credentials, so network at configure time is a declared, opt-in supply-chain event: every download is pinned by URL_HASH (SHA-256 or stronger) or a full commit hash, never a branch or floating tag; FetchContent runs behind OVERRIDE_FIND_PACKAGE so a reviewed system or vendored copy wins before any download; nothing fetched during a configure is included or executed in the same configure without a hash check in between; CI presets deliberately disable the package registries so a stray ~/.cmake/packages entry cannot redirect a dependency; secrets never enter the cache, a preset or a generated file; builds are out-of-source only, configure-time writes stay inside the binary dir, installs are staged into a scratch prefix first, and recursive deletes name a variable validated to be inside the build or staging directory in the same scope.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "neocmakelsp is an actively released Rust, tree-sitter-based language server (0.11.0, July 2026) and the guide's comparison against cmake-language-server (latest tag v0.1.11, Python, build-tree-aware but smaller LSP surface) reflects both projects' actual states; naming one server per buffer while keeping the formatter constant is a coherent pairing, and diver's wiring of both servers is disclosed rather than hidden.",
+      "citations": [
+        "https://github.com/neocmakelsp/neocmakelsp"
+      ],
+      "evidence": "Guide section 23 makes the comparison explicitly, names neocmakelsp as the one server per buffer, and keeps cmake-format as the formatting path in both cases so the two servers never compete to rewrite a file.",
+      "guide_position": "One language server per buffer: neocmakelsp (completion, hover, go-to-definition across files, signature help, lint diagnostics), with cmake-language-server acknowledged as the build-tree-aware alternative and an explanation owed if both are ever run; CMake's own configure-time instruments carry the rest of the analysis load (profiling output, scoped --trace-source, -Wdev --debug-output), and policy state is managed explicitly via the range form of cmake_minimum_required plus PUSH/POP around any local policy change in a module.",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "The CTest wiring matches the documented property set, but CMake 4.4 moved the discovery landscape the guide describes: the 4.4 release notes add a discover_tests() command that registers tests discovered at test time by running a user-provided discovery command and generating test names, arguments and properties from regular-expression captures, alongside per-test test_prep build targets under Ninja (CMAKE_TEST_BUILD_DEPENDS). The guide's section 28 names only the gtest_discover_tests/catch_discover_tests helpers and mentions current per-test preparation targets without naming discover_tests(), so its discovery menu predates the current release it otherwise tracks.",
+      "citations": [
+        "https://cmake.org/cmake/help/latest/release/4.4.html"
+      ],
+      "evidence": "The official CMake 4.4 release notes list discover_tests() among the new commands and the test_prep target behavior for Ninja generators; guide section 28's discovery paragraph covers DISCOVERY_TIMEOUT-inheriting module helpers only, with no occurrence of discover_tests.",
+      "guide_position": "Tests exist at two levels, both bounded, labelled and split evenly: CTest wiring (include(CTest) at the top level only, tests defined beside their target, every add_test carrying TIMEOUT and LABELS and a WORKING_DIRECTORY where it reads fixtures, discovery helpers run with explicit DISCOVERY_TIMEOUT and inherited PROPERTIES) and tests of the build itself (validation: clean preset configure on a fresh directory, full suite at -j with resource locks declared, staged install consumed by a find_package-only smoke project, cmake-format --check; adversarial: stale-cache generator mismatch failing loudly, offline unpopulated configure failing fast with the dependency named, a hidden required package failing at its find_package, preset drift checked against cmake --list-presets, cache poisoning made inert by the fresh-directory recipe, and multi-config generator-expression honesty), with build tests run on the floor CMake as well as the current one.",
+      "verdict": "improved-elsewhere"
+    },
+    "toolchain_pins": {
+      "best_practice": "Every version claim is current: CMake 4.4.4 is the latest release (8 October 2026), 4.0 removed pre-3.5 compatibility so a sub-3.5 floor is an error, the mandated-feature table's version attributions (file sets and CMAKE_LINK_LIBRARIES_ONLY_TARGETS in 3.23, OVERRIDE_FIND_PACKAGE and CMAKE_COMPILE_WARNING_AS_ERROR in 3.24, workflow presets and preset schema 6 in 3.25) match the release notes and the cmake-presets manual (workflow presets were added in presets version 6), and 4.4 did add cmake_diagnostic(), --presets-file and the SOURCES file-set type. One prescription breaks the guide's own floor rule, however: the official execute_process documentation marks its ENVIRONMENT and ENVIRONMENT_MODIFICATION options 'Added in version 4.4', while guide section 20 prescribes ENVIRONMENT_MODIFICATION for execute_process with no version qualifier, on a guide whose section 2 calls using a feature above the 3.25 floor without raising it a review failure.",
+      "citations": [
+        "https://cmake.org/cmake/help/git-stage/command/execute_process.html",
+        "https://cmake.org/cmake/help/latest/release/4.4.html",
+        "https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html"
+      ],
+      "evidence": "The execute_process command documentation (Kitware) carries 'Added in version 4.4' on both ENVIRONMENT and ENVIRONMENT_MODIFICATION, and the 4.4 release notes list the same options as new; guide section 20's sentence ('pass ENVIRONMENT_MODIFICATION (or set and restore ENV{...} in a narrow scope)') presents the 4.4-only form first and unqualified, contradicting the declared 3.25 floor for project listfiles (as distinct from the section 2 carve-outs for host tooling such as the 3.27+ debugger, which section 20 does not claim). Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "Floor 3.25 declared as a range (cmake_minimum_required(VERSION 3.25...<max>)) so policies up to the documented max are NEW; every mandated feature is tabulated against the release that introduced it; generator and build types come only from committed presets (schema version 6 at the floor); the built-in debugger (3.27+) and the LSP sit deliberately above the floor as host tooling that a project does not need to configure; cmake-format is pinned at 0.6.13 and neocmakelsp at 0.11.0 in the dev-environment recipe; current release at authoring is 4.4.4 (8 October 2026). One prescription does not respect the floor it declares: section 20's execute_process environment guidance.",
+      "verdict": "holds"
+    }
+  },
+  "current_versions": {
+    "cmake": "4.4.4 is the current release (Kitware, 8 October 2026); the 4.4 series added the cmake_diagnostic() command, --presets-file for cmake/ctest/cpack, preset schema version 12, the SOURCES file-set type, the discover_tests() command, and ENVIRONMENT/ENVIRONMENT_MODIFICATION options for execute_process; CMake 4.0 removed compatibility with versions older than 3.5",
+    "cmake-format": "0.6.13 is the latest cmakelang release, as the guide states; slow release cadence, pinned deliberately",
+    "cmake-language-server": "Latest tag v0.1.11 per the guide's sources; the build-tree-aware alternative the guide compares against neocmakelsp",
+    "cmake-presets": "Schema versions now run to 12 in CMake 4.4; the guide's floor mapping (6 with 3.25, 8 with 3.28, 10 with 3.31) matches the cmake-presets manual, and its reference project uses schema version 6, the floor's version",
+    "neocmakelsp": "0.11.0 (July 2026) per the guide's sources; the guide's named LSP, a Rust tree-sitter-based server under active release"
+  },
+  "language": "cmake",
+  "mechanical_fixes": [
+    {
+      "citation": "https://cmake.org/cmake/help/git-stage/command/execute_process.html",
+      "correct": "Environment for child processes is inherited ambient state: on CMake 4.4+ pass `ENVIRONMENT_MODIFICATION` (or `ENVIRONMENT`) to `execute_process`; at the 3.25 floor set and restore `ENV{...}` in a narrow scope instead. Never let a build rule's behavior depend on an unlisted environment variable.",
+      "current": "Environment for child processes is inherited ambient state: pass `ENVIRONMENT_MODIFICATION` (or set and restore `ENV{...}` in a narrow scope) for the variables the command actually needs, and never let a build rule's behavior depend on an unlisted environment variable.",
+      "evidence": "Kitware's execute_process documentation marks both ENVIRONMENT and ENVIRONMENT_MODIFICATION as added in version 4.4; the guide's floor is 3.25 and its section 2 makes using a feature above the floor without raising it a review failure, so the unqualified prescription is not legal at the floor it declares.",
+      "file": "~/workspace/skills/tiger-style-cmake/references/TIGER_STYLE_CMAKE.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://cmake.org/cmake/help/git-stage/command/execute_process.html"
+      ],
+      "evidence": "Section 2 already establishes the pattern for above-floor needs: the 3.27+ debugger and the current-syntax LSP are named host-tooling carve-outs that do not raise the floor because a project does not need them to configure. The execute_process environment options are different: they appear in project listfiles, so the carve-out pattern does not cover them.",
+      "proposal": "Either scope section 20's ENVIRONMENT_MODIFICATION prescription explicitly to CMake 4.4+ with the ENV{} set-and-restore form as the floor form (the mechanical fix above), or, if the estate's projects standardize on current CMake, raise the floor and record the raise with the feature that forced it, exactly as section 2 prescribes for floor changes.",
+      "recommendation": "Adopt the scoping fix; the floor's distribution-build rationale (Debian 12 ships 3.25) still stands, and one environment option is not worth exiling distribution builds."
+    },
+    {
+      "aspect": "testing",
+      "citations": [
+        "https://cmake.org/cmake/help/latest/release/4.4.html"
+      ],
+      "evidence": "The CMake 4.4 release notes add discover_tests() for test-time discovery and per-test test_prep targets under Ninja via CMAKE_TEST_BUILD_DEPENDS; guide section 28 gestures at current per-test preparation targets but names neither mechanism, and its discovery paragraph predates discover_tests().",
+      "proposal": "At the next guide revision, add discover_tests() (4.4+, above-floor and named as such) to section 28's discovery discussion as the test-time alternative to configure-time gtest_discover_tests/catch_discover_tests, with the same TIMEOUT/LABELS inheritance contract required of it, and name CMAKE_TEST_BUILD_DEPENDS/test_prep where per-test preparation targets are mentioned.",
+      "recommendation": "Adopt as a documented above-floor option, not a floor change: the portable fixtures-and-dependencies rule remains the default at 3.25."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

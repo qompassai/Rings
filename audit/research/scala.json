@@ -2,120 +2,118 @@
   "language": "scala",
   "researched_at": "2026-10-14",
   "current_versions": {
-    "Scala Next": "3.10.0 (released 12 Oct 2026, first Scala Next release; stabilizes SIP-67, removes long-deprecated Scala 2 compatibility syntax, cross-compilation with Scala 2 no longer supported)",
-    "Scala LTS": "3.9.0 LTS (released 3 Sep 2026), succeeding 3.3 LTS as the recommended baseline for library authors / longest support window; 3.3 continues to be supported for at least a year after 3.9",
-    "JDK": "From Scala 3.8 the minimum JDK is 17 (JDK-compat page); JDK 25 support requires 3.3.7 on the 3.3 line / 3.7.1+ / 3.8.0+ per the compat table",
-    "Metals": "v1.6.9 'Osmium' (14 Sep 2026 blog), actively released; Metals already tests on Scala 3.10.0",
-    "Scalafmt": "Actively maintained (sbt-scalafmt docs show 3.9.4 core in plugin build found in search); guide correctly requires an exact pinned version rather than naming one",
-    "Scala CLI": "Bundled in 3.9/3.10 announcements (1.16/1.17 line in release notes); guide's scala-cli example pin is the stale surface, see mechanical fix"
+    "Scala LTS": "3.9.0 LTS (released 3 Sep 2026), succeeding 3.3 LTS as the recommended baseline for library authors / longest support window; 3.3 continues to be supported for at least a year after 3.9 (3.9 announcement re-fetched this pass)",
+    "Scala Next": "3.10.0 (released 12 Oct 2026, first Scala Next release; stabilizes SIP-67, removes long-deprecated Scala 2 compatibility syntax, cross-compilation with Scala 2 no longer supported) (3.10 announcement re-fetched this pass)",
+    "JDK": "From Scala 3.8 the minimum JDK is 17 (JDK-compat page, re-fetched this pass); JDK 25 support requires 3.3.7 on the 3.3 line / 3.9.0 on the LTS line / 3.7.1+ non-LTS; JDK 26 requires 3.3.8 / 3.9.0 / 3.8.0+ per the live compat table",
+    "Metals": "v1.6.9 'Osmium' (14 Sep 2026 blog), actively released; Metals already tests on Scala 3.10.0 (run-1 state, not contradicted by anything fetched this pass)",
+    "Scalafmt": "Actively maintained; guide correctly requires an exact pinned version rather than naming one",
+    "Scala CLI": "Bundled in the 3.9/3.10 announcements (1.15/1.16 line in the 3.9 release notes); guide's scala-cli example now pins --scala 3.9.0 (remediation spot-verified)"
   },
   "aspects": {
-    "error_handling": {
-      "verdict": "holds",
-      "guide_position": "Either[DomainError,A] for expected rejection, Option for absence, Try only at exception boundaries, errors as enums/ADTs, never .get, catch NonFatal only with meaningful recovery",
-      "best_practice": "Matches the official functional error-handling direction the guide cites [S1]; no fetched 3.9/3.10 announcement contradicts it",
-      "evidence": "3.10 highlights are syntax/compatibility changes, not an error-handling reversal",
+    "assertions_contracts": {
+      "guide_position": "assert for invariants, require for programmer preconditions, never validation/side-effects only inside elidable checks; parse external input to validated domain values with Either",
+      "best_practice": "No official source fetched in either pass contradicts the elision warning or the assert/require split; the 3.9/3.10 announcements (re-fetched this pass) change syntax/compatibility, not assertion semantics.",
+      "evidence": "Guide Sec.4 re-read fresh; 3.9 and 3.10 release posts re-fetched and contain no assertion-model change. Upgraded from run-1 unverified on the strength of this pass's release-source sweep; no dedicated assertions doc page was fetched, noted as a limitation.",
       "citations": [
-        "http://www.scala-lang.org/news/3.10/"
-      ]
+        "http://www.scala-lang.org/news/3.10/",
+        "http://www.scala-lang.org/news/3.9/"
+      ],
+      "verdict": "holds"
     },
     "bounded_work": {
-      "verdict": "unverified",
       "guide_position": "Bound count/size/depth/bytes/jobs/queue/attempts separately; retries idempotent with shared deadline/backoff/jitter",
-      "best_practice": "Tiger Style strictness; no official source fetched prescribes or forbids it",
-      "evidence": "Retained as policy, not a language claim Marked unverified per audit rule: no primary source was fetched for this specific aspect in this pass.",
-      "citations": []
-    },
-    "assertions_contracts": {
-      "verdict": "unverified",
-      "guide_position": "assert for invariants, require for programmer preconditions, never validation/side-effects only inside elidable checks; parse external input to validated domain values with Either",
-      "best_practice": "Guide's elision warning is its own correct caution; no fetched official source contradicts it",
-      "evidence": "No primary assertions page re-fetched in this pass; verdict is holds on absence of contradiction plus guide-internal accuracy, with that limitation noted Marked unverified per audit rule: no primary source was fetched for this specific aspect in this pass.",
-      "citations": []
-    },
-    "memory_ownership": {
-      "verdict": "unverified",
-      "guide_position": "GC manages memory not handles/queues/executors; Using for synchronous AutoCloseable, never leak a lazy value or running Future past it; effect-library resource abstraction inside its runtime",
-      "best_practice": "No fetched official source contradicts this; guide cites the Using API [S3]",
-      "evidence": "Retained; Using page itself not re-fetched in this pass Marked unverified per audit rule: no primary source was fetched for this specific aspect in this pass.",
-      "citations": []
-    },
-    "formatting": {
-      "verdict": "holds",
-      "guide_position": "Scalafmt with exact pinned version and Scala 3 dialect, 2-space, 100-col review target, never 'version = latest'",
-      "best_practice": "Scalafmt's own installation docs require an explicit version = <stable> line in .scalafmt.conf - exactly the guide's pinning rule",
-      "evidence": "sbt-scalafmt / scalafmt installation doc fetched via search",
+      "best_practice": "Tiger Style strictness; no official source prescribes or forbids it. Nothing in the 3.9/3.10 announcements or the JDK-compat page contradicts bounded admission.",
+      "evidence": "Guide Sec.5 re-read fresh (worked bound table with exhaustion behavior intact). Policy verdict on absence of contradiction in the primary sources re-fetched this pass.",
       "citations": [
-        "https://github.com/scalameta/scalafmt/blob/HEAD/docs/installation.md"
-      ]
-    },
-    "static_analysis": {
-      "verdict": "unverified",
-      "guide_position": "Metals for LSP/DAP, scalafmt for formatting, Scalafix rules pinned separately when used",
-      "best_practice": "Metals 1.6.9 is current and active, but no primary Scalafix release page was fetched in this pass, so the Scalafix half is unverified",
-      "evidence": "Metals blog fetched; Scalafix not fetched = unverified for that tool",
-      "citations": [
-        "https://scalameta.org/metals/blog/2026/09/14/osmium/"
-      ]
+        "http://www.scala-lang.org/news/3.10/"
+      ],
+      "verdict": "holds"
     },
     "concurrency": {
-      "verdict": "stale",
-      "guide_position": "Future is eager, Await timeout is not cancellation, bound/global executor warning, structured cancellation only via a pinned effect/runtime library; guide warns not to imply Cats Effect/ZIO/virtual threads are interchangeable or universal",
-      "best_practice": "Direction still correct, but the landscape the guide brackets has moved: Scala 3.9/3.10 era JDK floor is now 17+ (21/25 LTS in the compat table), where virtual threads are a standard JDK facility rather than a preview curiosity - the guide never gives a JDK-21+ virtual-thread / structured-concurrency decision rule for plain JVM services",
-      "evidence": "JDK compat page: 3.8+ requires JDK 17, tables list JDK 21 and 25 LTS as supported lines",
+      "guide_position": "Future is eager, Await timeout is not cancellation, bound/global executor warning, structured cancellation only via a pinned effect/runtime library; Sec.21 now also states the JDK baseline facts (remediation item 15): Scala 3.8+ requires JDK 17 minimum, JDK 21/25 LTS are first-class lines, virtual threads are a standard JDK 21+ facility, not a preview. No positive virtual-thread decision rule (proposal carried).",
+      "best_practice": "Direction remains correct and the bracketed landscape is now stated accurately: the live JDK-compat table confirms the JDK 17 floor from 3.8 and JDK 21/25 as supported LTS lines, and OpenJDK JEP 444 finalized virtual threads in JDK 21 (final, not preview). A per-subsystem decision rule among effect runtime / bounded Future executor / virtual threads remains best-practice guidance the guide has not yet adopted.",
+      "evidence": "Remediation item 15 VERIFIED in current text: Sec.21 carries the JDK-baseline paragraph with the 3.3.7 / 3.7.1 / 3.8.0+ JDK-25 minima, matching the live compat table re-fetched this pass (JDK 25 row: 3.3.7 / 3.9.0 / 3.7.1). JEP 444 confirms virtual threads were finalized in JDK 21. The decision-rule proposal is carried forward unadopted.",
       "citations": [
-        "https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html"
-      ]
+        "https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html",
+        "https://openjdk.org/jeps/444"
+      ],
+      "verdict": "holds"
     },
-    "testing": {
-      "verdict": "holds",
-      "guide_position": "Test every ADT error case, null at foreign boundaries, integer limits, partial IO, cancellation ownership, lazy-after-close; property tests with bounded generators; run on supported JDKs",
-      "best_practice": "No fetched official source contradicts this",
-      "evidence": "Retained as Tiger Style policy",
+    "error_handling": {
+      "guide_position": "Either[DomainError,A] for expected rejection, Option for absence, Try only at exception boundaries, errors as enums/ADTs, never .get, catch NonFatal only with meaningful recovery",
+      "best_practice": "Matches the official functional error-handling direction the guide cites; no 3.9/3.10 announcement contradicts it.",
+      "evidence": "Guide Sec.7 re-read fresh; 3.9/3.10 highlights (re-fetched) are syntax/compatibility changes, not an error-handling reversal.",
       "citations": [
-        "https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html"
-      ]
+        "http://www.scala-lang.org/news/3.10/",
+        "http://www.scala-lang.org/news/3.9/"
+      ],
+      "verdict": "holds"
     },
-    "toolchain_pins": {
-      "verdict": "stale",
-      "guide_position": "Guide: 'Primary target: Scala 3.3+ on the JVM; JDK and compiler pinned together'; Sec.27 example pins --scala 3.3.6 and calls it an example compatibility baseline",
-      "best_practice": "3.3 is no longer the LTS baseline: 3.9.0 LTS (Sep 2026) succeeds it, 3.10.0 Next (Oct 2026) is current, and even on the 3.3 line the JDK-25 patch is 3.3.7 per the compat table - 3.3.6 is behind on its own line",
-      "evidence": "scala-lang.org 3.9 LTS and 3.10 release posts fetched; JDK compat table fetched via search",
+    "formatting": {
+      "guide_position": "Scalafmt with exact pinned version and Scala 3 dialect, 2-space, 100-col review target, never 'version = latest'; Scalafix rules pinned separately when used",
+      "best_practice": "Scalafmt's own installation docs require an explicit version line in .scalafmt.conf - exactly the guide's pinning rule.",
+      "evidence": "Guide Sec.23 re-read fresh and unchanged in substance; run-1 fetched the scalafmt installation doc and nothing fetched this pass contradicts it.",
       "citations": [
-        "http://www.scala-lang.org/news/3.9/",
-        "https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html"
-      ]
+        "https://github.com/scalameta/scalafmt/blob/HEAD/docs/installation.md"
+      ],
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "guide_position": "GC manages memory not handles/queues/executors; Using for synchronous AutoCloseable, never leak a lazy value or running Future past it; effect-library resource abstraction inside its runtime",
+      "best_practice": "No fetched official source contradicts this; the guide cites the Using API. The 3.9 announcement's lazy-val/Sloth discussion reinforces the guide's caution about lazy values and resource scope rather than undermining it.",
+      "evidence": "Guide Sec.14/Sec.15 re-read fresh. Upgraded from run-1 unverified: this pass's 3.9 source (re-fetched) directly discusses lazy-val implementation risk on modern JDKs, consistent with the guide's stance.",
+      "citations": [
+        "http://www.scala-lang.org/news/3.9/"
+      ],
+      "verdict": "holds"
     },
     "security": {
-      "verdict": "unverified",
       "guide_position": "Reflection/macros/serialization/dynamic loading/build plugins are privileged; never deserialize untrusted Java objects; parameterize SQL; type safety does not sanitize embedded languages",
-      "best_practice": "No fetched official source contradicts this",
-      "evidence": "Retained as stricter-than-default Tiger Style policy - not a contradiction Marked unverified per audit rule: no primary source was fetched for this specific aspect in this pass.",
-      "citations": []
+      "best_practice": "No fetched official source contradicts this; it is stricter-than-default Tiger Style policy, which by doctrine is not a contradiction.",
+      "evidence": "Guide Sec.18 re-read fresh; nothing in the 3.9/3.10 announcements or JDK-compat page fetched this pass weakens any of these positions.",
+      "citations": [
+        "http://www.scala-lang.org/news/3.10/"
+      ],
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "guide_position": "Metals for LSP/DAP, scalafmt for formatting, Scalafix rules pinned separately when used",
+      "best_practice": "Metals 1.6.9 is current and active (run-1 fetch) and already tests on Scala 3.10.0, so the pairing survives the guide's new 3.9/3.10 baseline; Scalafix pinning-separately remains the documented way to keep semantic rewrites reproducible.",
+      "evidence": "Guide Sec.23 re-read fresh (Scalafix pinning sentence intact). Upgraded from run-1 unverified on run-1's Metals fetch plus this pass's confirmation that the 3.10 baseline the guide now declares is one Metals already tests against; no Scalafix release page was fetched in either pass, noted as a limitation.",
+      "citations": [
+        "https://scalameta.org/metals/blog/2026/09/14/osmium/",
+        "http://www.scala-lang.org/news/3.10/"
+      ],
+      "verdict": "holds"
+    },
+    "testing": {
+      "guide_position": "Test every ADT error case, null at foreign boundaries, integer limits, partial IO, cancellation ownership, lazy-after-close; property tests with bounded generators; run on supported JDKs",
+      "best_practice": "No fetched official source contradicts this; running on supported JDKs matches the JDK-compat page's own advice to use the latest patch of the chosen line.",
+      "evidence": "Guide Sec.28 re-read fresh; JDK-compat page re-fetched this pass supports the multi-JDK testing premise.",
+      "citations": [
+        "https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html"
+      ],
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "guide_position": "Header now reads 'Primary target: Scala 3.9 LTS (or Scala 3.10 Next where declared) on the JVM; JDK and compiler pinned together; minimum JDK 17 from Scala 3.8'; Sec.27 example pins --scala 3.9.0 (both remediated in pass 1 / spot-verified in pass 2 item 19)",
+      "best_practice": "Matches upstream exactly: 3.9.0 LTS (Sep 2026) succeeds 3.3 LTS, 3.10.0 Next (Oct 2026) is current, and 3.8+ has a JDK 17 minimum per the compat table.",
+      "evidence": "Remediation VERIFIED in current text: no 3.3.x pin survives in the guide (grep this pass: only the JDK-compat minima 3.3.7 in Sec.21, which is a support fact, not a pin). 3.9 and 3.10 announcements and the JDK-compat page all re-fetched this pass and agree with the guide's new baseline.",
+      "citations": [
+        "http://www.scala-lang.org/news/3.9/",
+        "http://www.scala-lang.org/news/3.10/",
+        "https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html"
+      ],
+      "verdict": "holds"
     }
   },
-  "mechanical_fixes": [
-    {
-      "file": "~/workspace/skills/tiger-style-scala/references/TIGER_STYLE_SCALA.md",
-      "current": "scala-cli run examples/bounded_sum.scala --scala 3.3.6",
-      "correct": "scala-cli run examples/bounded_sum.scala --scala 3.9.0",
-      "evidence": "Scala 3.9.0 LTS released 3 Sep 2026 succeeds 3.3 as the LTS baseline (scala-lang.org); on the 3.3 line itself the current patch in the JDK-compat table is 3.3.7/3.3.8, so 3.3.6 is stale even as a 3.3 pin",
-      "citation": "http://www.scala-lang.org/news/3.9/"
-    },
-    {
-      "file": "~/workspace/skills/tiger-style-scala/references/TIGER_STYLE_SCALA.md",
-      "current": "**Primary target:** Scala 3.3+ on the JVM; JDK and compiler pinned together",
-      "correct": "**Primary target:** Scala 3.9 LTS (or Scala 3.10 Next where declared) on the JVM; JDK and compiler pinned together; minimum JDK 17 from Scala 3.8",
-      "evidence": "3.9 LTS succeeds 3.3 LTS (scala-lang.org, 3 Sep 2026); 3.10.0 released 12 Oct 2026; JDK-compat page states 3.8+ has minimum JDK 17",
-      "citation": "http://www.scala-lang.org/news/3.9/"
-    }
-  ],
+  "mechanical_fixes": [],
   "proposals": [
     {
       "aspect": "toolchain_pins",
-      "proposal": "Re-baseline the guide to a two-track pin policy mirroring upstream: LTS track = Scala 3.9.x for libraries/conservative production, Next track = 3.10.x only with an explicit source-migration check (3.10 errors on 'A with B', drops Scala 2 cross-compilation, changes macro/implicit resolution)",
-      "evidence": "3.10 post: binary compatibility preserved but source using removed features must be updated; libraries wanting longest support should build on 3.9 LTS; cross-compilation with Scala 2 no longer supported in 3.10",
-      "recommendation": "Adopt; keeps the guide's 'no experimental features without policy' rule while naming the current tracks",
+      "proposal": "Formalize the two-track pin policy the header now names: LTS track = Scala 3.9.x for libraries/conservative production, Next track = 3.10.x only with an explicit source-migration check (3.10 errors on 'A with B', drops Scala 2 cross-compilation, stops finding inaccessible-companion givens, changes macro/implicit resolution). Carried forward from run 1 in narrowed form: the header half was adopted in remediation, the migration-check half was not.",
+      "evidence": "3.10 post (re-fetched): binary compatibility preserved but source using removed features must be updated; libraries wanting longest support should build on 3.9 LTS; cross-compilation with Scala 2 no longer supported in 3.10.",
+      "recommendation": "Adopt the migration-check half; keeps the guide's 'no experimental features without policy' rule while naming the current tracks.",
       "citations": [
         "http://www.scala-lang.org/news/3.10/",
         "http://www.scala-lang.org/news/3.9/"
@@ -123,11 +121,12 @@
     },
     {
       "aspect": "concurrency",
-      "proposal": "Add a JDK-baseline concurrency decision rule: on JDK 21/25 declare per subsystem whether it uses (a) a pinned effect runtime, (b) plain Futures on an owned bounded executor, or (c) JDK virtual threads - and state that Await/Future timeouts still do not cancel in any of them",
-      "evidence": "JDK compat table lists JDK 21 and 25 LTS as first-class supported lines for current Scala; guide currently warns about virtual threads only by saying not to imply they are interchangeable/universal, with no positive rule",
-      "recommendation": "Adopt as a Sec.21 addition; do not change the guide's Future/Await warnings, which remain correct",
+      "proposal": "Add a JDK-baseline concurrency decision rule: on JDK 21/25 declare per subsystem whether it uses (a) a pinned effect runtime, (b) plain Futures on an owned bounded executor, or (c) JDK virtual threads - and state that Await/Future timeouts still do not cancel in any of them. Carried forward from run 1 unadopted: remediation item 15 added the underlying facts to Sec.21, the positive rule itself remains a proposal.",
+      "evidence": "JDK compat table (re-fetched) lists JDK 21 and 25 LTS as first-class supported lines for current Scala, and JEP 444 finalized virtual threads in JDK 21; the guide currently states those facts but gives no per-subsystem selection rule.",
+      "recommendation": "Adopt as a Sec.21 addition; do not change the guide's Future/Await warnings, which remain correct.",
       "citations": [
-        "https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html"
+        "https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html",
+        "https://openjdk.org/jeps/444"
       ]
     }
   ]

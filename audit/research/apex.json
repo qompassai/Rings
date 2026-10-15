@@ -1,0 +1,184 @@
+{
+  "aspect_adaptations": "memory_ownership is read as heap budget plus per-transaction static state (Apex has no manual memory management); concurrency is read as asynchronous Apex (Queueable/Batchable/Schedulable/future/platform events), transaction locking and chain-depth discipline, since Apex has no threads.",
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "Matches the Apex Developer Guide model: assertions throw and are always live, and the Assert class is the current test oracle.",
+      "citations": [
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dev_guide.htm"
+      ],
+      "evidence": "No platform change in Winter '27 alters assertion semantics; the guide's split between invariant assertions and catchable domain exceptions is the documented idiom.",
+      "guide_position": "Assertions (System.assert and the Assert class) are reserved for programmer invariants; they cannot be disabled by a build flag, so expected invalid input is rejected with domain exceptions instead; no mutation, callout or authorization inside an assertion; every test must assert (PMD ApexUnitTestClassShouldHaveAsserts).",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "All non-heap figures checked (100/200 SOQL, 50,000 rows, 150 DML, 10,000 DML rows, 100 callouts, 120 s cumulative callout timeout, 10,000/60,000 ms CPU) still match the published governor table; the heap row does not.",
+      "citations": [
+        "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release",
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_gov_limits.htm"
+      ],
+      "evidence": "Salesforce's Winter '27 developer guide states the Apex heap limit increases from 6 MB to 10 MB synchronous and 12 MB to 25 MB asynchronous, turned on automatically - so the guide's heap row (6 MB / 12 MB) is one release behind even though the guide header names Winter '27 as current. Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "Full per-transaction governor table in section 5 with a one-half headroom policy, named UPPER_SNAKE_CASE bounds, 200-record trigger chunks, batch scope 200 default / 2,000 max, 50M QueryLocator records, 250,000-or-200x-licenses daily async executions, and runtime Limits-class checks.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "Matches current platform guidance; Winter '27 even added sf CLI Queueable/Batchable scaffolding templates following the same best practices, and no async mechanism was deprecated.",
+      "citations": [
+        "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release",
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dev_guide.htm"
+      ],
+      "evidence": "The mechanism ordering, chaining and finalizer discipline are current. The only stale token in section 21 is its parenthetical 12 MB async heap figure, counted under bounded_work and toolchain_pins.",
+      "guide_position": "Queueable is the default async mechanism, Batchable for volume, Schedulable under synchronous limits, @future legacy-only; one child job per Queueable, chain depth capped by a named constant and AsyncOptions, transaction finalizers as the failure story, idempotency and non-overlapping record partitions.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "Consistent with the Apex Developer Guide's exception model and the governor documentation's uncatchable LimitException.",
+      "citations": [
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_gov_limits.htm",
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dev_guide.htm"
+      ],
+      "evidence": "No Winter '27 change to the exception or partial-DML model was found in the release guide.",
+      "guide_position": "Domain exception classes per boundary; catch only what the layer can interpret; partial DML via Database methods with allOrNone=false and every SaveResult/DeleteResult inspected; DmlException structure surfaced; AuraHandledException translation for Lightning; LimitException is uncatchable by design.",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "Salesforce's own Extension Pack documentation routes Apex formatting through Prettier with the prettier-plugin-apex plugin, which is production-ready, jorje-based (it parses the way the platform does) and the formatter most Salesforce teams and tooling assume.",
+      "citations": [
+        "https://sforce.co/4fMMRFH",
+        "https://github.com/dangmai/prettier-plugin-apex/blob/HEAD/packages/prettier-plugin-apex/README.md",
+        "https://github.com/octoberswimmer/apexfmt"
+      ],
+      "evidence": "apexfmt is a legitimate maintained tool, so this is not a contradiction - but the guide mandates a single-authority formatter without acknowledging the officially documented Prettier path that the rest of the Salesforce toolchain (editor pack, most CI templates) is built around.",
+      "guide_position": "apexfmt is the sole formatter (tabs by design, -l as the check mode), apex_ls built-in formatting disabled, version pinned per project; Prettier + prettier-plugin-apex is never mentioned or evaluated.",
+      "verdict": "improved-elsewhere"
+    },
+    "memory_ownership": {
+      "best_practice": "The streaming, projection and accumulation discipline is current best practice; the budget numbers it is sized against are not.",
+      "citations": [
+        "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release",
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_gov_limits.htm"
+      ],
+      "evidence": "Winter '27 raised the heap ceiling to 10 MB synchronous / 25 MB asynchronous, enabled automatically, per Salesforce's Winter '27 developer guide. Designs budgeted to the old numbers are safe but the guide's stated platform fact is superseded. Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "Heap budget stated as 6 MB synchronous / 12 MB asynchronous (sections 5 and 15); stream large reads with SOQL for loops, project only needed fields, build strings with String.join/JSONGenerator, cache describes in per-transaction static maps, bound accumulated collections.",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "Since API 67.0 (Summer '26, the release preceding the guide's own stated current release) SOQL, SOSL, DML and Database methods default to user mode, a class with no sharing declaration defaults to with sharing, and WITH SECURITY_ENFORCED no longer compiles - the current Apex security and sharing documentation is version-forked on exactly this line, as the sibling SOQL guide (section 2, section 18) correctly states.",
+      "citations": [
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_security_sharing_chapter.htm",
+        "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release"
+      ],
+      "evidence": "The Apex guide presents the pre-67 default as the unqualified platform default and lists a clause that current-version classes cannot compile as a live enforcement mechanism, with no version qualification anywhere (its only 67.0 mention is the release name in section 2). Following section 18 verbatim in a 67.0+/68.0 class produces a compile failure or a wrong authority model. Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "Section 2 states Apex executes in system mode by default and section 18 builds on that framing: declare with sharing on every class, enforce CRUD/FLS with user-mode operations, WITH SECURITY_ENFORCED, or Security.stripInaccessible; binds via Database.queryWithBinds; Named Credentials for callouts. The guide never mentions the API 67.0 default flip.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "Code Analyzer v5 is Salesforce's current analyzer (v4 retired in 2025); its documented engine model - PMD for Apex/Visualforce, SFGE for data-flow, flow, eslint, retire-js, cpd - matches the guide's inventory and gate.",
+      "citations": [
+        "https://developer.salesforce.com/blogs/2025/07/elevate-your-teams-code-quality-with-salesforce-code-analyzer-v5",
+        "https://developer.salesforce.com/docs/platform/salesforce-code-analyzer/guide/architecture.html"
+      ],
+      "evidence": "Engine inventory and the v5 CLI surface in the guide match Salesforce's v5 announcement and architecture documentation.",
+      "guide_position": "Salesforce Code Analyzer v5 through the sf CLI (PMD Recommended as the minimum gate, SFGE graph engine on security-sensitive code, flow engine carrying lightning-flow-scanner rules), severity threshold in project config.",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "Matches the Apex Developer Guide testing model and the platform's 75% production coverage requirement; mock-only callouts remain the rule.",
+      "citations": [
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dev_guide.htm",
+        "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release"
+      ],
+      "evidence": "Winter '27's real-callout integration tests are a Developer Preview feature, not a replacement for the mock discipline, so their absence is not a gap.",
+      "guide_position": "Half validation / half adversarial: 200-record bulk tests with factories, Test.startTest/stopTest limit isolation, System.runAs permission tests, HttpCalloutMock-only callouts including failure shapes, SeeAllData off, assertions in every test, 75% coverage treated as a shipping floor not a target.",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "API 68.0 / Winter '27 is confirmed current, and pin-per-project is the right posture for the weekly sf CLI train (2.153.6 at 2026-09-30) - but a guide claiming Winter '27 currency must carry Winter '27 platform values.",
+      "citations": [
+        "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release"
+      ],
+      "evidence": "The same guide's governor/heap values (sections 5, 15, 21) are the Summer '26 values: Winter '27 raised heap to 10 MB / 25 MB. The version headline and the version facts disagree inside one document. Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "Header pins the platform state as Winter '27 / API 68.0 with per-project sourceApiVersion and .cls-meta.xml apiVersion; sf CLI and apexfmt versions pinned per project; JDK 17/21; apex-jorje-lsp via apex_ls with formatting disabled.",
+      "verdict": "holds"
+    }
+  },
+  "current_versions": {
+    "apex_heap_limits": "Winter '27 raised heap to 10 MB synchronous / 25 MB asynchronous, enabled automatically - the guide's table still shows the pre-Winter-'27 6 MB / 12 MB",
+    "apex_language_server": "Jorje-based Apex Language Server shipped with Salesforce editor tooling; guide's apex_ls pairing holds",
+    "code_analyzer": "Salesforce Code Analyzer v5 is the current major (v4 retired 2025); engines pmd, sfge, flow, cpd, retire-js, eslint, regex, apexguru",
+    "jdk": "17 / 21 for the language server and Code Analyzer Java engines, as the guide states",
+    "salesforce_platform": "Winter '27, API 68.0, generally available (final rollout 2026-10-09); preceded by Summer '26, API 67.0, which flipped the Apex security defaults",
+    "sf_cli": "Salesforce CLI v2 on a weekly train; 2.153.6 release notes dated 2026-09-30 in forcedotcom/cli; guide correctly requires a per-project pin rather than naming a number"
+  },
+  "language": "apex",
+  "mechanical_fixes": [
+    {
+      "citation": "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release",
+      "correct": "| Heap size | 10 MB | 25 MB |",
+      "current": "| Heap size | 6 MB | 12 MB |",
+      "evidence": "Winter '27 (the guide's own stated current release) raised the Apex heap limit to 10 MB synchronous / 25 MB asynchronous, enabled automatically.",
+      "file": "~/workspace/skills/tiger-style-apex/references/TIGER_STYLE_APEX.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "citation": "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release",
+      "correct": "The heap budget is 10 MB synchronous / 25 MB asynchronous (§5)",
+      "current": "The heap budget is 6 MB synchronous / 12 MB asynchronous (§5)",
+      "evidence": "Section 15 restates the superseded pre-Winter-'27 heap values.",
+      "file": "~/workspace/skills/tiger-style-apex/references/TIGER_STYLE_APEX.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "citation": "https://developer.salesforce.com/blogs/2026/10/developers-guide-to-the-winter-27-release",
+      "correct": "Async Apex trades the synchronous budgets for larger ones (200 SOQL, 25 MB heap, 60 s CPU)",
+      "current": "Async Apex trades the synchronous budgets for larger ones (200 SOQL, 12 MB heap, 60 s CPU)",
+      "evidence": "Section 21 restates the superseded asynchronous heap value.",
+      "file": "~/workspace/skills/tiger-style-apex/references/TIGER_STYLE_APEX.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "citation": "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_security_sharing_chapter.htm",
+      "correct": "Apex executes in **system mode** by default at API 66.0 and earlier; at API 67.0 and later database operations default to user mode and an omitted sharing declaration defaults to with sharing",
+      "current": "Apex executes in **system mode** by default: CRUD and FLS are not checked",
+      "evidence": "The API 67.0 security-default flip is documented in the current Apex security and sharing chapter and is stated correctly in the sibling SOQL guide; the Apex guide states the old default without the version fork.",
+      "file": "~/workspace/skills/tiger-style-apex/references/TIGER_STYLE_APEX.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "citation": "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_security_sharing_chapter.htm",
+      "correct": "**`WITH SECURITY_ENFORCED`** — legacy SOQL-only enforcement at API 66.0 and earlier; removed at API 67.0+ (does not compile) - use WITH USER_MODE",
+      "current": "**`WITH SECURITY_ENFORCED`** — SOQL-only enforcement of CRUD/FLS on reads, for queries that predate a user-mode migration",
+      "evidence": "At API 67.0+ the clause no longer compiles; the SOQL guide (section 18) already calls it the retired predecessor (API 45.0-66.0).",
+      "file": "~/workspace/skills/tiger-style-apex/references/TIGER_STYLE_APEX.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "file": "~/workspace/skills/tiger-style-apex/references/TIGER_STYLE_APEX.md",
+      "current": "User-facing paths enforce the running user's authority (user mode / `SECURITY_ENFORCED` / stripInaccessible)",
+      "correct": "User-facing paths enforce the running user's authority (user mode / `WITH USER_MODE` / stripInaccessible; `SECURITY_ENFORCED` only at API 66.0 and earlier)",
+      "evidence": "The section 29 review checklist repeated the section 18 defect (WITH SECURITY_ENFORCED named without its API 67.0 removal); cured in the same pass.",
+      "citation": "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_security_sharing_chapter.htm",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "security",
+      "citations": [
+        "https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_security_sharing_chapter.htm"
+      ],
+      "evidence": "Both the 67.0 flip and the guide's own version-forking in the SOQL sibling show defaults are version-dependent; explicit modes are version-proof.",
+      "proposal": "Add an explicit-access-mode rule: every SOQL/DML statement names its mode (WITH USER_MODE / WITH SYSTEM_MODE or the AccessLevel argument) regardless of the class's API version, so a version bump never silently changes a statement's authority - the posture the SOQL guide already takes.",
+      "recommendation": "Adopt - it makes the contradicted section 18 framing structurally impossible to reintroduce."
+    },
+    {
+      "aspect": "formatting",
+      "citations": [
+        "https://github.com/dangmai/prettier-plugin-apex/blob/HEAD/packages/prettier-plugin-apex/README.md"
+      ],
+      "evidence": "Salesforce's Extension Pack documentation presents Prettier + prettier-plugin-apex as the Apex formatting path; the plugin is production-ready and jorje-based.",
+      "proposal": "Run a one-project trial of Prettier + prettier-plugin-apex against apexfmt and record the decision; if apexfmt stays, the guide should say why the officially documented formatter was not chosen.",
+      "recommendation": "Trial only - do not swap the single formatter without a repo-wide diff review, per the guide's own formatter-upgrade rule."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

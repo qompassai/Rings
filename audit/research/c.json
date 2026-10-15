@@ -1,1 +1,145 @@
-{"aspects":{"assertions_contracts":{"best_practice":"The assert discipline itself still holds, but C23 standardises much of what the guide gates: static_assert harmonisation, [[nodiscard]], nullptr, constexpr objects, typeof, #embed, and <stdckdint.h> checked arithmetic are core C23, available via -std=c23 since Clang 18.","citations":["https://www.open-std.org/jtc1/sc22/wg14/","https://clang.llvm.org/c_status.html"],"evidence":"WG14 states C23 is the current standard; Clang's C23 feature table lists these features with Clang versions 9-21, i.e. broadly implemented, not speculative.","guide_position":"assert()/_Static_assert for internal invariants only, never for external validation, because NDEBUG strips assert; C23 checked arithmetic treated as an optional gated extra.","verdict":"stale"},"bounded_work":{"best_practice":"Deliberately stricter than mainstream C practice (TigerBeetle/Power-of-Ten lineage); no official guidance contradicts explicit resource budgets. Newer C only adds helpers (see assertions_contracts).","citations":["https://clang.llvm.org/c_status.html"],"evidence":"Clang's C status page shows incremental C23/C2y safety helpers arriving feature-by-feature, none of which removes the need for explicit caps.","guide_position":"Every loop/retry/queue/size/depth bounded by named *_MAX constants; count, item size, cumulative bytes and retry amplification budgeted separately; checked multiplication before allocation.","verdict":"holds"},"concurrency":{"best_practice":"Matches the C11/C23 memory model as maintained by WG14; C2y work (e.g. stricter alignment for atomic types) is incremental and does not change the guide's protocol-level advice.","citations":["https://clang.llvm.org/c_status.html","https://www.open-std.org/jtc1/sc22/wg14/"],"evidence":"Clang's status page tracks C2y atomic-alignment work as a small increment on the existing model; no official source endorses volatile-as-synchronisation or tolerates data races.","guide_position":"Documented pthread/C11-atomic protocol, volatile is not synchronisation, data races are UB, async-signal-safe handlers only, shutdown/join/lifetime defined before workers start.","verdict":"holds"},"error_handling":{"best_practice":"POSIX and Linux practice agree: errno is per-call and clobbered by cleanup, partial transfers are normal, and Linux close-after-EINTR semantics make blind retry unsafe.","citations":["https://pubs.opengroup.org/onlinepubs/9799919799/","https://www.open-std.org/jtc1/sc22/wg14/"],"evidence":"No official source contradicts the guide; its treatment matches the POSIX specification it cites and standard Linux guidance.","guide_position":"Documented status enum + output parameters, outputs unchanged on failure, errno captured immediately, partial I/O and EINTR handled, no blind retry of close after EINTR on Linux.","verdict":"holds"},"formatting":{"best_practice":"clang-format remains the standard formatter for C; all four pinned options are current, documented style options. The 4-space/100-col values are house policy, not an upstream default, and the guide says so.","citations":["https://clang.llvm.org/extra/clang-tidy/"],"evidence":"clang-tidy/clang-format documentation in the current LLVM tree still documents the same style-option mechanism and presets, including LLVM.","guide_position":"Pinned clang-format: BasedOnStyle LLVM, IndentWidth 4, ColumnLimit 100, UseTab Never; never reformat vendored code.","verdict":"holds"},"memory_ownership":{"best_practice":"C still has no language ownership model; disciplined manual ownership plus static analysis remains the official-ecosystem answer. MISRA C:2025 continues to require freedom from undefined/critical unspecified behaviour rather than any ownership mechanism.","citations":["https://misra.org.uk/product-category/misra-c-2/","https://www.open-std.org/jtc1/sc22/wg14/"],"evidence":"MISRA C:2025 is the current critical-systems guideline (Mar 2025) and is built around UB avoidance and tool enforcement, consistent with the guide's manual discipline.","guide_position":"One owner per buffer/fd/handle, one cleanup path (goto acceptable), reverse-order release, realloc via temporary, no pointer into automatic storage escapes, (NULL,0) policy per API.","verdict":"holds"},"security":{"best_practice":"Aligns with CERT C practice as mechanically enforced by clang-tidy's cert-* checks and with MISRA C:2025's security-relevant rules; no official guidance has moved toward the constructs the guide bans.","citations":["https://clang.llvm.org/extra/clang-tidy/","https://misra.org.uk/product-category/misra-c-2/"],"evidence":"clang-tidy documents a dedicated cert-* group for CERT Secure Coding Guidelines; MISRA C:2025 addenda map the guidelines to CWE memory-safety weaknesses, the same defect classes the guide targets.","guide_position":"Fixed format strings, bounds-checked copies (strncpy is not a safe strcpy), unsigned char for ctype, no system()/popen() on external input, argv form, openat2-style race-resistant filesystem handling, sanitizer findings treated as real defects.","verdict":"holds"},"static_analysis":{"best_practice":"clang-tidy plus the Clang Static Analyzer is the official LLVM static-analysis route, with check groups that map directly onto this guide's rules: cert-* (CERT C), bugprone-*, concurrency-*, and clang-analyzer-*; clangd can also surface clang-tidy diagnostics.","citations":["https://clang.llvm.org/extra/clang-tidy/"],"evidence":"The clang-tidy documentation lists the cert, bugprone, concurrency and clang-analyzer groups and explains that it also runs Clang Static Analyzer checks; none of this is wired into the guide's pairing or workflow.","guide_position":"SKILL toolchain pairing is clangd + clang-format + lldb-dap only; the full guide mentions sanitizers and 'targeted static analysis' generically but names no linter/analyzer or check set.","verdict":"improved-elsewhere"},"testing":{"best_practice":"Clang's sanitizer documentation continues to present ASan/UBSan exactly as the guide uses them: defect detectors for exercised paths, not proofs of absence of UB.","citations":["https://clang.llvm.org/docs/AddressSanitizer.html","https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html"],"evidence":"The guide's own cited Clang sanitizer pages remain the current official docs for the LLVM 22 series toolchain it pairs with.","guide_position":"Boundary/allocation-failure/interruption/integer-edge tests, fuzz byte parsers behind a size cap, ASan/UBSan runs, a separate TSan build for concurrent code, and a full -DNDEBUG run so tests do not vanish with assert.","verdict":"holds"},"toolchain_pins":{"best_practice":"C23 (ISO/IEC 9899:2024) is the current standard. GCC 15+ defaults to gnu23 and GCC 16 is current; Clang has offered -std=c23 since Clang 18. A C17 baseline is now two years behind the published standard and behind both compilers' defaults.","citations":["https://www.open-std.org/jtc1/sc22/wg14/","https://gcc.gnu.org/gcc-15/changes.html","https://clang.llvm.org/c_status.html"],"evidence":"WG14 homepage: the current C standard is C23, adopted 2024. GCC 15 changes page documents the C23-based default change; Clang status page lists -std=c23 as available (partial conformance, feature-by-feature).","guide_position":"Primary target is ISO C17; C23 features are gated extras behind feature checks; validation recipes compile with -std=c17.","verdict":"stale"}},"current_versions":{"C (ISO/IEC 9899)":"C23 (ISO/IEC 9899:2024) is the current standard per WG14; work on the next revision (C2y) is in draft","Clang/LLVM":"LLVM 22.1.x series current (22.1.8 seen Sep 2026); Clang status pages list -std=c23 since Clang 18 and -std=c2y partial","GCC":"GCC 16.1 (Apr 2026); GCC 15+ defaults C to gnu23 (C23-based); -fhardened remains version/platform dependent as the guide warns","MISRA C":"MISRA C:2025 (Mar 2025) is the current edition; covers C90/C99/C11/C18, not C23","clang-format":"Ships with LLVM 22.1.x; BasedOnStyle/IndentWidth/ColumnLimit/UseTab options all still valid","clang-tidy":"Current with LLVM 22.1.x; includes cert-*, bugprone-*, concurrency-*, clang-analyzer-* check groups; NOT paired in the guide","clangd":"Ships with LLVM 22.1.x; guide pairs it, version not pinned in guide","lldb-dap":"Ships with LLVM/LLDB 22.1.x as the DAP adapter"},"language":"c","mechanical_fixes":[{"citation":"https://www.open-std.org/jtc1/sc22/wg14/","correct":"**Primary target:** ISO C23 core (ISO/IEC 9899:2024); features beyond the pinned compiler's verified C23 subset gated by feature checks; POSIX/Linux adapters isolated","current":"**Primary target:** ISO C17 core; optional C23 features explicitly gated; POSIX/Linux adapters isolated","evidence":"WG14 states C23 is the current C standard, adopted by ISO/IEC in 2024; the C17 profile is a superseded standard.","file":"~/workspace/skills/tiger-style-c/references/TIGER_STYLE_C.md"},{"citation":"https://clang.llvm.org/c_status.html","correct":"Declare the contract up front: C standard (C23; gate any feature beyond the pinned compiler's verified subset on a feature check, not a compiler flag)","current":"Declare the contract up front: C standard (C17; gate C23 features on a feature check, not a compiler flag)","evidence":"Same WG14 source: C23 is current; Clang offers -std=c23 since Clang 18 and GCC 15+ defaults to gnu23, so gating all of C23 is no longer the conservative default.","file":"~/workspace/skills/tiger-style-c/SKILL.md"},{"citation":"https://gcc.gnu.org/gcc-15/changes.html","correct":"cc -std=c23 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \\","current":"cc -std=c17 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \\","evidence":"The §27 validation recipe (and its -DNDEBUG companion, also -std=c17) still compiles the reference module as C17 while the current standard and both major compilers' defaults are C23-based.","file":"~/workspace/skills/tiger-style-c/references/TIGER_STYLE_C.md"},{"citation":"http://www.open-std.org/jtc1/sc22/wg14/www/projects.html","correct":"[WG14 C23 draft N3220 / ISO/IEC 9899:2024, foundational C semantics; C23 profile used here](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3220.pdf)","current":"[WG14 public C11 draft, foundational C semantics; C17 profile used here](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf)","evidence":"Source [C1] is cited throughout for core semantics but points at the C11 draft (N1570); WG14's project page lists N3220 as the draft similar to the published C23 standard.","file":"~/workspace/skills/tiger-style-c/references/TIGER_STYLE_C.md"}],"proposals":[{"aspect":"static_analysis","citations":["https://clang.llvm.org/extra/clang-tidy/"],"evidence":"clang-tidy is the official LLVM linter, runs the static analyzer's checks, and its cert-*/bugprone-* groups mechanically enforce several rules this guide currently leaves to human review; the guide pairs no linter at all.","proposal":"Add clang-tidy (with the Clang Static Analyzer checks) to the SKILL toolchain pairing and workflow, with a named starter check set (bugprone-*, cert-*, clang-analyzer-*, concurrency-*) run alongside the existing ASan/UBSan step.","recommendation":"Adopt: highest-leverage gap in the C guide. Keep the check set explicit and pinned like the clang-format config."},{"aspect":"assertions_contracts","citations":["https://clang.llvm.org/c_status.html","https://gcc.gnu.org/gcc-15/changes.html"],"evidence":"Clang's C23 table shows these features implemented across Clang 9-21 (nodiscard Clang 9, nullptr Clang 17, constexpr objects Clang 19, stdckdint shipped with GCC 15's C23 library support), so they are portable in practice, not paper features.","proposal":"On the C23 baseline, promote the standardised contracts vocabulary from gated extras to defaults where the pinned compiler supports them: [[nodiscard]] on status returns, nullptr, constexpr objects for bounds constants, and <stdckdint.h> checked arithmetic as an alternative to hand-rolled SIZE_MAX division checks.","recommendation":"Adopt incrementally, one feature per project, with the guide's existing feature-check discipline retained for anything beyond the verified subset."}],"researched_at":"2026-10-14"}
+{
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "The assert discipline holds, and C23 standardises the contracts vocabulary the guide now treats as baseline: static_assert harmonisation, [[nodiscard]], nullptr, constexpr objects, typeof, #embed, and <stdckdint.h> checked arithmetic are core C23, available via -std=c23 since Clang 18 and defaulted to (gnu23) by GCC 15+.",
+      "citations": [
+        "https://www.open-std.org/jtc1/sc22/wg14/",
+        "https://clang.llvm.org/c_status.html"
+      ],
+      "evidence": "Run-1 stale verdict remediated and verified in the current text: guide section 2 now states the core C23 facilities are baseline, not gated extras, and section 9 makes <stdckdint.h> checked arithmetic the default overflow-checked mechanism on the baseline",
+      "guide_position": "assert()/_Static_assert for internal invariants only, never for external validation, because NDEBUG strips assert; core C23 facilities (static_assert, [[nodiscard]], nullptr, constexpr, typeof, #embed, <stdckdint.h>) now stated as baseline in sections 2 and 9, gated only beyond the pinned compiler's verified subset",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "Deliberately stricter than mainstream C practice (TigerBeetle/Power-of-Ten lineage); no official guidance contradicts explicit resource budgets. Newer C only adds helpers (see assertions_contracts).",
+      "citations": [
+        "https://clang.llvm.org/c_status.html"
+      ],
+      "evidence": "Clang's C status page shows incremental C23/C2y safety helpers arriving feature-by-feature, none of which removes the need for explicit caps.",
+      "guide_position": "Every loop/retry/queue/size/depth bounded by named *_MAX constants; count, item size, cumulative bytes and retry amplification budgeted separately; checked multiplication before allocation.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "Matches the C11/C23 memory model as maintained by WG14; C2y work (e.g. stricter alignment for atomic types) is incremental and does not change the guide's protocol-level advice.",
+      "citations": [
+        "https://clang.llvm.org/c_status.html",
+        "https://www.open-std.org/jtc1/sc22/wg14/"
+      ],
+      "evidence": "Clang's status page tracks C2y atomic-alignment work as a small increment on the existing model; no official source endorses volatile-as-synchronisation or tolerates data races.",
+      "guide_position": "Documented pthread/C11-atomic protocol, volatile is not synchronisation, data races are UB, async-signal-safe handlers only, shutdown/join/lifetime defined before workers start.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "POSIX and Linux practice agree: errno is per-call and clobbered by cleanup, partial transfers are normal, and Linux close-after-EINTR semantics make blind retry unsafe.",
+      "citations": [
+        "https://pubs.opengroup.org/onlinepubs/9799919799/",
+        "https://www.open-std.org/jtc1/sc22/wg14/"
+      ],
+      "evidence": "No official source contradicts the guide; its treatment matches the POSIX specification it cites and standard Linux guidance.",
+      "guide_position": "Documented status enum + output parameters, outputs unchanged on failure, errno captured immediately, partial I/O and EINTR handled, no blind retry of close after EINTR on Linux.",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "clang-format remains the standard formatter for C; all four pinned options are current, documented style options. The 4-space/100-col values are house policy, not an upstream default, and the guide says so.",
+      "citations": [
+        "https://clang.llvm.org/extra/clang-tidy/"
+      ],
+      "evidence": "clang-format/clang-tidy documentation in the current LLVM tree (23.1.x) still documents the same style-option mechanism and presets, including LLVM.",
+      "guide_position": "Pinned clang-format: BasedOnStyle LLVM, IndentWidth 4, ColumnLimit 100, UseTab Never; never reformat vendored code.",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "C still has no language ownership model; disciplined manual ownership plus static analysis remains the official-ecosystem answer. MISRA C:2025 continues to require freedom from undefined/critical unspecified behaviour rather than any ownership mechanism.",
+      "citations": [
+        "https://misra.org.uk/product-category/misra-c-2/",
+        "https://www.open-std.org/jtc1/sc22/wg14/"
+      ],
+      "evidence": "MISRA C:2025 is the current critical-systems guideline (Mar 2025) and is built around UB avoidance and tool enforcement, consistent with the guide's manual discipline.",
+      "guide_position": "One owner per buffer/fd/handle, one cleanup path (goto acceptable), reverse-order release, realloc via temporary, no pointer into automatic storage escapes, (NULL,0) policy per API.",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "Aligns with CERT C practice as mechanically enforced by clang-tidy's cert-* checks and with MISRA C:2025's security-relevant rules; no official guidance has moved toward the constructs the guide bans.",
+      "citations": [
+        "https://clang.llvm.org/extra/clang-tidy/",
+        "https://misra.org.uk/product-category/misra-c-2/"
+      ],
+      "evidence": "clang-tidy documents a dedicated cert-* group for CERT Secure Coding Guidelines; MISRA C:2025 addenda map the guidelines to CWE memory-safety weaknesses, the same defect classes the guide targets.",
+      "guide_position": "Fixed format strings, bounds-checked copies (strncpy is not a safe strcpy), unsigned char for ctype, no system()/popen() on external input, argv form, openat2-style race-resistant filesystem handling, sanitizer findings treated as real defects.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "clang-tidy plus the Clang Static Analyzer is the official LLVM static-analysis route, with check groups that map directly onto this guide's rules: cert-* (CERT C), bugprone-*, concurrency-*, and clang-analyzer-*; clangd can also surface clang-tidy diagnostics.",
+      "citations": [
+        "https://clang.llvm.org/extra/clang-tidy/"
+      ],
+      "evidence": "Still unapplied, verified in the current text: 'clang-tidy' occurs zero times in SKILL.md and the full guide, while the clang-tidy documentation lists the cert, bugprone, concurrency and clang-analyzer groups and explains that it also runs Clang Static Analyzer checks",
+      "guide_position": "SKILL toolchain pairing is clangd + clang-format + lldb-dap only; the full guide mentions sanitizers and 'targeted static analysis' generically (sections 26/28) but names no linter/analyzer or check set.",
+      "verdict": "improved-elsewhere"
+    },
+    "testing": {
+      "best_practice": "Clang's sanitizer documentation continues to present ASan/UBSan exactly as the guide uses them: defect detectors for exercised paths, not proofs of absence of UB.",
+      "citations": [
+        "https://clang.llvm.org/docs/AddressSanitizer.html",
+        "https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html"
+      ],
+      "evidence": "The guide's own cited Clang sanitizer pages remain the current official docs for the LLVM toolchain line it pairs with (now the 23.1.x series). Note the section 27 recipe that exercises the -DNDEBUG half of this discipline still compiles as C17 - see toolchain_pins.",
+      "guide_position": "Boundary/allocation-failure/interruption/integer-edge tests, fuzz byte parsers behind a size cap, ASan/UBSan runs, a separate TSan build for concurrent code, and a full -DNDEBUG run so tests do not vanish with assert.",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "C23 (ISO/IEC 9899:2024) is the current standard. GCC 15+ defaults to gnu23, GCC 16.2 is the current 16-branch release, and Clang has offered -std=c23 since Clang 18. Every validation recipe for the guide's own baseline should compile as C23.",
+      "citations": [
+        "https://www.open-std.org/jtc1/sc22/wg14/",
+        "https://gcc.gnu.org/gcc-15/changes.html",
+        "https://clang.llvm.org/c_status.html"
+      ],
+      "evidence": "The pass-1 re-baseline is verified present in the header target line, SKILL.md workflow step 1, section 2, the section 27 sanitizer recipe (-std=c23), and source [C1] (N3220). One survivor: the section 27 -DNDEBUG companion recipe at line 426 still compiles the reference module with -std=c17, so the guide's own release-mode validation still runs under the superseded standard Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "Primary target is now ISO C23 in the guide header, SKILL.md, and section 2 (run-1 fix verified present); validation recipes compile with -std=c23 - except the section 27 -DNDEBUG companion recipe, which still uses -std=c17",
+      "verdict": "holds"
+    }
+  },
+  "current_versions": {
+    "C (ISO/IEC 9899)": "C23 (ISO/IEC 9899:2024) is the current standard per WG14; work on the next revision (C2y) is in draft",
+    "Clang/LLVM": "LLVM 23.1.x series current (23.1.0 released 26 Aug 2026; 23.1.2 seen in this pass); Clang status pages list -std=c23 since Clang 18 and -std=c2y partial",
+    "GCC": "GCC 16.2 (Aug 2026) is the current 16-branch release; GCC 15+ defaults C to gnu23 (C23-based); -fhardened remains version/platform dependent as the guide warns",
+    "MISRA C": "MISRA C:2025 (Mar 2025) is the current edition; covers C90/C99/C11/C18, not C23",
+    "clang-format": "Ships with LLVM 23.1.x; BasedOnStyle/IndentWidth/ColumnLimit/UseTab options all still valid",
+    "clang-tidy": "Current with LLVM 23.1.x; includes cert-*, bugprone-*, concurrency-*, clang-analyzer-* check groups; NOT paired in the guide",
+    "clangd": "Ships with LLVM 23.1.x; guide pairs it, version not pinned in guide",
+    "lldb-dap": "Ships with LLVM/LLDB 23.1.x as the DAP adapter"
+  },
+  "language": "c",
+  "mechanical_fixes": [
+    {
+      "citation": "https://gcc.gnu.org/gcc-15/changes.html",
+      "correct": "cc -std=c23 -Wall -Wextra -Wpedantic -O2 -DNDEBUG \\",
+      "current": "cc -std=c17 -Wall -Wextra -Wpedantic -O2 -DNDEBUG \\",
+      "evidence": "Residual survivor of the run-1/pass-1 re-baseline: the section 27 sanitizer recipe was updated to -std=c23 (line 422) but its -DNDEBUG companion (line 426) still compiles the reference module as C17, while the guide's declared baseline, both compilers' defaults, and SKILL workflow step 5's 'test again with -DNDEBUG' all assume the same C23 standard in both modes",
+      "file": "~/workspace/skills/tiger-style-c/references/TIGER_STYLE_C.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "static_analysis",
+      "citations": [
+        "https://clang.llvm.org/extra/clang-tidy/"
+      ],
+      "evidence": "clang-tidy is the official LLVM linter, runs the static analyzer's checks, and its cert-*/bugprone-* groups mechanically enforce several rules this guide currently leaves to human review; the guide pairs no linter at all (verified: zero occurrences of 'clang-tidy' in the current guide text). Carried forward unapplied from run 1, as the remediation addendum's 'What remains open' confirms.",
+      "proposal": "Add clang-tidy (with the Clang Static Analyzer checks) to the SKILL toolchain pairing and workflow, with a named starter check set (bugprone-*, cert-*, clang-analyzer-*, concurrency-*) run alongside the existing ASan/UBSan step.",
+      "recommendation": "Adopt: highest-leverage gap in the C guide. Keep the check set explicit and pinned like the clang-format config."
+    },
+    {
+      "aspect": "assertions_contracts",
+      "citations": [
+        "https://clang.llvm.org/c_status.html",
+        "https://gcc.gnu.org/gcc-15/changes.html"
+      ],
+      "evidence": "Partially landed in pass 2: sections 2 and 9 now declare the C23 facilities baseline and make <stdckdint.h> the default checked-arithmetic mechanism. Not yet adopted as code-level defaults: the guide's rules and reference module do not prescribe [[nodiscard]] on status returns, nullptr, or constexpr bounds constants (the section 31 reference module still uses NULL and no [[nodiscard]]). Clang's C23 table shows these features implemented across Clang 9-21, so they are portable in practice, not paper features.",
+      "proposal": "On the C23 baseline, promote the standardised contracts vocabulary from gated extras to defaults where the pinned compiler supports them: [[nodiscard]] on status returns, nullptr, constexpr objects for bounds constants, and <stdckdint.h> checked arithmetic as an alternative to hand-rolled SIZE_MAX division checks.",
+      "recommendation": "Adopt incrementally, one feature per project, with the guide's existing feature-check discipline retained for anything beyond the verified subset."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

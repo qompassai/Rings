@@ -1,0 +1,133 @@
+{
+  "aspect_adaptations": "HTML is a document language with no compiler, runtime ownership, or threads of its own, so the matrix is adapted honestly: assertions_contracts = validator gates (vnu / SuperHTML / semantic lint) run on the assembled document; memory_ownership = DOM and resource-cost discipline (node/depth budgets, hidden-but-present content, template vs rendered markup, subresource lifetimes); concurrency = parser/render ordering and async loading semantics (defer vs async vs module scripts, resource hints, arrival-order independence); bounded_work = named document/resource budgets (bytes, DOM nodes, subresources, collection sizes rendered by producers); error_handling = designed failure appearances (missing CSS/scripts/images, error documents, broken links).",
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "Matches the platform's own conformance model: the Living Standard defines authoring conformance requirements and the Nu Html Checker is the reference checker for them; because the parser recovers from every error, a validator gate on the assembled document is the only observable correctness signal. Nothing in current WHATWG or validator guidance contradicts the three-layer gate.",
+      "citations": [
+        "https://html.spec.whatwg.org/multipage/",
+        "https://github.com/validator/validator"
+      ],
+      "evidence": "The validator project's own README confirms the release model the guide describes (rolling 'latest' artifact; 20.6.30 was the final numbered major release), and the Living Standard is the continuously updated target the guide names. SuperHTML's repo confirms it validates syntax, nesting, and attribute values against the living specification.",
+      "guide_position": "Assertions are validator gates, not runtime checks: vnu zero errors on the assembled document is the primary gate, SuperHTML check adds a stricter second reading (stricter wins for hand-authored docs), and htmlhint/html-validate assert semantic invariants (labels, alt presence, heading order, unique ids, one main). Checker version is pinned/recorded; warnings are triaged.",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "No official HTML source prescribes document budgets; nothing contradicts named budgets. Platform measurement tooling (browser devtools node/byte counts, Lighthouse's DOM-size audit) supports the guide's measure-it stance.",
+      "citations": [
+        "https://html.spec.whatwg.org/multipage/"
+      ],
+      "evidence": "Tiger policy stricter than mainstream by design; the guide itself labels the numbers as project policy, not spec values, and names the measuring instruments.",
+      "guide_position": "Named UPPER_SNAKE_CASE budgets declared per project and checked in the pipeline: DOCUMENT_BYTES_MAX 100 KB (compressed HTML), DOM_NODES_MAX 1,500, ELEMENT_DEPTH_MAX 32, SUBRESOURCE_COUNT_MAX 50, IMAGE_COUNT_MAX 30, FORM_CONTROLS_MAX 100, TABLE_CELLS_MAX 10,000 as starting values; every collection rendered into markup is bounded at the producer; third-party embeds count double and name an owner and failure appearance.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "The Living Standard's script execution model matches the guide: defer scripts run in order after parsing, async scripts run on arrival, module scripts are deferred by default. Arrival-order independence and reserved geometry are the standard cure for load races and layout shift.",
+      "citations": [
+        "https://html.spec.whatwg.org/multipage/"
+      ],
+      "evidence": "Guide's defer/async/module statements restate the spec's execution-order rules; no newer loading primitive in the current standard displaces them (fetchpriority, which the guide uses for the single priority resource, is the current addition and is covered).",
+      "guide_position": "Markup sets the terms of the parser/network/render race: defer for ordered scripts, async only where order does not matter, module scripts preferred (deferred by default); content must not depend on arrival order of independent resources; resource hints spent sparingly (preconnect for the few origins that matter); third-party tags async or absent and never gating first paint or form submission; space reserved for late content.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "Consistent with platform behavior and long-standing practice: documents degrade partially, so each failure mode (missing stylesheet, blocked script, missing image, error status) needs a designed appearance; a soft-404 misleads crawlers and users alike.",
+      "citations": [
+        "https://html.spec.whatwg.org/multipage/"
+      ],
+      "evidence": "No contradicting official guidance found; the guide's rules follow from the standard's parsing/rendering model (content survives without CSS/JS only if semantics carry it).",
+      "guide_position": "Every failure's appearance is designed in the contract: width/height reserve the image box so failure degrades to alt text in a stable layout; page stays legible without CSS and usable without scripts (forms still submit, details still opens); 404/410 are real pages served with the correct status (no soft-404, no redirect-to-home); broken internal links are pipeline failures; no inline onerror papering over missing assets.",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "SuperHTML remains an actively maintained validator/formatter/LSP implementing the living specification; its current release line is v0.7.0 and its documented position is that the formatter accepts no configuration options - exactly the decree-formatter property the guide relies on.",
+      "citations": [
+        "https://github.com/kristoff-it/superhtml/releases/tag/v0.7.0",
+        "https://github.com/kristoff-it/superhtml"
+      ],
+      "evidence": "The SuperHTML repo (README and v0.7.0 release notes, checked 2026-10-14) confirms the no-configuration formatter, the check/fmt/lsp commands the guide invokes, and continued releases; the guide's fallback chain (prettierd/prettier for templated contexts SuperHTML does not cover, exactly one formatter per file) matches SuperHTML's own stated templating limitation.",
+      "guide_position": "One formatter per document class: SuperHTML for complete documents (no configuration by upstream design; superhtml fmt --check is the gate), with diver's prettierd/prettier/SuperHTML fallback chain for contexts outside SuperHTML's strict validation, never two formatters in sequence on one file. Explicit closing tags everywhere (omitted end tags flagged), double-quoted attributes, bare boolean attributes, void elements without the XHTML slash.",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "Adapted aspect (see aspect_adaptations): the DOM is the allocation the reader's machine pays for. Platform guidance (Lighthouse DOM-size audits, loading/fetchpriority semantics in the standard) supports node/depth discipline and deliberate resource lifetimes; nothing contradicts the guide.",
+      "citations": [
+        "https://html.spec.whatwg.org/multipage/"
+      ],
+      "evidence": "The guide's rules (flatten purposeless wrappers, do not ship hidden duplicate regions, template for inert markup, preload only what this page uses, preload=none for click-to-play media) are direct applications of the standard's loading model; no official source prescribes a different discipline.",
+      "guide_position": "The DOM is the memory model: node count and depth are the headline costs; wrapper divs carrying no semantics, styling hook, or script hook are packaging, not elements. Hidden-but-present content is still allocated - prefer not rendering, template elements, or server-side selection over shipping hidden variants. Subresource lifetimes are markup-controlled: lazy loading defers, preload is a scarce promise, media elements hold decoders/buffers, dynamic regions are bounded and emptied deliberately.",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "Matches current platform security practice: context-sensitive output encoding, strict-CSP-compatible markup (no inline handlers), SRI for third-party subresources, least-privilege iframe sandboxing, and the documented allow-scripts + allow-same-origin sandbox escape the guide explicitly warns about. WCAG/ARIA guidance and the standard support the rest.",
+      "citations": [
+        "https://html.spec.whatwg.org/multipage/",
+        "https://www.w3.org/TR/WCAG22/"
+      ],
+      "evidence": "The sandbox-token trap, the four encoding contexts (text, attribute, URL, script - including the </script> breakout), and the SRI/crossorigin pairing are all stated in the standard and MDN's compatibility record the guide cites; no current guidance relaxes any of them.",
+      "guide_position": "Encode by context at the boundary via the templating layer (text, attribute, URL, and script contexts each have a different regime; double-encoding is also a bug). No inline event handlers and no javascript: URLs without exception - markup a strict CSP would break is wrong markup. target=_blank is rare and always rel=noopener. Every iframe is titled and carries the least sandbox token set (the allow-scripts + allow-same-origin combination is called out as no sandbox). CDN scripts/styles carry SRI + crossorigin or are self-hosted; no secrets in markup; user-supplied markup is rendered as text or through a reviewed allowlist sanitizer.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "The three-layer stack (reference conformance checker, strict second reader, semantic/a11y lint) remains the current shape of HTML static analysis; SuperHTML v0.7.0 extended its diagnostics (ARIA attribute support among them) without changing the model, and html-validate continues to cover fragments/templates offline.",
+      "citations": [
+        "https://github.com/validator/validator",
+        "https://github.com/kristoff-it/superhtml/releases/tag/v0.7.0",
+        "https://html-validate.org/"
+      ],
+      "evidence": "Tool currency verified 2026-10-14 against the projects' own repos/release pages; the guide pins/records checker versions and treats upgrades like compiler upgrades, which matches vnu's rolling-release model.",
+      "guide_position": "Static analysis is the assertion stack of section 4: vnu (conformance), SuperHTML check (stricter spec reading incl. spec-legal-but-wrong markup), htmlhint/html-validate (semantic and accessibility invariants, fragment-aware), plus axe-core in testing. LSP pairing: vscode-html-language-server for general support, SuperHTML's LSP for strict validation; markuplint is in diver's linter set.",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "No official source prescribes a document test split; the guide's gates-on-assembled-output plus adversarial fixtures (injection per encoding context, malformed nesting, keyboard traps, contract violations, oversize inputs) matches how the platform's own test culture (web-platform-tests) treats conformance: behavior is checked against the assembled result, not author intent.",
+      "citations": [
+        "https://html.spec.whatwg.org/multipage/"
+      ],
+      "evidence": "The guide's own record for its reference document (vnu zero errors, SuperHTML clean, tidy 0 errors reported for the sample shape) is consistent with the suite it prescribes; no contradicting guidance found.",
+      "guide_position": "Half validation / half adversarial, run against the built, assembled site plus fragment unit checks: validation asserts all gates pass, links/fragments resolve, labels/alt/heading order hold, keyboard walk completes, budgets hold, pages render without CSS and function without scripts. Adversarial fixtures (malformed nesting, per-context injection, duplicate ids, second main smuggled by a component, unsandboxed iframe, GET form that mutates, oversize collections) must be rejected by the gates or survived inert; fixtures re-run on every toolchain upgrade.",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "Baseline status is a dated, computable claim in the web-features dataset the guide cites as [H3]: a feature is newly available when it interoperates across the core browsers and widely available 30 months later. For inert, the dataset records newly available in April 2023 (Firefox 112 was the last engine) and widely available only since 2025-10-11 - the guide's 'widely available since 2023' conflates the two dates. Its dialog (widely September 2024) and popover (newly January 2025) dates check out exactly, and the vnu pinning story matches upstream, so the stale verdict is confined to the inert date.",
+      "citations": [
+        "https://web-platform-dx.github.io/web-features-explorer/features/inert/",
+        "http://web.dev/blog/popover-baseline",
+        "https://github.com/validator/validator"
+      ],
+      "evidence": "The web-features explorer entry for inert (checked 2026-10-14) lists Baseline Widely Available since 2025-10-11 with per-engine dates ending at Firefox 112 (2023-04-11); web.dev's popover post confirms the corrected 2025-01-27 newly-available date the guide uses, showing the guide's Baseline method is right and the inert line is a date error, not a method error. Practical impact is nil today: inert IS widely available now, so the usage guidance stands - only the 'since 2023' date is wrong. Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "Target is the unversioned HTML Living Standard on evergreen browsers; Baseline is the support clock (newly = interoperable, widely = +30 months), verified in MDN/web-features on the day of checking. Section 26 states dialog reached widely available in September 2024, popover newly available in January 2025, and inert 'widely available since 2023'. Tool pins: vnu recorded by build/digest/container tag (upstream no longer cuts numbered releases; 20.6.30 was the last), SuperHTML and lint tools version-recorded.",
+      "verdict": "holds"
+    }
+  },
+  "current_versions": {
+    "html": "HTML Living Standard (WHATWG), continuously updated, no version to pin; evergreen browsers are the runtime. Baseline clock: dialog widely available since 2024-09-14, popover newly available since 2025-01-27 (widely projected ~2027-07-27), inert widely available since 2025-10-11",
+    "html-validate": "Maintained offline validator covering the content model and accessibility rules, fragments included; part of the guide's semantic-lint layer",
+    "htmlhint": "Maintained semantic lint (HTMLHint); part of the guide's semantic-lint layer alongside html-validate",
+    "superhtml": "kristoff-it/superhtml, current release line v0.7.0 (validator + no-configuration formatter + LSP implementing the living specification); the guide's house formatter for complete documents",
+    "vnu": "Nu Html Checker: rolling 'latest' release artifact is the only production release upstream ships; 20.6.30 (2020-06-30) was the final numbered major release - the guide's pin-by-digest/recorded-build rule matches this exactly",
+    "vscode-html-language-server": "Provided by vscode-langservers-extracted; general HTML LSP in the diver pairing, with SuperHTML's LSP for strict validation"
+  },
+  "language": "html",
+  "mechanical_fixes": [
+    {
+      "citation": "https://web-platform-dx.github.io/web-features-explorer/features/inert/",
+      "correct": "`inert` disables a whole subtree ... ; Baseline newly available April 2023, widely available since October 2025 [H3].",
+      "current": "`inert` disables a whole subtree - focus, clicks, find-in-page, assistive exposure - in one attribute; widely available since 2023 [H3].",
+      "evidence": "The web-features dataset the guide cites as [H3] records inert as Baseline Widely Available since 2025-10-11; April 2023 (Firefox 112) is its newly-available date. The guide conflated the two Baseline stages. Inert is widely available today, so the usage rule is unaffected - only the date is wrong.",
+      "file": "~/workspace/skills/tiger-style-html/references/TIGER_STYLE_HTML.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "http://web.dev/blog/popover-baseline"
+      ],
+      "evidence": "web.dev's corrected popover post explains the January 2025 date replaced an erroneous April 2024 Baseline claim after an iOS light-dismiss defect was found - Baseline dates can move retroactively, which is why the guide's verify-on-the-day rule matters.",
+      "proposal": "Add a dated re-verification note for the three Baseline claims in section 26 (dialog, popover, inert) to the guide's review checklist, and calendar popover's projected widely-available date (~2027-07-27): before that date popover stays off the only path to essential content; after it, that restriction can be revisited with fresh web-features evidence.",
+      "recommendation": "Adopt the inert date fix (mechanical_fixes) now; adopt the re-verification note at the next guide revision."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

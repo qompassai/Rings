@@ -1,0 +1,133 @@
+{
+  "aspect_adaptations": "systemd unit files are declarative supervisor configuration, not a programming language, so the matrix is adapted honestly: assertions_contracts is read as unit-file verification and contract checking (Condition vs Assert semantics, ExecStartPre contract checks, systemd-analyze verify as the gate); memory_ownership is read as resource-control and state-ownership discipline (cgroup v2 MemoryHigh/MemoryMax/TasksMax ceilings, slice budgets, and the directory directives as the ownership mechanism for state, cache, logs and runtime paths); concurrency is read as service parallelism and ordering semantics (parallel activation unless After/Before orders it, dependency-graph transactions, slice activating-concurrency, socket activation, restart-storm desynchronization); static_analysis is systemd-analyze (verify plus the security exposure audit), there being no separate type system or linter for unit files.",
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "Matches the documented semantics in systemd.unit(5): conditions skip quietly, assertions fail the unit, and systemd-analyze condition evaluates both before anything starts. Postconditions stated in the unit and checked by tests is stricter than common practice, not contradicted by it.",
+      "citations": [
+        "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html"
+      ],
+      "evidence": "Guide section 4 states the two failure semantics and the checks-not-setup rule for ExecStartPre; section 28 makes verify warnings gate failures via --recursive-errors=, which is what turns the contract into a checkable assertion.",
+      "guide_position": "Condition... directives express genuine optionality (a failed condition skips the unit quietly and successfully); Assert... directives express deployment-guaranteed preconditions (a failed assertion marks the unit failed); ExecStartPre commands are cheap, fast, read-only contract checks that fail the start early and loudly, never setup or migration; postconditions are stated in Description/Documentation and verified by the testing split (socket answers after start, no cgroup process survives a stop, a timer elapse ran its service or its skip is explained by a condition).",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "Consistent with systemd.resource-control(5) and systemd.unit(5): every axis the guide names is a real directive with the stated exhaustion behavior, and the start-limit defaults the guide cites (5 bursts per 10 s) are systemd's own manager defaults. Requiring the budget to be stated rather than inherited is Tiger policy, stricter than default.",
+      "citations": [
+        "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html"
+      ],
+      "evidence": "Guide section 5 tabulates the axes with directives and exhaustion behavior, and the reference unit in section 31 states its budget (StartLimitBurst=5, StartLimitIntervalSec=10min) in [Unit], where the directives belong.",
+      "guide_position": "Every forever gets a stated budget per axis: MemoryMax (hard) and MemoryHigh (soft), CPUQuota, TasksMax, LimitNOFILE set deliberately rather than to maximum, StartLimitBurst per StartLimitIntervalSec in [Unit] plus RestartSec, RuntimeMaxSec for runs that must end, WatchdogSec with sd_notify, TimeoutStartSec/TimeoutStopSec, journald rate limits understood, and StateDirectoryQuota and peers (v258+) for directory growth; values are derived from measured appetite plus headroom with the derivation commented, never copied from another unit, and infinity is a review finding wherever it appears.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "Matches the manager's documented model: activation is parallel wherever the declared graph allows, ordering and requirement are separate axes, and socket activation removes the readiness race. The two 262 additions the guide names are real: v262 release coverage and the upstream commit record RestartRandomizedDelaySec, and the same coverage records slice ActivatingConcurrencyMax.",
+      "citations": [
+        "https://github.com/systemd/systemd/releases/tag/v262",
+        "https://github.com/systemd/systemd/commit/046de3caeaa8fdfe6014ffdf23b2db6e4b6c60db"
+      ],
+      "evidence": "The official v262 release (tagged 2026-09-22) is the current upstream release; the upstream commit adding RestartRandomizedDelaySec describes it as the restart-storm desynchronization mechanism the guide's section 21 presents, and release coverage of v262 confirms ActivatingConcurrencyMax on slices and the static PID 1 build.",
+      "guide_position": "Boot and transaction order is parallel by default and only declared After/Before ordering serializes it; a starting unit does not queue a second copy of an already-active unit, which is the non-overlap guarantee for oneshot self-overlap, while sibling overlap is the program's lock (flock) and the unit names that fact; slices are the concurrency budget for a class of work, with v262's ActivatingConcurrencyMax capping simultaneous activations in a slice; restart storms are desynchronized with RestartSec jitter (RestartRandomizedDelaySec, v262) and staggered RandomizedDelaySec; socket activation is the concurrency-friendly shape, with Accept per-connection instances only for genuinely stateless programs.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "The exit-status, OnFailure and stop-escalation model matches systemd.service(5) and systemd.kill(5), and KillMode=none is indeed deprecated upstream (since v246 the manager warns that it disables process lifecycle management). One current mechanism improves on the guide's reload contract: the latest systemd.service(5) defines Type=notify-reload, expects RELOADING=1/READY=1 notifications around a manager-sent reload signal, and recommends it over a signal-based ExecReload for services that support reloading, even verifying the reload-signal handler is installed; the guide's section 20 presents ExecReload (typically /bin/kill -HUP $MAINPID) as the reload contract and never mentions notify-reload.",
+      "citations": [
+        "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html"
+      ],
+      "evidence": "The current systemd.service(5) text fetched for this audit describes notify-reload in detail and states that using it with the reload protocol is the efficient, recommended alternative to providing an ExecReload command for signal-reloadable services; guide sections 7 and 20 contain no occurrence of notify-reload.",
+      "guide_position": "Exit status policy is declared (SuccessExitStatus, RestartForceExitStatus, RestartPreventExitStatus) with a preference for fixing the program's codes; OnFailure wires important failures to a unit a human will see and OnSuccess covers oneshot completion hooks; stop behavior is SIGTERM, TimeoutStopSec sized for real drain work, then SIGKILL to the cgroup (SendSIGKILL default on); KillMode stays control-group by default, mixed is the named middle case, and process/none abandon the stop guarantee and need a written reason (none is deprecated upstream); start failures land in failed and are never papered over with ExecStartPost tricks or - prefixes on commands whose failure is the signal.",
+      "verdict": "improved-elsewhere"
+    },
+    "formatting": {
+      "best_practice": "True as stated: systemd ships no canonical unit formatter and no estate-wide third-party one has standing; verification plus consistent house conventions is the honest maximum. Nothing in the current upstream documentation announces a formatter the guide is missing.",
+      "citations": [
+        "https://man.Archlinux.org/man/systemd-analyze.1.en"
+      ],
+      "evidence": "Guide section 23 states the absence plainly instead of inventing a tool, and sections 27/28 give the validation recipes (verify, calendar, security) that substitute for a format gate.",
+      "guide_position": "No canonical formatter exists and the guide does not invent one: the discipline is one directive per line, no trailing whitespace, file ends with a newline, section order [Unit] then the type section then [Install], blank line between sections, directives alphabetized within a section except where order is semantics (dependency sequences, Exec lines in run order), rare indented continuations, values unquoted unless they contain spaces or comment characters, full-line comments only, suffixed time/size values, and yes/no boolean spelling throughout; in the editor, systemd_ls diagnostics assist but formatting stays a reviewed-diff discipline.",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "Consistent with the cgroup v2 resource-control model in systemd.resource-control(5): accounting is on by default under v2, MemoryHigh and MemoryMax are distinct tools, and OOMPolicy has existed since v243. The v258 facts the guide builds on are real: v258 removed cgroup v1 support and added per-directory storage quotas.",
+      "citations": [
+        "https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html?ref=hackernoon.com"
+      ],
+      "evidence": "Guide sections 5, 14 and 15 state the accounting-first discipline and the directory lifetimes; v258's removal of cgroup v1 and its per-service directory quotas are confirmed in the v258 release record, and the systemd.exec(5) source the guide cites carries the per-directive version records (directory directives 211, quotas 258).",
+      "guide_position": "Memory control is accounting first, limits second: MemoryAccounting defaults on under cgroup v2, usage is measured before any ceiling is set, MemoryHigh (reclaim pressure) sits below MemoryMax (the hard cgroup OOM wall) when growth is the risk, MemorySwapMax bounds swap, OOMScoreAdjust is a documented relative statement, and OOMPolicy=stop is the usual Tiger choice so an OOM'd unit enters the failure machinery; state ownership belongs to the directory directives, whose lifetimes are explicit (RuntimeDirectory removed at stop unless preserved, State/Cache/Logs/Configuration directories persist and are removed deliberately via systemctl clean, and under DynamicUser the persistent dirs live under private/ parents so recycled UIDs cannot reach a prior tenant's state); slice membership gives a class of work a collective budget above the per-unit ceilings.",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "The checklist reflects the current systemd.exec(5) sandboxing surface, and the guide's warnings are the documented ones: most filesystem sandboxing is unavailable to the per-user manager alone and takes effect there only combined with PrivateUsers, sandbox layers degrade silently where the kernel or container lacks the mechanism, and an unknown directive is logged and silently does nothing, which verify exists to surface. LoadCredential's credential-directory boundary and the world-readability of unit files are documented facts.",
+      "citations": [
+        "https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html?ref=hackernoon.com"
+      ],
+      "evidence": "Guide sections 18, 19 and 26 state the policy, the per-directive mechanisms with their breakage modes (including the MemoryDenyWriteExecute/JIT warning), and the verify-on-target discipline; the exposure gate it prescribes (security --offline with --threshold, v250+) is the documented CI form.",
+      "guide_position": "Sandbox by default from the section 26 checklist, weakening only on paper with a comment naming the workload fact: least user (dedicated or DynamicUser), NoNewPrivileges, empty-then-rebuilt CapabilityBoundingSet, PrivateDevices, PrivateNetwork or declared address families, ProtectSystem=strict with the directory directives as the writable exception, ProtectHome, PrivateTmp, the ProtectKernel/ControlGroups/Clock/Hostname family, ProtectProc=invisible with ProcSubset=pid, LockPersonality, MemoryDenyWriteExecute piloted per service because it blocks JIT runtimes, SystemCallFilter with SystemCallErrorNumber=EPERM, RestrictNamespaces, UMask=0077; secrets never travel in Environment (world-readable files, systemctl show, /proc environ) and go through LoadCredential/LoadCredentialEncrypted or a 0600 EnvironmentFile; systemd-analyze security exposure at or below the unit's agreed threshold is the gate, with the review covering what the score cannot see.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "systemd-analyze is the documented analysis surface for unit files: verify checks unit files and their references, and the security subcommand's offline mode with a threshold is the documented CI gate (both since v250 for the offline/threshold forms). No competing canonical analyzer exists for unit files.",
+      "citations": [
+        "https://man.Archlinux.org/man/systemd-analyze.1.en"
+      ],
+      "evidence": "Guide sections 26, 27 and 28 prescribe exactly verify with --recursive-errors= (so the default success-despite-warnings behavior cannot mask unknown directives), security --offline=yes --threshold, and calendar normalization for every OnCalendar change.",
+      "guide_position": "The gate toolchain is systemd-analyze: verify clean with --recursive-errors= set so warnings (unknown directives, missing binaries, bad references) fail the run instead of passing silently; security run offline with an agreed --threshold and non-zero exit above it; calendar used to normalize and preview every OnCalendar expression; systemd_ls provides editor diagnostics and directive completion in Neovim, but no formatter or DAP adapter is claimed, because none exists.",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "Consistent with how the manager actually behaves and with the estate's half/half rule; every adversarial case in the guide corresponds to a documented manager behavior (start-limit failure state, cgroup-wide kill after TimeoutStopSec, drop-in merge order readable via systemctl cat, old definition running until daemon-reload). No current upstream change alters this testing model.",
+      "citations": [
+        "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html"
+      ],
+      "evidence": "Guide section 28 enumerates the static gates, the five validation cases and the six adversarial cases with expected outcomes, and requires per-host-class runs because sandbox availability differs by manager scope.",
+      "guide_position": "Half validation, half adversarial, run per host class and reported with the change: static gates first (verify with recursive errors, offline security threshold, calendar preview); validation covers cold start from disabled, total stop (no cgroup survivor, runtime dir gone, state dir persists), SIGKILL restart recovery, timer truth including Persistent catch-up after simulated downtime, and drop-in truth via systemctl cat; adversarial covers the crash loop bounded by the start-limit budget with OnFailure firing, sandbox-escape probes from inside the unit's own sandbox block, a canary-secret leak test across systemctl show, the journal, /proc environ and the unit files, a SIGTERM-ignoring double-forking program that must still die with the cgroup, dependency betrayal for Requires vs Wants partners, and reload honesty (restart without daemon-reload runs the old definition).",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "The currency claims check out against the official release record: systemd v262 was tagged 2026-09-22 in the systemd/systemd repository and is the current upstream release; its headline items the guide names (static PID 1 build, RestartRandomizedDelaySec, ActivatingConcurrencyMax) are in that release. The guide's per-target verification rule (the target's own man pages govern, because an unknown directive silently does nothing) is the documented-correct posture for a wide deployed spread.",
+      "citations": [
+        "https://github.com/systemd/systemd/releases/tag/v262"
+      ],
+      "evidence": "The official v262 release page confirms the version and date the guide's header claims (September 2026); the guide's stated distro spread (Debian 13: 257, Ubuntu 26.04 LTS: 259) was taken from the guide's cited distribution records and was not independently re-verified in this audit, which does not affect the verdict because the guide's operative rule is to verify directives on the target host regardless.",
+      "guide_position": "Upstream current is systemd 262 (September 2026) and the guide's header targets it, but deployed versions vary widely by host and the unit is written to the oldest target it ships to: manager scope, systemd version (systemctl --version), distribution and cgroup version are declared per host before anything else, every non-trivial directive is checked against the target's own installed man pages (which record 'Added in version NNN'), and cgroup v2 is assumed because v1 support was removed in the 258 line; version facts the guide does name were read off the current pages (sandboxing family from 214, directory directives 211, security --offline/--threshold 250, directory quotas 258).",
+      "verdict": "holds"
+    }
+  },
+  "current_versions": {
+    "systemd": "262 is the current upstream release, tagged 2026-09-22 in the official systemd/systemd repository (static PID 1 build, RestartRandomizedDelaySec, slice ActivatingConcurrencyMax); the deployed spread per the guide is Debian 13 with 257 and Ubuntu 26.04 LTS with 259, with Arch rolling at the current release",
+    "systemd-analyze": "Shipped with systemd; verify plus the security subcommand are the gate toolchain, with security --offline and --threshold available since v250 and verify's --recursive-errors used to make warnings fail the run",
+    "systemd-cgroup-model": "cgroup v2 only: support for cgroup v1 (legacy and hybrid hierarchies) was removed in the v258 release line, and resource-control semantics in the guide assume v2"
+  },
+  "language": "systemd",
+  "mechanical_fixes": [
+    {
+      "citation": "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html",
+      "correct": "- **[S1]** [systemd.exec(5)](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html)",
+      "current": "- **[S1]** [systemd.exec(5)](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html?ref=hackernoon.com)",
+      "evidence": "The [S1] citation URL in section 41 carries a third-party referral parameter (?ref=hackernoon.com) that is not part of the freedesktop.org man-page address; the latest-manual URL pattern is confirmed by the systemd.service(5) page at the same base, fetched for this audit.",
+      "file": "~/workspace/skills/tiger-style-systemd/references/TIGER_STYLE_SYSTEMD.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "error_handling",
+      "citations": [
+        "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html"
+      ],
+      "evidence": "The current systemd.service(5) describes Type=notify-reload, in which the manager sends the reload signal itself and waits for RELOADING=1 then READY=1 notifications, verifies a handler for the reload signal is installed before signaling, and recommends the type over an ExecReload command for services that reload via a signal; guide section 20 documents only the ExecReload form.",
+      "proposal": "Add Type=notify-reload to sections 6 and 20: for a program that speaks sd_notify and reloads on a signal, prefer notify-reload (with ReloadSignal where it is not SIGHUP) over ExecReload=/bin/kill -HUP $MAINPID, keeping ExecReload for programs without notify support, and note the manager's handler verification as part of the reload contract.",
+      "recommendation": "Adopt at the next guide revision; it changes no existing rule, it names the current mechanism beside the legacy idiom the guide currently presents as the only reload contract."
+    },
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://github.com/systemd/systemd/releases/tag/v262"
+      ],
+      "evidence": "Guide source [S6] takes the v262 release currency (and the distro version spread) from a Wikipedia article and release coverage; the official systemd/systemd v262 release page (tagged 2026-09-22) records the same facts at the primary source the audit standard prefers.",
+      "proposal": "Replace the [S6] release-currency citation with the official systemd/systemd v262 release page, keeping distribution records only for the distro spread (Debian 257, Ubuntu 259) that the release page does not cover.",
+      "recommendation": "Adopt as citation hygiene at the next guide revision; the facts do not change, only their provenance improves."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

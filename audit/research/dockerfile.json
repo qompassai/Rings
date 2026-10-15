@@ -1,0 +1,159 @@
+{
+  "aspect_adaptations": "Build-definition adaptation: assertions_contracts = build-time verification (BuildKit build checks set to error, RUN checksum/version asserts, postcondition file checks); bounded_work = layer-count, image-size, context-size, and download retry/timeout budgets stated in the header and enforced in CI; concurrency = BuildKit stage-graph parallelism, cache-mount sharing modes, multi-platform builds, and bounded CI admission; memory_ownership = layer/image-size ownership (caches redirected to mounts or deleted in the same RUN, copies as allocation, parallel stages multiplying builder memory); static_analysis = pinned hadolint plus the builder's own checks and ShellCheck over embedded shell.",
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "Matches the Dockerfile reference's own model: parser directives (syntax, check) are documented in the reference, the check directive exists since frontend v1.8.0, and BuildKit v0.34.0's release notes confirm build checks and provenance are maintained current features. Nothing official recommends warn-only checks for shipped artifacts.",
+      "citations": [
+        "https://docs.docker.com/reference/dockerfile/",
+        "https://github.com/moby/buildkit/releases/tag/v0.34.0"
+      ],
+      "evidence": "The BuildKit v0.34.0 release page (fetched in this pass) confirms the bundled frontend is v1.28.0 and provenance attestation is actively maintained - the machinery the guide's assertions ride on is current.",
+      "guide_position": "A build that cannot verify its assumptions fails at build time: input preconditions asserted in RUN (tool --version comparisons, sha256sum -c on downloads); BuildKit's lint checks are assertions - they warn by default, so the guide sets # check=error=true (check directive since frontend v1.8.0) and pins the frontend so new checks arrive only with a deliberate pin bump; output postconditions asserted before the final stage closes (binary exists and is executable, forbidden files absent via test ! -e); never assert by || true.",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "No Docker source prescribes numeric budgets; bounding build work is the guide's policy layer on top of documented mechanics (context upload cost, cache retention via buildx prune --keep-storage), and nothing in the reference or BuildKit notes contradicts stated budgets enforced in CI.",
+      "citations": [
+        "https://docs.docker.com/reference/dockerfile/"
+      ],
+      "evidence": "The Dockerfile reference documents the instructions whose costs the budgets govern; the budget numbers themselves are labeled policy in the guide's Sources note.",
+      "guide_position": "Budgets named in the header comment and enforced in CI: a reviewed layer-count budget for the final image, a maximum image size in MiB per artifact, a bounded build context (via .dockerignore, with an expected size class), work bounds inside RUN (downloads with capped retries and a timeout, e.g. curl --fail --retry 3 --max-time 300; package operations over a named finite set; loops over enumerated inputs only), and cache retention pruned on a stated --keep-storage ceiling; count and bytes are both bounded.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "Consistent with BuildKit's documented execution model: independent stages build concurrently off the stage graph, cache mounts document shared vs locked sharing modes, and buildx --platform produces one manifest list per logical multi-platform build. The guide's cautions (memory multiplication, locked sharing for concurrent writers) follow from those same docs.",
+      "citations": [
+        "https://github.com/moby/buildkit/releases/tag/v0.34.0",
+        "https://github.com/docker/buildx/releases/tag/v0.37.2"
+      ],
+      "evidence": "buildx v0.37.2 (current stable, fetched in this pass) and BuildKit v0.34.0 notes describe the parallel/cache machinery the guide designs against; nothing newer changes the model.",
+      "guide_position": "Adapted as build parallelism and cache semantics: stage parallelism is the builder's, governed by the dependency graph, so stages are designed to be genuinely independent; cache mounts take sharing=locked for concurrent writers (default shared mode is for read-mostly caches); multi-platform builds are one logical build producing one manifest list, with QEMU emulation budgeted and native per-arch builders preferred; CI admission (N parallel image builds per runner) is a numbered resource decision.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "Matches the builder's contract as documented: a failed instruction fails the build, and the reference's variable/exec-form semantics are what the guide's failure reporting assumes. No official guidance blesses suppressing instruction failures in shipped builds.",
+      "citations": [
+        "https://docs.docker.com/reference/dockerfile/"
+      ],
+      "evidence": "The guide's failure-class split (input/build/environment) is its own reporting discipline layered on the documented fail-fast builder behavior; nothing consulted contradicts it.",
+      "guide_position": "A failed instruction fails the build - no || true, no downloads without --fail turning a 404 into an installed file; failures are reported by class (input failure: digest/checksum mismatch, the supply chain working; build failure: the code or script is wrong; environment failure: registry unreachable, secret not provided) because each has a different owner; retries belong only to idempotent network fetches with caps; builds stay side-effect-free beyond the image and cache so cleanup stays the builder's job.",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "The guide's central claim is verified against the tool's own repo: the Docker Language Server provides Dockerfile linting (BuildKit/Buildx) and hover, and formatting for Compose and Bake files - not a canonical Dockerfile formatter. Convention-plus-hadolint is the ecosystem's actual state, and the guide says so instead of inventing a formatter.",
+      "citations": [
+        "https://github.com/docker/docker-language-server",
+        "https://docs.docker.com/reference/dockerfile/"
+      ],
+      "evidence": "The docker/docker-language-server repository's feature list (fetched in this pass) matches the guide's section 23 description feature for feature; the reference documents instructions as uppercase by convention.",
+      "guide_position": "Honest position: there is no canonical Dockerfile formatter and the guide does not pretend otherwise - conventions are the formatter, enforced by review and pinned hadolint: one instruction per logical line with consistent continuation indent, uppercase instructions, lowercase stage names, package lists one per line in alphabetical order, blank lines between stages, directives grouped at the top, exec-form JSON arrays as valid double-quoted JSON; the Docker Language Server formats Compose and Bake files and lints/hovers Dockerfiles, and a floating linter is named a hazard (hadolint v2.15.0's new rules failed previously clean files the day it shipped - an argument for pinning).",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "Follows from the documented layer model (the reference and BuildKit docs agree layers are additive and deletions are whiteouts) - cache-in-layer and copy costs are the ecosystem's standard accounting, and COPY --link is a documented frontend feature for layer reuse.",
+      "citations": [
+        "https://docs.docker.com/reference/dockerfile/",
+        "https://github.com/moby/buildkit/releases/tag/v0.34.0"
+      ],
+      "evidence": "The size model in section 38 (S_image = S_base + S_runtime libs + S_artifact + S_config <= S_budget) is checkable with docker history/layer walks as the guide prescribes; no source consulted offers a different accounting.",
+      "guide_position": "Adapted as layer/image-size ownership: parallel stages multiply builder memory (capacity bug, not a retry opportunity); package caches are allocation with no owner - redirected to cache mounts or deleted in the same RUN that created them, since a later-layer deletion reclaims nothing; copies are allocation too (prefer COPY --link where the pinned frontend and base allow); the context upload is paid on every build, so the bounded context is a memory/time budget, not tidiness.",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "The guide's spine is the vendors' own current guidance: hadolint v2.15.0 (2026-07-30) added DL3064 (sensitive data in ARG/ENV) and DL3066 (non-numeric user id) - both verified in this pass from the release's downstream fallout - because the ARG-history and named-user hazards are real; BuildKit shipped a 2026 security-fix release (v0.33.1, corroborated by buildx v0.37.2's dependency bump) that only pinned builders receive; secret mounts, digest pinning (DL3006/DL3007), and checksum-verified downloads are the documented mechanisms.",
+      "citations": [
+        "https://github.com/hadolint/hadolint/releases",
+        "https://github.com/moby/buildkit/releases/tag/v0.33.1",
+        "https://github.com/docker/buildx/releases/tag/v0.37.2",
+        "https://docs.docker.com/reference/dockerfile/"
+      ],
+      "evidence": "hadolint's release history and the July 2026 breakage reports confirm DL3064/DL3066 arrived in v2.15.0 with the severities the guide implies; the buildx v0.37.2 notes show the BuildKit v0.33.0 -> v0.33.1 security bump the guide's pinned-builder argument relies on.",
+      "guide_position": "Pin the builder and frontend, not just the bases (moby/buildkit by version/digest in driver-opts, # syntax= pin for the frontend); no secrets in any layer - not ENV (persists to runtime/children), not ARG (visible in history metadata), not copied-then-deleted - the one sanctioned path is a BuildKit secret mount supplied from the CI secret store; least privilege in the artifact (numeric non-root USER, read-only-rootfs-compatible design, minimal surface, setuid binaries removed where unneeded); downloads verified (ADD --checksum or fetch + sha256sum -c; curl | sh forbidden in all forms); bases from official/verified tiers with signature/attestation verification where the registry supports it; .dockerignore as a security boundary; HEALTHCHECK and EXPOSE explicitly not security controls.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "Two-layer gating is the current documented practice: BuildKit's own checks via the check directive, plus hadolint as an explicit pinned step - hadolint v2.15.1 is the current release (v2.15.0's DL3064-DL3067 additions verified), and ShellCheck v0.11.0 is the current stable for the SC-series checks hadolint runs over RUN instructions.",
+      "citations": [
+        "https://github.com/hadolint/hadolint/releases",
+        "https://github.com/koalaman/shellcheck/releases",
+        "https://docs.docker.com/reference/dockerfile/"
+      ],
+      "evidence": "Oct 2026 sources pinning 'the newest shellcheck release, 0.11.0' and hadolint 2.15.1 as the in-use current version corroborate both pins the guide names.",
+      "guide_position": "Lint is a gate, two layers deep: BuildKit's own checks as errors via # check=error=true, and hadolint as an explicit pipeline step pinned by version (current: v2.15.1), configured in a committed .hadolint.yaml, at failure threshold error for the guide's MUST rules, with zero blanket ignores (exceptions are per-line with a named reason); ShellCheck (current stable v0.11.0) cleanliness for embedded shell via hadolint's SC checks - a clean hadolint run over dirty shell is called a contradiction.",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "Consistent with the ecosystem's verification tooling (buildx --check, layer/history inspection, Trivy/Grype scanning as a gate); nothing in Docker's or BuildKit's current docs offers a competing test model for shipped images, and the guide's reproducibility spot-check follows BuildKit's documented SOURCE_DATE_EPOCH handling.",
+      "citations": [
+        "https://github.com/moby/buildkit/releases/tag/v0.34.0",
+        "https://github.com/docker/buildx/releases/tag/v0.37.2"
+      ],
+      "evidence": "BuildKit v0.34.0's notes confirm provenance contents keep improving (the attestation the tests verify); the CVE-gate tooling (trivy/grype) is the same lane the guide names.",
+      "guide_position": "Half validation, half adversarial: validation = clean --no-cache build from committed files alone, size/layer budgets enforced, runtime smoke (starts as the numeric non-root user, serves the declared port, answers its healthcheck within --start-period, stops cleanly on SIGTERM), enumerated file-set match, and a reproducibility spot-check (second build, same digest or differing inputs identified); adversarial = secret-leakage scan of the final image with history included (docker history --no-trunc, every layer extracted and grepped for planted canaries), privilege checks (root run must fail; find / -perm -4000 returns only the expected setuid set), surface scan for undeclared interpreters/network tools, a .dockerignore bypass test with a planted canary, a Trivy/Grype CVE gate (fixable Critical/High fail the build; unfixed findings recorded with owner and review date), and a base-substitution test (CI fails closed if a base digest changes without the reviewed pin commit).",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "One element of the target line has been superseded by a full major release: Podman's current line is 6.x - the 6.1 feature release is out (6.1.2 the current patch in release tracking), the project's own repository now carries the containers/podman/v6 module path, and the Podman 5 branch the guide targets reached end-of-life (5.8 EOL 2026-09-26). Everything else in the pin set verified current tonight: BuildKit v0.34.0 with bundled frontend v1.28.0, buildx v0.37.2 as latest stable (v0.38.0 is only an RC), the Docker Engine 29.8 stable line, hadolint v2.15.1, ShellCheck v0.11.0, and Rust 1.99.0 (released 2026-10-01) for the reference example's ARG.",
+      "citations": [
+        "https://github.com/podman-container-tools/podman",
+        "https://github.com/moby/buildkit/releases/tag/v0.34.0",
+        "https://github.com/docker/buildx/releases/tag/v0.37.2",
+        "https://docs.docker.com/engine/release-notes/29/"
+      ],
+      "evidence": "The Podman project's repository (podman-container-tools/podman) shows the v6 module line as current; Docker's Engine 29 release notes record 'Update BuildKit to v0.34.0', and the BuildKit v0.34.0 notes state the bundled Dockerfile frontend is v1.28.0 - both exactly as the guide's header claims. Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "Primary target stated as BuildKit current stable v0.34.0 with the pinned Dockerfile frontend v1.28.0 (bundled with BuildKit v0.34.0), Docker Engine 29 or Podman 5 (Buildah) as the builder; SKILL.md requires 'a BuildKit builder (Docker Engine 29 with buildx, or Podman 5 / Buildah)'; sources pin buildx v0.37.2, the Engine 29.8 line, hadolint v2.15.1, ShellCheck v0.11.0, and cite the Podman v5.5.0 release tag as 'the Podman 5 line'.",
+      "verdict": "holds"
+    }
+  },
+  "current_versions": {
+    "buildkit": "v0.34.0 is the current stable release; its notes confirm the bundled Dockerfile frontend is v1.28.0 and provenance contents keep improving - matches the guide's header and D2",
+    "buildx": "v0.37.2 is the latest stable release (v0.38.0 exists only as an RC) - matches the guide's D5",
+    "docker_engine": "29 is the current major; the 29.8 stable line is what Docker Desktop bundles (29.9.0 exists only as an RC) and its release notes record the update to BuildKit v0.34.0 - matches the guide's 'Engine 29 / 29.8 line'",
+    "docker_language_server": "docker/docker-language-server is the official LSP: Dockerfile linting/hover from BuildKit and Buildx, formatting for Compose and Bake files - matches the guide's D9 and its section 23 formatter assessment",
+    "dockerfile_frontend": "v1.28.0, bundled with BuildKit v0.34.0 - matches the guide's pinned # syntax=docker/dockerfile:1.28.0",
+    "hadolint": "v2.15.1 is current; v2.15.0 (2026-07-30) added DL3064 (sensitive data in ARG/ENV) and DL3066 (non-numeric user id) among DL3064-DL3067 - matches the guide's D4 claims and its pinned version",
+    "podman": "STALE in the guide: Podman is on the 6.x line (6.1 feature release, 6.1.2 current patch; project module path is containers/podman/v6; the 5.8 branch reached EOL 2026-09-26), while the guide targets 'Podman 5' and cites the v5.5.0 tag as the Podman 5 line",
+    "rust_reference_example": "Rust 1.99.0 was released 2026-10-01 (1.99.1 in pre-release testing for Oct 15), so the reference Dockerfile's ARG RUST_VERSION=1.99.0 names a real current release",
+    "shellcheck": "v0.11.0 is the current stable release - matches the guide's D7"
+  },
+  "language": "dockerfile",
+  "mechanical_fixes": [
+    {
+      "citation": "https://github.com/podman-container-tools/podman",
+      "correct": "  Requires a BuildKit builder (Docker Engine 29 with buildx, or Podman 6 / Buildah) with the pinned Dockerfile frontend, docker-language-server for LSP support, and hadolint for the lint gate.",
+      "current": "  Requires a BuildKit builder (Docker Engine 29 with buildx, or Podman 5 / Buildah) with the pinned Dockerfile frontend, docker-language-server for LSP support, and hadolint for the lint gate.",
+      "evidence": "Podman's current major line is 6 (6.1 feature release; the project repository carries the containers/podman/v6 module path), and the Podman 5 branch is end-of-life; the compatibility line names the superseded major as a supported builder target.",
+      "file": "~/workspace/skills/tiger-style-dockerfile/SKILL.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "citation": "https://github.com/podman-container-tools/podman",
+      "correct": "**Primary target:** BuildKit (current stable v0.34.0) with the pinned Dockerfile frontend (v1.28.0, bundled with BuildKit v0.34.0); Docker Engine 29 or Podman 6 (Buildah) as the builder",
+      "current": "**Primary target:** BuildKit (current stable v0.34.0) with the pinned Dockerfile frontend (v1.28.0, bundled with BuildKit v0.34.0); Docker Engine 29 or Podman 5 (Buildah) as the builder",
+      "evidence": "Same supersession: the header's builder target names Podman 5 a full major behind the current 6.x line; the BuildKit/frontend/Engine parts of the same line verified current in this pass.",
+      "file": "~/workspace/skills/tiger-style-dockerfile/references/TIGER_STYLE_DOCKERFILE.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "citation": "https://github.com/podman-container-tools/podman",
+      "correct": "- **[D8]** [Podman releases](https://github.com/podman-container-tools/podman/releases) — the Podman 6 line; Buildah builder and image-format behavior (§39).",
+      "current": "- **[D8]** [Podman releases](https://github.com/containers/podman/releases/tag/v5.5.0) — the Podman 5 line; Buildah builder and image-format behavior (§39).",
+      "evidence": "The D8 source entry anchors the guide's Podman claims to the v5.5.0 tag of the previous major line (and the pre-move containers/podman path); the project's releases now live on the 6.x line.",
+      "file": "~/workspace/skills/tiger-style-dockerfile/references/TIGER_STYLE_DOCKERFILE.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://github.com/podman-container-tools/podman",
+        "https://github.com/moby/buildkit/releases/tag/v0.34.0"
+      ],
+      "evidence": "Podman 6 is the current major line (6.1 feature release; v6 module path in the project's own repository) while BuildKit v0.34.0/frontend v1.28.0 verified current in the same pass - so only the Podman leg of the target line needs to move.",
+      "proposal": "Bump the builder target from Podman 5 to Podman 6 (header, SKILL.md compatibility, and the D8 source entry per mechanical_fixes), and before landing, re-verify section 39's Podman claims against the 6.x line - in particular the note that HEALTHCHECK is a Docker-format config concept that an OCI-format build can drop - by running the guide's own two-builder check (section 28) on both BuildKit and Buildah from Podman 6, since a major-version move is exactly when silent format deltas appear.",
+      "recommendation": "Adopt: a one-line target bump plus a two-builder verification pass; do not carry the Podman 5 target forward, because the 5 branch no longer receives fixes while the guide's security posture assumes a patched builder."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

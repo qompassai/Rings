@@ -1,0 +1,150 @@
+{
+  "aspect_adaptations": "All 10 aspects apply natively. memory_ownership is read as resource lifetime and retention in a garbage-collected, session-stateful runtime: one owner per job, runspace, session, stream and temp file, disposed in finally, plus per-runspace payload copies counted as memory. concurrency covers Start-Job, Start-ThreadJob, ForEach-Object -Parallel and remoting fan-out. static_analysis is PSScriptAnalyzer (PowerShell has no separate type checker in the guide's pairing).",
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "Matches Microsoft's documented model: validation attributes are the documented parameter-contract mechanism, and a guard that only writes a non-terminating error record does not stop execution, so throwing is the enforceable form. Nothing in current PowerShell documentation offers a production assert the guide is missing.",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_powershell_editions?view=powershell-7.6"
+      ],
+      "evidence": "Guide sections 4 and 12 state the three-layer contract; the reference script in section 31 implements it (typed classification instead of coercion, throw on first violation) and its 12 executed self-check cases passed on the authoring night.",
+      "guide_position": "No assert statement for shipped code: contracts are parameter validation attributes (ValidateNotNullOrEmpty, ValidateRange, ValidateCount, ValidateSet, ValidateScript) that fire before the body, explicit throwing guards with stable searchable messages at the top of the function, and postcondition checks after state changes the script does not fully control; assertions proper live in Pester Should; no mutation or authorization decision inside a checking condition.",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "No Microsoft source prescribes budgets; the defaults the guide tightens (unbounded recursion and enumeration, preference-driven continuation) are documented behaviors, and bounding them is stricter-than-default Tiger policy, not a contradiction.",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.6"
+      ],
+      "evidence": "Guide section 5 tabulates each resource with an example policy and an exhaustion behavior; sections 15 and 21 carry the same bounds into memory and fan-out. No contradicting official position was found in the current PowerShell documentation set.",
+      "guide_position": "Named-constant bounds on every axis separately: input file bytes, enumerated items, recursion depth (Get-ChildItem -Depth), active jobs and -ThrottleLimit, Wait-Job -Timeout, total attempts within one shared deadline with bounded backoff and injected jitter, and captured output redirected to files and read back bounded; retries require idempotence; a pipeline stage that materializes input converts a streaming bound into a memory bound and must say which it relies on.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "Consistent with the documented semantics: jobs and runspaces are separate sessions that do not inherit the caller's preference variables, and -ThrottleLimit is the documented admission control for ForEach-Object -Parallel and Invoke-Command. The guide's re-establish-the-contract rule is the documented-correct response to that isolation.",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.6"
+      ],
+      "evidence": "Guide sections 13 and 21 state the isolation facts and the bounds; Microsoft's preference-variable documentation confirms preference state is per-session, which is exactly the hazard the guide designs against.",
+      "guide_position": "Four fan-out mechanisms compared by isolation and cost (Start-Job, Start-ThreadJob, ForEach-Object -Parallel, manual runspace pools); every fan-out is bounded by a named -ThrottleLimit and every wait by a timeout; state, StrictMode and $ErrorActionPreference are re-established inside each job/runspace and data crosses explicitly via $using: or -ArgumentList; per-worker errors are collected and inspected after the join; results re-enter in no promised order and are sorted or keyed before touching state.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "Matches current documented behavior: $PSNativeCommandUseErrorActionPreference became a mainstream (non-experimental) preference in PowerShell 7.4 with default $false, so opting in explicitly, as the guide does, is the documented mechanism; Microsoft's own docs issue records the 7.4 mainstreaming.",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.6",
+        "https://github.com/microsoftdocs/powershell-docs/issues/10680"
+      ],
+      "evidence": "The about_Preference_Variables page for 7.6 lists $PSNativeCommandUseErrorActionPreference with default $false and describes nonzero native exits issuing errors per $ErrorActionPreference when it is $true; the guide's section 7 prescribes exactly that opt-in plus the manual $LASTEXITCODE discipline for information-carrying codes.",
+      "guide_position": "$ErrorActionPreference = 'Stop' at the top of every script and module plus explicit -ErrorAction Stop at trust boundaries; terminating vs non-terminating channels distinguished and the non-terminating channel treated as a trap outside per-item work; catch blocks name the expected exception or FullyQualifiedErrorId, add context, and rethrow or convert to a classified failure; a caught failure never exits 0; native commands are checked via $LASTEXITCODE captured in the very next statement, and on 7.4+ $PSNativeCommandUseErrorActionPreference = $true is enabled in strict scripts while keeping manual checks where nonzero codes carry information; every CI-invoked script ends with a deliberate documented exit code.",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "Invoke-Formatter with a settings file is the documented PSScriptAnalyzer formatting path and shares its engine with the editor services formatter, so the guide's one-formatter/one-settings-file rule reflects the toolchain as it actually exists; PSScriptAnalyzer 1.25.0 is current.",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/whats-new-in-pssa?view=ps-modules"
+      ],
+      "evidence": "Guide section 23 names the engine, the settings file, and the encoding rules; the guide's Sources cite the PSScriptAnalyzer what's-new page recording 1.25.0 as current.",
+      "guide_position": "One formatter only: Invoke-Formatter driven by PSScriptAnalyzer's formatting rules from a checked-in PSScriptAnalyzerSettings.psd1 (the same engine PowerShell Editor Services uses in the editor), CodeFormattingOTBS as the starting preset, 4-space indentation, 100-column review target, one statement per line; encoding is treated as formatting: UTF-8 without BOM for 7.x-only files, UTF-8 with BOM for any file the 5.1 lane must parse; line endings owned by .gitattributes; never two formatters in sequence.",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "No official source contradicts the ownership discipline; it is the documented-correct use of try/finally in a runtime where the garbage collector manages memory but not commitments. Stricter than mainstream practice by design.",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.6"
+      ],
+      "evidence": "Guide sections 14 and 15 state the owner/finally pattern with a worked job example and the retention model (section 38 formalizes retained memory as base plus per-job payload plus output budget).",
+      "guide_position": "One clear owner per file handle, .NET stream or client, job, runspace pool, CIM/remoting session and temporary file; IDisposable objects are disposed in finally (PowerShell has no using statement, so finally is the contract); sessions and jobs are removed by the code that opened them; cleanup failure is reported, not swallowed; retention is bounded deliberately: materializing pipeline stages, $Error accumulation, -Raw reads and whole-graph JSON loads are named costs, and fan-out payloads are counted per runspace (paths and identifiers cross boundaries, not payloads).",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "Microsoft's own about_Execution_Policies states the execution policy is not a security boundary and is defense in depth against accidental execution, which is verbatim the guide's position; the rest of the section is stricter-than-default hardening consistent with the documented constrained-language-mode and signing model.",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.6"
+      ],
+      "evidence": "Microsoft Learn (PowerShell 7.6 view) states the execution policy isn't a security boundary and users can bypass it, and points to the security-features criteria for real boundaries; guide section 18 builds its boundary list on exactly that footing.",
+      "guide_position": "Execution policy is never cited as a security boundary; the boundaries that bind are constrained language mode under AppLocker/WDAC, Authenticode signing with AllSigned on deployment machines, and least privilege; Invoke-Expression on untrusted input is banned, as are ScriptBlock.Create and string-composed Invoke-Command on data; credentials travel as SecureString inside PSCredential from SecretManagement vaults, never as plaintext, never in logs, transcripts or command lines; filenames from data are an injection surface handled with -LiteralPath and explicit argument arrays; remoting targets are allowlist-validated with SSH host-key verification and JEA considered for recurring privileged operations.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "PSScriptAnalyzer remains Microsoft's maintained analyzer for PowerShell and 1.25.0 is its current release; zero-findings gating with a committed settings file is the documented usage pattern. No successor tool has displaced it in the official toolchain the guide pairs (Editor Services diagnostics ride on the same analysis).",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/whats-new-in-pssa?view=ps-modules"
+      ],
+      "evidence": "Guide sections 1, 23, 27 and 29 all gate on Invoke-ScriptAnalyzer at zero findings; the guide's Sources cite the official what's-new page for the current 1.25.0 line.",
+      "guide_position": "PSScriptAnalyzer at zero findings with a checked-in settings file (formatting rules enabled) is the gate, run in CI with -EnableExit; the analyzer is treated as evidence, not as a trust boundary: a clean run does not replace the script's own runtime guards; PSAvoidUsingWriteHost keeps Write-Host out of reusable code; approved-verb and naming rules are enforced through the analyzer plus review.",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "Pester 6.1.0 is the current line and Pester 6 removed legacy assertions such as Assert-MockCalled; the guide's instruction to write Should -Invoke (accepted by both 5.x and 6) is the documented-compatible form, and pinning one Pester line per repository matches how the 6.x breaking changes actually land.",
+      "citations": [],
+      "evidence": "Guide section 28 states the 6.1.0/5.9.1 currency and the Assert-MockCalled removal; independent 2026 reports of suites breaking on gallery-served Pester 6.1.0 confirm both the version currency and the removal. The reference script's built-in 12-case self-check (4 success, 8 rejection) passed when executed on the authoring night.",
+      "guide_position": "Pester suites split roughly half validation, half adversarial: validation covers output shape, bounds at the exact limit, idempotence, -WhatIf leaving state untouched and postconditions; the adversarial half targets the language's classic attacks (single-item and zero-item unwrapping, $null placement inside collections, ''/0/$false treated as missing, nonzero native exits and missing tools, hostile filenames with brackets/spaces/leading dash against -LiteralPath, lane discipline under -NoProfile and on both hosts, and a non-invariant-culture pass); mocks isolate external commands and tests never touch production machines or the network by default; every fixed bug earns an adversarial regression test.",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "Every version pin in the guide is current (7.6.7/7.5.12/7.4.21 shipped 2026-10-13; 7.6 LTS runs to 2028-11-14). But Microsoft's preference-variable documentation for 7.6 states the $PSNativeCommandArgumentPassing default is platform-specific: Windows on Windows platforms and Standard on non-Windows platforms, with Windows mode silently reverting to Legacy argument passing for cmd.exe, cscript.exe, wscript.exe, find.exe, sqlcmd.exe and .bat/.cmd/.js/.vbs/.wsf files. On this estate's Windows shipping targets the stated default is therefore wrong, and the difference is behavior-bearing, not cosmetic.",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.6",
+        "https://learn.microsoft.com/en-us/powershell/scripting/powershell-support-lifecycle?view=powershell-7.2"
+      ],
+      "evidence": "about_Preference_Variables (PowerShell 7.6 view) tables the default as 'Windows on Windows, Standard on Non-Windows'; Microsoft's experimental-features documentation (mainstreamed in 7.3) states the same platform split and lists the Windows-mode Legacy fallback file set. The guide's section 20 sentence ('Since 7.3 the default $PSNativeCommandArgumentPassing is Standard') and its section 2 lane table omit the split. All other pins were verified current against the support-lifecycle page and the 2026-10-13 release batch. Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "House target pwsh 7.6 LTS (7.6.7, Core edition, .NET 10) declared in the header and enforced with #Requires -Version/-PSEdition; 7.5 supported, 7.4/7.5 treated as migration sources ahead of their November 2026 end of support; Windows PowerShell 5.1 is a named legacy lane, never silently assumed, with dual-lane code written to the 5.1 subset, BOM-encoded and tested on both hosts; module dependencies pinned with RequiredVersion/MaximumVersion and installed via PSResourceGet at exact versions; tool versions (pwsh, Editor Services, PSScriptAnalyzer, Pester) recorded in CI logs. One runtime-default claim does not hold: sections 2 and 20 state the default of $PSNativeCommandArgumentPassing as 'Standard' (7.3+) without a platform qualifier.",
+      "verdict": "holds"
+    }
+  },
+  "current_versions": {
+    "pester": "6.1.0 is the current gallery line and 5.9.1 the last 5.x, as the guide states; Pester 6 removed legacy assertions such as Assert-MockCalled, so the guide's Should -Invoke guidance is the compatible form",
+    "powershell": "7.6 LTS is the current long-term-support line (on .NET 10, supported to 2028-11-14); 7.6.7, 7.5.12 and 7.4.21 all shipped 2026-10-13; 7.4 and 7.5 leave support 2026-11-10; 7.7 is in preview; Windows PowerShell 5.1 remains the in-box legacy lane",
+    "powershell-editor-services": "4.7.0 is the current release the guide cites; it provides the LSP and the DAP adapter in the guide's pairing",
+    "psresourceget": "Microsoft.PowerShell.PSResourceGet ships in-box since PowerShell 7.4, as the guide's lane table states; PowerShellGet is the 5.1-lane predecessor",
+    "psscriptanalyzer": "1.25.0 is the current release (the guide's Sources cite its what's-new page); it supplies both the lint rules and, via Invoke-Formatter, the formatting engine"
+  },
+  "language": "powershell",
+  "mechanical_fixes": [
+    {
+      "citation": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.6",
+      "correct": "Since 7.3 the default $PSNativeCommandArgumentPassing is platform-specific: Windows on Windows, Standard on non-Windows (and Windows mode reverts to Legacy passing for cmd.exe, batch files and the other listed hosts).",
+      "current": "Since 7.3 the default `$PSNativeCommandArgumentPassing` is `Standard`;",
+      "evidence": "Microsoft's 7.6 preference-variable documentation gives the default as Windows on Windows and Standard on non-Windows; the guide's section 20 sentence states Standard unconditionally, which is wrong on the estate's Windows shipping targets.",
+      "file": "~/workspace/skills/tiger-style-powershell/references/TIGER_STYLE_POWERSHELL.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "citation": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.6",
+      "correct": "| Native argument passing | `$PSNativeCommandArgumentPassing`: `Windows` on Windows, `Standard` on non-Windows (7.3+) | Legacy quoting |",
+      "current": "| Native argument passing | `$PSNativeCommandArgumentPassing = 'Standard'` (7.3+) | Legacy quoting |",
+      "evidence": "Same platform split as the section 20 fix: the section 2 lane table presents Standard as the 7.x value with no platform qualifier.",
+      "file": "~/workspace/skills/tiger-style-powershell/references/TIGER_STYLE_POWERSHELL.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    },
+    {
+      "citation": "https://github.com/PowerShell/PowerShellEditorServices/releases/tag/v4.7.0",
+      "correct": "- **[S7]** [PowerShell Editor Services v4.7.0 release](https://github.com/PowerShell/PowerShellEditorServices/releases/tag/v4.7.0)",
+      "current": "- **[S7]** [PowerShell Editor Services releases](https://github.com/PowerShell/PowerShellEditorServices/releases/tag/v4.6.0)",
+      "evidence": "Section 27 cites [S7] alongside the claim that PowerShell Editor Services 4.7.0 is current, and [S6] already links the v4.7.0 release; the [S7] URL instead pins the older v4.6.0 tag, so the citation does not support the sentence that cites it.",
+      "file": "~/workspace/skills/tiger-style-powershell/references/TIGER_STYLE_POWERSHELL.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.6"
+      ],
+      "evidence": "The guide already mandates explicitly setting $PSNativeCommandUseErrorActionPreference rather than trusting its $false default; the argument-passing preference has a platform-dependent default with a Legacy fallback set in Windows mode, so it deserves the same explicit treatment.",
+      "proposal": "In strict scripts, set $PSNativeCommandArgumentPassing explicitly (Standard where the script's native calls are direct executables) instead of inheriting the platform default, and document the Windows-mode Legacy fallback list (cmd.exe, .bat/.cmd and friends) in section 20 next to the --% last-resort rule, since a batch-file invocation silently re-enters the quoting behavior the section exists to avoid.",
+      "recommendation": "Adopt with the mechanical fixes above: one explicit assignment in the section 3 layout, after $ErrorActionPreference, keeps native-call behavior identical across the Linux dev host and the Windows targets."
+    },
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://learn.microsoft.com/en-us/powershell/scripting/powershell-support-lifecycle?view=powershell-7.2"
+      ],
+      "evidence": "Microsoft's support-lifecycle table ends support for both 7.4 and 7.5 on 2026-11-10, under a month after this audit; the guide header still lists 7.5 as supported and section 2 calls 7.5 the short-term-support line.",
+      "proposal": "At the next guide revision on or after 2026-11-10, drop '7.5 supported' from the header, describe 7.4/7.5 as end-of-support migration sources only, and leave 7.6 LTS as the sole supported 7.x lane beside the named 5.1 legacy lane.",
+      "recommendation": "Adopt as a dated maintenance note now so the header does not silently go stale in November; no text change is due before the end-of-support date itself."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

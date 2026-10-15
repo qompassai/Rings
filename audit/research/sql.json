@@ -1,0 +1,138 @@
+{
+  "aspect_adaptations": "memory_ownership is read as result-set, work_mem and spill discipline (the engine owns allocation; the guide's job is bounding what materializes server-side, on the wire and client-side); concurrency is read as PostgreSQL transaction isolation, MVCC snapshot semantics and lock discipline.",
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "Matches PostgreSQL's documented constraint semantics, which are unchanged in 18; constraints firing on every write path is the documented reason to prefer them over application checks.",
+      "citations": [
+        "https://www.postgresql.org/about/news/postgresql-186-1711-1615-1519-1424-and-19-beta-3-released-3365/"
+      ],
+      "evidence": "PostgreSQL 18's release line (18.6, 2026-08-13) contains no constraint-model change that affects this section.",
+      "guide_position": "Constraints are the assertion system: NOT NULL by default, named CHECK/UNIQUE/foreign-key constraints, EXCLUSION constraints and partial unique indexes for rules plain constraints cannot state; the CHECK-evaluates-to-UNKNOWN caveat is handled by pairing with NOT NULL; large-table constraint adds go NOT VALID then validate in bounded batches.",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "Stricter than any official default, and nothing in PostgreSQL 18 contradicts it; the timeout settings and keyset pattern are the documented mechanisms.",
+      "citations": [
+        "https://www.postgresql.org/about/news/postgresql-186-1711-1615-1519-1424-and-19-beta-3-released-3365/",
+        "https://www.postgresql.org/docs/current/sql-explain.html"
+      ],
+      "evidence": "No contradicting official position in the PostgreSQL 18 documentation or the 2026-08-13 update announcement.",
+      "guide_position": "LIMIT with a named maximum plus deterministic ORDER BY on unbounded tables, keyset pagination instead of OFFSET at scale, bounded batches for bulk writes, statement_timeout/lock_timeout/idle_in_transaction_session_timeout on serving sessions, capped IN lists and array parameters.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "This is PostgreSQL's documented MVCC and locking model, stated accurately including the anomaly/retry trade-offs of each level.",
+      "citations": [
+        "https://www.postgresql.org/support/versioning/"
+      ],
+      "evidence": "PostgreSQL 18's asynchronous I/O changes execution mechanics, not the isolation or locking contract this section teaches.",
+      "guide_position": "Isolation level chosen deliberately: READ COMMITTED per-statement snapshot semantics stated, REPEATABLE READ/SERIALIZABLE paired with whole-transaction bounded retry on 40001/40P01, deliberate FOR UPDATE / FOR NO KEY UPDATE with NOWAIT or SKIP LOCKED only where its semantics fit, one documented lock order, long transactions treated as a vacuum/bloat hazard, namespaced advisory locks.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "Matches PostgreSQL's documented transaction-failure semantics exactly.",
+      "citations": [
+        "https://www.postgresql.org/about/news/postgresql-186-1711-1615-1519-1424-and-19-beta-3-released-3365/"
+      ],
+      "evidence": "No change in the 18 line alters the aborted-transaction model or the SQLSTATE classes cited.",
+      "guide_position": "Any error aborts the transaction (25P02 until rollback); errors handled by SQLSTATE class at the interpreting boundary (23505 as a designed race outcome, 23514/23502 as bugs); serialization failures and deadlocks retry the whole transaction, never a fragment; savepoints and PL/pgSQL exception blocks carry an explicit cost warning.",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "A single pinned formatter whose output wins is current practice for sqruff, and sqruff's connection-free LSP/formatter split from the database-backed language server is the project's documented usage.",
+      "citations": [
+        "https://github.com/quarylabs/sqruff"
+      ],
+      "evidence": "The formatter choice and configuration story check out against the sqruff project; the version number claimed for it is assessed under toolchain_pins because it could not be independently confirmed.",
+      "guide_position": "sqruff is the one formatter and lint gate (sqruff fix / sqruff lint), dialect pinned in .sqruff, version recorded with the toolchain, generated SQL exempt and marked; postgres-language-server's own formatter is explicitly not used so 'formatted' has one meaning.",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "Matches PostgreSQL's documented memory model (work_mem multiplication across operations and connections is the documented hazard).",
+      "citations": [
+        "https://www.postgresql.org/about/news/postgresql-186-1711-1615-1519-1424-and-19-beta-3-released-3365/"
+      ],
+      "evidence": "Nothing in PostgreSQL 18 changes the work_mem or materialization model this section describes.",
+      "guide_position": "work_mem is per sort/hash operation, not per query or connection, and is raised only per-session with SET LOCAL; result sets materialize server-side, on the wire and client-side so row bounds keep all three finite; COPY or bounded multi-row inserts for bulk load; routine temp spilling treated as a design defect.",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "This is PostgreSQL's documented security posture - the documentation's own warning that SECURITY DEFINER functions must pin search_path is the guide's rule in substance.",
+      "citations": [
+        "https://www.postgresql.org/support/versioning/"
+      ],
+      "evidence": "No PostgreSQL 18 security change (including its new authentication options) weakens or replaces any rule here.",
+      "guide_position": "Parameterize every runtime value with no exceptions; dynamic identifiers only from a server-side allowlist quoted with format('%I')/quote_ident; least-privilege roles (app role holds no DDL, ownership or superuser); row-level security as defense in depth; SECURITY DEFINER functions pin search_path; secrets kept out of statement text because logs and pg_stat_statements retain it; COPY TO PROGRAM and server-side file access are superuser-only.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "postgres-language-server 0.27.0 (2026-10-04) is current and its release adds flat linter rule ids and static type checking - the capabilities the guide already describes and pins.",
+      "citations": [
+        "https://github.com/supabase-community/postgres-language-server/releases/tag/0.27.0"
+      ],
+      "evidence": "The pinned analyzer set is current at the exact version the guide names.",
+      "guide_position": "postgres-language-server provides schema-aware completion, EXPLAIN-backed type checking and a safety linter; sqruff lint is the CI gate; sqls was evaluated and rejected with reasons recorded (pre-1.0, live-connection-centered).",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "Consistent with current PostgreSQL practice; the reference module for this guide passed 12 executed checks against a real server on 2026-10-14, evidencing the harness works as described.",
+      "citations": [
+        "https://www.postgresql.org/about/news/postgresql-186-1711-1615-1519-1424-and-19-beta-3-released-3365/"
+      ],
+      "evidence": "No testing-model change in the PostgreSQL 18 line affects the split or the corpus.",
+      "guide_position": "Real migrations against a real throwaway server (never an engine mock), from-empty and from-previous-release schema paths, half validation / half adversarial: injection corpus in every parameter, NULL storms, boundary cardinalities, type edges, and two-session concurrency races ending in designed outcomes; pgTAP or host-language harnesses both accepted.",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "Every pin except sqruff verifies exactly: PostgreSQL 18.6 / 2026-08-13 and the 14 end-of-life date match the official announcement and versioning policy, and postgres-language-server 0.27.0 (2026-10-04) is the latest release. The guide's source list still cites the 19 Beta 3 announcement while Beta 4 shipped 2026-09-24 (19 remains beta, so the 'not a target' ruling still holds).",
+      "citations": [
+        "https://www.postgresql.org/about/news/postgresql-186-1711-1615-1519-1424-and-19-beta-3-released-3365/",
+        "https://www.postgresql.org/support/versioning/",
+        "https://www.postgresql.org/",
+        "https://github.com/supabase-community/postgres-language-server/releases/tag/0.27.0"
+      ],
+      "evidence": "No sqruff 0.41 release could be found: the latest verifiable sqruff crate releases are 0.40.0 (lib/lsp crates, 2026-08-14) and the main crate listing shows 0.39.0 (2026-07-03). The pin is therefore unverified rather than confirmed or refuted.",
+      "guide_position": "Primary target PostgreSQL 18 (17 supported), latest minor 18.6 of 2026-08-13, 14 end-of-life 2026-11-12, 19 beta not a target; postgres-language-server 0.27.0; sqruff '0.41 series' recorded as the crates.io line at review time.",
+      "verdict": "unverified"
+    }
+  },
+  "current_versions": {
+    "pldebugger": "EnterpriseDB pldebugger via pldbgapi, not a DAP server - as the guide states",
+    "postgres-language-server": "0.27.0 (2026-10-04) is the latest release found - exactly the version the guide pins",
+    "postgresql": "18 is the current major (latest update 18.6, 2026-08-13); supported majors 14-18 with 14 ending 2026-11-12; 19 still beta (Beta 4, 2026-09-24) and not GA",
+    "psql": "Ships with PostgreSQL 18, as the guide states",
+    "sqruff": "Guide claims a 0.41 series; the latest independently verifiable releases are 0.40.0 for the sqruff lib/lsp crates (2026-08-14) - 0.41 could not be confirmed (see toolchain_pins)"
+  },
+  "language": "sql",
+  "mechanical_fixes": [
+    {
+      "citation": "https://www.postgresql.org/",
+      "correct": "[PostgreSQL update release announcement, 2026-08-13 (18.6 / 17.11 / 16.15 / 15.19 / 14.24; 19 Beta 3); PostgreSQL 19 Beta 4 released 2026-09-24]",
+      "current": "[PostgreSQL update release announcement, 2026-08-13 (18.6 / 17.11 / 16.15 / 15.19 / 14.24; 19 Beta 3)]",
+      "evidence": "The postgresql.org front page announces 19 Beta 4 (2026-09-24); 19 is still beta and still not a target, so only the source note is behind.",
+      "file": "~/workspace/skills/tiger-style-sql/references/TIGER_STYLE_SQL.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://github.com/quarylabs/sqruff"
+      ],
+      "evidence": "Independent checks found sqruff lib/lsp crates at 0.40.0 (2026-08-14) and no 0.41 release; the guide's own text says the number records the crates.io line current at review time, so it must be checkable.",
+      "proposal": "Confirm the sqruff pin against crates.io and record the exact version (not a series) in section 2; if no 0.41 exists, correct the pin to the reviewed 0.40.x line.",
+      "recommendation": "Verify before the next guide edit; a formatter pin that cannot be installed as written fails the guide's own reproducibility rule."
+    },
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://www.postgresql.org/"
+      ],
+      "evidence": "The Beta 4 announcement on postgresql.org plans a release candidate in early October with GA possibly in October; the guide's policy is that betas are never targets.",
+      "proposal": "Add a PostgreSQL 19 GA watch: 19 was at Beta 4 on 2026-09-24 with GA expected in October 2026; when it lands, re-run the guide's reference-module checks on 19 before deciding whether the house target moves.",
+      "recommendation": "Watch only - no target change until GA plus a passing check run."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

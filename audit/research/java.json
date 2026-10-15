@@ -1,0 +1,141 @@
+{
+  "aspect_adaptations": "All 10 aspects map directly onto Java with no redefinition needed; the only adaptation is emphasis: memory_ownership is read as resource ownership plus JVM budget ownership (heap, metaspace, direct buffers, thread stacks, retention) since the GC owns reclamation, and assertions_contracts is read against the JVM's -ea model, where assertions are off in production launches by default.",
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "Unchanged JVM semantics: assertions evaluate only with -ea, production launches normally omit it, and Gradle Test / Maven Surefire enable assertions in tests by default - precisely the trap the guide names. JSpecify annotations remain tooling input, not runtime guarantees.",
+      "citations": [
+        "https://github.com/jspecify/jspecify/releases/tag/v1.0.0",
+        "https://wiki.openjdk.org/spaces/JDKUpdates/pages/170131468/JDK+25u"
+      ],
+      "evidence": "No JDK release through 27 changes assertion semantics; the guide's identical-behavior-with-and-without--ea rule and its reference module's executed checks (13/13 on three JDKs, per the commissioning record) are consistent with current platform behavior.",
+      "guide_position": "assert only for programmer invariants, never for safe rejection, never with mutation or authorization inside; external values are rejected by an explicit precise exception, and behavior must be identical with and without -ea. Boundary validators with precise postconditions are preferred over annotation-plus-unchecked-cast.",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "No official Java source prescribes numeric budgets; nothing contradicts named bounds. The platform direction supports the guide: bounded executors/queues and admission control in front of scarce resources remain the documented cure for spike-to-OOM failures.",
+      "citations": [
+        "https://openjdk.org/jeps/444"
+      ],
+      "evidence": "Tiger policy stricter than mainstream by design; the guide derives limits from workload budgets, states exhaustion behavior per resource, and counts the runtime's own budgets (heap, executor queues, caches) as line items.",
+      "guide_position": "Bound item count, item size, nesting depth, cumulative bytes, concurrent work, waiting work, elapsed time, and retry amplification separately, with named constants and a stated exhaustion behavior (example table: 1 MiB input, 1,024 items, depth 32, 8 active jobs, 64 queue entries, 3 attempts in one deadline, 256 KiB captured output per stream). Unbounded LinkedBlockingQueue and Executors.newCachedThreadPool are defects. Retries require idempotency, a shared deadline, bounded backoff, injected jitter. -Xms/-Xmx set deliberately.",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "The guide's preview discipline is exactly current: virtual threads are final since JDK 21 (JEP 444); JEP 491 (JDK 24) removed synchronized pinning of carrier threads; structured concurrency is still preview in JDK 27 (JEP 533, seventh preview, API still changing - join() exception typing changed this round), with finalization only proposed as JEP 543 (candidate) for JDK 28. Production contracts on stable APIs remain the correct posture.",
+      "citations": [
+        "https://openjdk.org/jeps/533",
+        "https://openjdk.org/jeps/444"
+      ],
+      "evidence": "OpenJDK's JEP 533 page (checked 2026-10-14) confirms the seventh-preview status in JDK 27 and the per-round API changes the guide cites as its reason for not shipping --enable-preview contracts; JDK 27's GA feature list confirms the same.",
+      "guide_position": "Virtual threads (final, JDK 21) are the default for I/O-bound tasks - one task per thread, blocking style, never pooled, admission bounded by named semaphore/queue limits in front of scarce downstream resources; CPU work gets a bounded platform-thread executor. On the JDK 21 floor, synchronized blocks doing I/O inside virtual threads are a scalability defect (pinning; JEP 491 fixed it in JDK 24) - use ReentrantLock there. Structured concurrency's shape (one owner, one lifetime, cancellation propagates) is mirrored with ExecutorService + explicit deadlines; no preview APIs in production. Interruption is the cancellation protocol; shared mutation needs a checkable happens-before story.",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "No change in the platform's exception model through JDK 27 alters the checked/unchecked contract mechanism; the guide's policy is a deliberate, internally consistent use of it (checked = caller-actionable boundary condition, unchecked = programming error), with interruption handling per the concurrency APIs' own contracts.",
+      "citations": [
+        "https://openjdk.org/jeps/444"
+      ],
+      "evidence": "The guide's rules (never throws Exception/Throwable on public APIs, never catch-and-swallow, preserve causes, restore-or-propagate interrupt status, suppressed exceptions under try-with-resources, do not catch Error) match the JDK APIs' documented behavior; no official guidance contradicts the split.",
+      "guide_position": "Checked exceptions mark boundary conditions the immediate caller can act on; unchecked mark contract violations and bugs. Never catch-and-swallow; catch only what the layer can interpret; wrap with context and preserved cause. InterruptedException is a cancellation signal - restore the flag or propagate. Exceptions are not ordinary control flow (a not-found is a return value); a broad catch exists only at an outer boundary with logging, cleanup, and a defined failure response.",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "google-java-format remains the decree formatter the guide describes (no per-project configuration, JDK 21+ runtime, documented --add-exports), but it is no longer at the guide's version: upstream has released 1.37.0, which post-dates the guide's 1.36.1 pin and its 'current upstream release' claim. Downstream evidence also shows 1.37.0 changed a programmatic API (JavaFormatterOptions.Style became a record) that Spotless 8.10.3 calls, so the bump is not yet a drop-in for the guide's Spotless wiring - the pin may stay, the currency claim cannot.",
+      "citations": [
+        "https://github.com/google/google-java-format/releases",
+        "https://github.com/sbt/sbt-java-formatter/releases/tag/v0.14.0"
+      ],
+      "evidence": "The sbt-java-formatter 0.14.0 release notes (checked 2026-10-14) record its default formatter runtime upgraded from google-java-format 1.36.1 to 1.37.0, and a 2026-10-09 downstream commit notes 1.37.0 exists but breaks Spotless 8.10.3 (NoSuchMethodError via JavaFormatterOptions.Style) - so 1.37.0 is released and current, and the guide's section 23 sentence calling 1.36.1 'the current upstream release' is stale. Run-2 coordinator pass (2026-10-14): the defect behind this verdict was cured in the guide text in both trees (see mechanical_fixes, marked applied) and the aspect was re-judged on the cured text: holds.",
+      "guide_position": "One configured formatter: google-java-format, 2-space indent, 100 columns, imports sorted/unused removed by the tool; the estate pin is stated in section 23 as '1.36.1, the current upstream release', pinned in the build via Spotless and in diver, with the documented jdk.compiler --add-exports flags. palantir-java-format (2.96.0) was weighed and rejected as a second decree in the same estate. Never run a second formatter or hand-wrap against its output.",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "The JVM model the guide states is current: try-with-resources with reverse-order close and suppressed cleanup failures, no reliance on finalization/Cleaner for correctness, and explicit budgets for heap/metaspace/direct buffers/stacks. JDK 27's default changes the guide flags (G1 default in all environments, JEP 523; compact object headers by default, JEP 534) are confirmed in JDK 27's GA feature list - the guide's 'pin and measure your own defaults' conclusion follows.",
+      "citations": [
+        "https://openjdk.org/jeps/533"
+      ],
+      "evidence": "JDK 27's shipped feature set (JEP 523, 527, 534, 536 final; checked 2026-10-14) matches the defaults the guide's memory section warns will move under applications; nothing in current OpenJDK guidance contradicts the one-owner rule.",
+      "guide_position": "Adapted aspect: one clear AutoCloseable owner per resource, exercised through try-with-resources in acquisition order; ownership transfers stated in Javadoc; finalization/Cleaner are leak detectors, not lifetime mechanisms. Allocation discipline: bound caches/buffers/retained chains/queued work; heap, metaspace, direct buffers, and per-thread stacks are explicit review items (a thousand platform threads are a memory commitment - one reason virtual threads are preferred for I/O); boxing in hot loops, per-call regex compilation, and static/listener/ThreadLocal retention are named leak shapes.",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "Current platform guidance aligns with every prohibition: native deserialization of untrusted streams remains a code-execution boundary (JEP 290 filters are defense in depth), XML external entities stay off absent a reviewed contract, and JDK 27 adds in-process JFR data redaction (JEP 536, final) - which the guide already anticipates by name.",
+      "citations": [
+        "https://openjdk.org/jeps/533"
+      ],
+      "evidence": "JDK 27's GA list confirms JEP 527 (post-quantum hybrid TLS key exchange) and JEP 536 (JFR redaction) as shipped finals, matching the guide's security section written before this audit; no official source relaxes the deserialization or XXE positions.",
+      "guide_position": "Never deserialize untrusted Java-serialization streams; ObjectInputFilter (JEP 290) is defense in depth, not permission. XML parsers: DTDs/external entities disabled unless a reviewed contract requires them. Parameterized SQL; ProcessBuilder argv lists, never shell strings; validated URL schemes/destinations incl. redirects. The classpath is a trust boundary; reflection/setAccessible across modules is a privilege escalation to justify. Secrets never in logs, exception messages, command arguments, or unredacted JFR recordings.",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "The guide's one-authoritative-policy rule remains the sane posture, and its nullness layer is current: JSpecify 1.0.0 defined the four consensus annotations (@Nullable, @NonNull, @NullMarked, @NullUnmarked), and 1.0.1 is a documentation/build-only follow-up with no semantic changes - so the guide's 1.0.x pin and its warning against legacy JSR-305/vendor annotation sets hold exactly.",
+      "citations": [
+        "https://github.com/jspecify/jspecify/releases/tag/v1.0.0"
+      ],
+      "evidence": "JSpecify's own release notes (checked 2026-10-14) confirm 1.0.0's annotation set and 1.0.1's no-semantic-change status; Error Prone/NullAway and the Checker Framework remain the maintained checkers beyond annotations, as the guide presents them.",
+      "guide_position": "Choose one authoritative static-analysis policy - JDT LS diagnostics plus Error Prone/NullAway or the Checker Framework for nullness beyond the JSpecify annotations - and explain genuine differences between tools instead of globally suppressing diagnostics. Null discipline: @NullMarked package default via package-info.java, @Nullable for exceptions, annotations checked at boundaries rather than trusted (Kotlin/reflection/native code do not read them).",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "JUnit 6 is the current JUnit line and requires a Java 17 baseline, which the guide's JDK 21 floor already exceeds; the 50/50 validation/adversarial split with boundary, overflow, exhaustion, cancellation, and assertions-disabled runs matches current practice. No newer runner displaces it in the guide's estate.",
+      "citations": [
+        "https://wiki.openjdk.org/spaces/JDKUpdates/pages/170131468/JDK+25u"
+      ],
+      "evidence": "The claim itself is consistent with the JUnit project's current line; however the guide's own citation for it ([J11]) points at an unrelated project's commit rather than a JUnit project page - a source-quality defect reported separately, not a verdict change: the runner choice and test discipline were verified, the in-guide citation was not primary.",
+      "guide_position": "JUnit is the runner (JUnit 6, Java 17 baseline). Tests split roughly evenly validation/adversarial: nulls where non-null is promised, null elements, false/zero, empty, maximum, one past maximum, oversize, wrong types at raw boundaries, negatives, integer overflow at the exact boundary, resource exhaustion. Boundary validation runs with assertions disabled as well as enabled. Concurrency tests cover timeout, cancellation/interrupt restoration, sibling failure, cleanup after failure, and stale generations. jqwik property tests use bounded generators and fixed seeds; every test has a timeout. Reference module: 13 executed cases.",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "The JDK landscape the guide pins against is exactly the current one: JDK 25 is the current LTS (25.0.4 GA 2026-07-21; 25.0.5 scheduled 2026-10-20 on the quarterly CPU cadence), JDK 21 is the previous LTS floor (21.0.12, same dates), and JDK 27 (GA 2026-09-15) is a non-LTS feature release - a preview of the next LTS's defaults, not a production target. Toolchain pinning via Gradle toolchains/wrapper with distribution SHA-256, or Maven wrapper + explicit release, remains the reproducible-build standard.",
+      "citations": [
+        "https://wiki.openjdk.org/spaces/JDKUpdates/pages/170131468/JDK+25u",
+        "https://www.oracle.com/java/technologies/javase/25all-relnotes.html"
+      ],
+      "evidence": "OpenJDK's JDK 25u page and Oracle's consolidated 25 release notes (checked 2026-10-14) confirm 25.0.4 as the latest update with 25.0.5 due 2026-10-20 - i.e. the guide was written against the live state and its pins do not move until that CPU lands, six days after this audit. The one moved pin (google-java-format) is recorded under formatting, not double-counted here.",
+      "guide_position": "Primary target JDK 25 (LTS), floor JDK 21 (LTS); JDK 17 named only as legacy estate installs. Bytecode level, vendor/build, and OS declared; toolchain pinned in the build (Gradle toolchains or wrapper-pinned Maven + explicit release), never PATH java. Preview features never in production contracts. Dependencies version-pinned centrally, artifacts verified (Gradle verification metadata / dependency locking), wrappers committed with checksums. JDT LS is the LSP, java-debug the DAP, scip-java the indexer.",
+      "verdict": "holds"
+    }
+  },
+  "current_versions": {
+    "google-java-format": "1.37.0 is the current upstream release (post-dates the guide); the guide's estate pin is 1.36.1, which downstream reports identify as the newest release compatible with Spotless 8.10.3 (1.37.0 changed JavaFormatterOptions.Style to a record, breaking that Spotless version)",
+    "jdk": "JDK 25 (LTS) at 25.0.4, GA 2026-07-21; 25.0.5 scheduled 2026-10-20. JDK 21 (LTS) at 21.0.12, same cadence. JDK 27 (non-LTS) GA 2026-09-15 with JEP 523 (G1 default), 527 (PQ TLS), 534 (compact headers), 536 (JFR redaction) final and JEP 533 structured concurrency in seventh preview",
+    "jdtls": "Eclipse JDT LS: 1.61.0 is the latest milestone release (September 2026) per the guide's source [J12], with 1.62.0 snapshots following; requires a Java 21 runtime",
+    "jspecify": "1.0.0 defines the consensus nullness annotations; 1.0.1 is a documentation/build-only follow-up with no semantic changes - the guide's org.jspecify:jspecify 1.0.x pin is current",
+    "junit": "JUnit 6 is the current line (Java 17 baseline, satisfied by the guide's JDK 21 floor); the guide's runner for the estate",
+    "palantir-java-format": "2.96.0 (July 2026), the maintained google-java-format fork the guide weighed and rejected as a second house decree"
+  },
+  "language": "java",
+  "mechanical_fixes": [
+    {
+      "citation": "https://github.com/sbt/sbt-java-formatter/releases/tag/v0.14.0",
+      "correct": "Use one configured formatter: google-java-format (the estate pin is 1.36.1, held for Spotless compatibility; the current upstream release is 1.37.0).",
+      "current": "Use one configured formatter: google-java-format (the estate pin is 1.36.1, the current upstream release).",
+      "evidence": "google-java-format 1.37.0 has been released (the sbt-java-formatter 0.14.0 notes record the default runtime moving 1.36.1 -> 1.37.0); downstream reports show 1.37.0 breaks Spotless 8.10.3 via the JavaFormatterOptions.Style record change, so holding the 1.36.1 pin is defensible - claiming it is the current upstream release is not.",
+      "file": "~/workspace/skills/tiger-style-java/references/TIGER_STYLE_JAVA.md",
+      "status": "applied — run-2 coordinator pass 2026-10-14"
+    }
+  ],
+  "proposals": [
+    {
+      "aspect": "formatting",
+      "citations": [
+        "https://github.com/google/google-java-format/releases",
+        "https://github.com/sbt/sbt-java-formatter/releases/tag/v0.14.0"
+      ],
+      "evidence": "1.37.0 is released; its JavaFormatterOptions.Style record change breaks Spotless 8.10.3 with NoSuchMethodError per downstream reports dated October 2026, so an unconditional bump today would break the guide's own Spotless wiring.",
+      "proposal": "Bump the estate google-java-format pin from 1.36.1 to 1.37.0 only once the estate's Spotless version supports the 1.37.0 API, and gate the bump on spotlessCheck passing across the estate; until then, record 1.36.1 as a deliberate compatibility hold (see mechanical_fixes) rather than as the current release.",
+      "recommendation": "Hold the pin, fix the wording now, bump when Spotless compatibility is verified."
+    },
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://openjdk.org/jeps/533",
+        "https://wiki.openjdk.org/spaces/JDKUpdates/pages/170131468/JDK+25u"
+      ],
+      "evidence": "The guide's Sources list cites ADT Magazine for the JDK 27 feature set [J5], InfoWorld for the JDK 27 preview landscape [J7], a dev.to post for the Oracle JDK 21 licensing change [J10], and an unrelated jodconverter commit for JUnit 6 [J11]. The underlying claims verified as true against OpenJDK pages during this audit, but none of those four citations is a primary source.",
+      "proposal": "Replace the guide's secondary-source citations [J5], [J7], [J10], [J11] with primary ones: the OpenJDK JDK 27 project page / JEP index for the feature set, Oracle's JDK 21 release-notes/licensing page for the NFTC-to-OTN change, and the JUnit project's own release page for JUnit 6 - so the next audit can verify every load-bearing claim from the guide's own Sources section.",
+      "recommendation": "Adopt at the next guide revision; no rule text depends on the swap."
+    }
+  ],
+  "researched_at": "2026-10-14"
+}

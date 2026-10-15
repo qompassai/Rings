@@ -1,0 +1,135 @@
+{
+  "language": "css",
+  "researched_at": "2026-10-14",
+  "current_versions": {
+    "css_cascade_5": "CSS Cascading and Inheritance Level 5: W3C Candidate Recommendation (Snapshot 13 Jan 2022), listed under Reliable Candidate Recommendations in the CSS Snapshot 2026; not yet a Recommendation",
+    "css_snapshot": "CSS Snapshot 2026 is the current W3C CSS snapshot line",
+    "lightningcss": "Not named by the guide (section 20 requires 'one established minifier, pinned' without naming it) - currency therefore not a guide claim; see proposals",
+    "prettier": "3.9.x line current (3.9.9, published 2026-09-23); guide requires project-local exact pin, names no number",
+    "stylelint": "17.x line current (official release 17.14.1, 2026-07-20; 17.15.0 in current project use Oct 2026); stylelint-config-standard's current line requires stylelint >= 17",
+    "stylelint_config_standard": "Current line tracks stylelint 17 (peer floor raised to >= 17.0.0 in its releases); guide takes it as the config floor",
+    "vscode-css-language-server": "Microsoft's CSS language server from the VS Code CSS extension (covers css/scss/less, as the guide states); guide names no version - project/diver pin governs",
+    "web_features_baseline": "Guide's tier claims verified tonight: @scope Newly Available Dec 2025 (Firefox 146 completed cross-engine); container style queries Newly Available May 2026 (Firefox 151) - guide gates them, which matches its Newly Available rule; container scroll-state queries Limited (Chromium only); @property cross-engine since 2024, not yet Widely Available"
+  },
+  "aspects": {
+    "assertions_contracts": {
+      "best_practice": "CSS has no assert and its parser never throws, so the adapted contract - lint as the static assertion engine, @supports / @supports selector() as stated preconditions, computed-style checks as postconditions - is the correct shape; the cascade and conditional-rules specifications define exactly the @supports and forgiving-selector machinery it rests on",
+      "citations": [
+        "https://www.w3.org/TR/css-cascade-5/",
+        "https://stylelint.io/"
+      ],
+      "evidence": "Guide sections 4 and 28 state the split explicitly and tie each layer to enforcement (a guarded rule without a working unguarded base is named a defect). Stylelint is current (17.x line, see toolchain_pins), so the named assertion engine exists and supports the unknown-property/invalid-value rules the guide requires at zero tolerance",
+      "guide_position": "No assert exists, so assertions are split three ways (section 4): stylelint as static assertions (unknown properties/invalid values fail the build at zero warnings), @supports and @supports selector() as runtime preconditions stated at the rule, and computed-style tests as postconditions (section 28)",
+      "verdict": "holds"
+    },
+    "bounded_work": {
+      "best_practice": "Budgets of this kind are house discipline, not spec requirements; the load-bearing claim - that the budgets are tool-expressible - is true of current stylelint, which ships selector-specificity, nesting-depth and declaration-count rules",
+      "citations": [
+        "https://stylelint.io/",
+        "https://github.com/stylelint/stylelint-config-standard/releases"
+      ],
+      "evidence": "Section 5 names each bound, its enforcement route, and warns that a budget existing only in the document 'is a wish' - the guide applies its own bounded-work doctrine to itself. No primary source fetched in this pass contradicts any bound; stricter-than-default is not a contradiction",
+      "guide_position": "Named budgets in section 5: specificity <= (0,2,0) with IDs forbidden, selector length <= 3 compound selectors, nesting depth <= 3, z-index from a named scale of <= 7 steps, ~30 declarations per rule block as review threshold, animation restricted to transform/opacity, will-change temporary and counted, per-component custom properties limited to real inputs - with the lint-expressible bounds (max-nesting-depth, specificity, declaration limits) required to live in stylelint config",
+      "verdict": "holds"
+    },
+    "concurrency": {
+      "best_practice": "Stylesheets are fetched in parallel and applied in a defined (cascade) order, @import processing is spec-defined, and font-display / metric-override behaviour is the specified mechanism for bounding font-swap layout shift - the guide's positions match the platform model",
+      "citations": [
+        "https://www.w3.org/TR/css-cascade-5/"
+      ],
+      "evidence": "Cascade 5 (fetched in this pass) defines import processing and conditional imports exactly as the guide's build/loading sections assume. The async-CSS ban is a deliberate stricter-than-common-practice rule with a measured-exception path, not a factual claim about the platform - by doctrine that is not a contradiction",
+      "guide_position": "Adapted (see aspect_adaptations): section 21 - sheets load in parallel and apply in cascade order; the async-CSS pattern (media='print' flipped on load) is banned unless a measured case justifies it and the flash is designed; font loading races layout, bounded by font-display policy and metric overrides, with unbounded CLS named a defect; per-frame motion belongs to the compositor (section 16) or to script's budget",
+      "verdict": "holds"
+    },
+    "error_handling": {
+      "best_practice": "The guide's failure model is the spec's failure model: unknown/invalid declarations are dropped at parse time, an invalid selector invalidates its whole selector list except inside forgiving selector contexts (:is()/:where()), and an unresolved custom property makes a declaration invalid at computed-value time rather than dropping it",
+      "citations": [
+        "https://www.w3.org/TR/css-cascade-5/",
+        "https://www.w3.org/TR/css/"
+      ],
+      "evidence": "Every load-bearing claim in section 7 was spot-checked against the fetched Cascade 5 text (shorthand reset semantics, import/layer error containment) and the CSS Snapshot's module states; the fallback-pair and guard-block idioms are the platform's own recovery mechanisms, used deliberately. Nothing fetched contradicts the guide",
+      "guide_position": "Error handling inverts the usual shape (section 7): CSS fails silently, so failures are made loud in development (stylelint rejecting unknown properties, invalid values, duplicates at zero tolerance) and harmless in production (fallback-first declaration pairs in one block, feature-dependent rules guarded as whole @supports blocks, var() fallback discipline against invalid-at-computed-value-time)",
+      "verdict": "holds"
+    },
+    "formatting": {
+      "best_practice": "Prettier is the current, maintained opinionated formatter (3.9.x line) and single-formatter discipline with the formatter's output as canonical is the documented usage pattern; for CSS it formats with 2-space indentation as the guide states",
+      "citations": [
+        "https://prettier.io/"
+      ],
+      "evidence": "Prettier 3.9.9 (published 2026-09-23) is the current patch line seen in this pass's ecosystem records; the guide names no version number to go stale - it requires the pin to be project-local and exact (sections 23/25/27), which is the currency-proof form of the same rule",
+      "guide_position": "One formatter: prettier (prettierd where available, same binary/version, project-local and pinned); its output is canonical; 2-space indentation, one declaration per line, blank line between rules, fixed declaration order within blocks (section 17 order enforced by lint where lint can see it)",
+      "verdict": "holds"
+    },
+    "memory_ownership": {
+      "best_practice": "Containment and content-visibility are the platform's specified cost-bounding tools, and will-change is documented by its own specification tradition as a real resource commitment to be applied sparingly and temporarily - the guide's allocation framing matches",
+      "citations": [
+        "https://www.w3.org/TR/css-cascade-5/"
+      ],
+      "evidence": "Adapted aspect (see aspect_adaptations). Section 15's model - rule count x document breadth, broad rules in low layers, narrow component rules, intrinsic size declared for deferred content - is internally consistent and uncontradicted by any source fetched in this pass. Citation is to the cascade module because no containment TR was fetched in this pass; the verdict rests on the guide's internal accuracy, not on a fetched containment source - noted honestly rather than padded",
+      "guide_position": "Adapted (see aspect_adaptations): section 15 ('Memory and Allocation') - every rule is a standing query against the document, re-evaluated as it changes; broad/universal rules are kept in reset/base as standing costs, component rules stay narrow; contain: layout paint bounds reconsideration for self-contained components; content-visibility: auto requires a stated contain-intrinsic-size; will-change is an allocation request - sparing, shortly before the change, removed afterwards, never left standing",
+      "verdict": "holds"
+    },
+    "security": {
+      "best_practice": "The exfiltration mechanism is real and documented in the platform literature (attribute-selector value probing combined with remote resource loads); pinning/reviewing third-party style and treating generated CSS as an injection boundary are the recognised mitigations, and cascade layers give the low-layer import containment the guide prescribes",
+      "citations": [
+        "https://www.w3.org/TR/css-cascade-5/"
+      ],
+      "evidence": "Cascade 5 (fetched) confirms layered imports assign imported sheets into named layers as the guide's sections 3/18/25 assume, including that import conditions and layer assignment are spec mechanics, not folklore. No fetched source contradicts any section 18 rule; legacy-vector bans (expression(), behavior:, javascript: URLs) are uncontroversial",
+      "guide_position": "Section 18: attribute selectors can probe a sensitive input's value character-by-character while a remote url() reports each hit, so user data is never matched by attribute selectors and sheets never load remote resources from uncontrolled origins; third-party CSS is a full-access dependency - pinned, reviewed, imported into a low layer, never a CDN sheet without integrity on a page that matters; generated CSS is an injection boundary (values validated against the property grammar, url() schemes checked); expression()/behavior:/javascript: URLs banned outright",
+      "verdict": "holds"
+    },
+    "static_analysis": {
+      "best_practice": "Stylelint is the current CSS linter; the standard shared config the guide takes as its floor is actively maintained and its current line requires stylelint >= 17, matching the current linter major",
+      "citations": [
+        "https://github.com/stylelint/stylelint/releases/tag/17.14.1",
+        "https://github.com/stylelint/stylelint-config-standard/releases"
+      ],
+      "evidence": "Spot-checked in this pass: stylelint's current line is 17.x (official 17.14.1 release 2026-07-20; 17.15.0 in current project use Oct 2026), and stylelint-config-standard's releases record the removal of stylelint < 17.0.0 from peer dependencies - the guide's floor config and zero-warnings gate are both current. The guide pins no stylelint version number itself (project-local exact pins, section 27), so there is no stale number to correct",
+      "guide_position": "Stylelint is the analyzer of record: a committed project-local config in every project, floor is stylelint-config-standard extended with the guide's enforceable rules (specificity and nesting budgets, declaration order, unknown-property rejection), run from the project's own node_modules, zero warnings as the gate in editor and CI (section 27)",
+      "verdict": "holds"
+    },
+    "testing": {
+      "best_practice": "No official CSS testing standard prescribes a different split; computed-style assertion plus visual regression plus the named adversarial passes (reflow width, forced colors, reduced motion, content extremes, print) cover the failure classes the specifications themselves define",
+      "citations": [
+        "https://www.w3.org/TR/css-2026/"
+      ],
+      "evidence": "Section 28's validation half checks exactly the promises sections 3/11/26 make (token resolution, layered override wins, visible focus), and the adversarial half attacks the architecture rather than the rendering. The CSS Snapshot 2026 (fetched via search in this pass) lists the modules these tests exercise (Cascade 5 among its Reliable Candidate Recommendations), so the test targets are current spec surface",
+      "guide_position": "Half validation / half adversarial (section 28): validation = computed-style assertions on load-bearing promises, visual regression snapshots at canonical viewports (including 360px narrow), stylelint zero + prettier check in CI; adversarial = specificity war drill (hostile unlayered + high-specificity rules must be contained by the layer architecture), 320px/200% zoom reflow, forced-colors pass, reduced-motion pass, content attacks (longest word, unbroken URL, empty, 10x items, RTL, missing image), print pass",
+      "verdict": "holds"
+    },
+    "toolchain_pins": {
+      "best_practice": "CSS Cascade 5 is a Candidate Recommendation (Snapshot 13 Jan 2022) listed among the Reliable Candidate Recommendations in the CSS Snapshot 2026; the guide's feature tiers track Baseline as of tonight with two refinements available (see proposals): container style queries reached Baseline Newly Available in May 2026 (Firefox 151 completed the set), joining @scope (Newly Available Dec 2025, Firefox 146) - both are features the guide gates behind @supports, which is its own prescribed treatment for the Newly Available tier",
+      "citations": [
+        "https://www.w3.org/TR/css-cascade-5/",
+        "https://www.w3.org/TR/css-2026/",
+        "https://github.com/w3c/csswg-drafts/issues/12702",
+        "https://github.com/stylelint/stylelint/releases/tag/17.14.1"
+      ],
+      "evidence": "Feature-status table (section 2) spot-checked claim by claim in this pass: cascade layers / custom properties / container size queries / :has() (cross-engine Dec 2023, Widely by 30-month rule in 2026) / native nesting (cross-engine Aug 2023) / color-mix()+oklch() / logical properties all correctly tiered Widely Available; @scope correctly tiered Newly Available (Dec 2025); container scroll-state queries correctly Limited (Chromium); @property correctly described as cross-engine since 2024 with a verify-before-relying caution. Tools: stylelint 17.x current, prettier 3.9.9 current, vscode-css-language-server is the current Microsoft CSS language server. The one imprecision found is wording, recorded as a proposal-grade note in the final report, not a verdict: the style-queries row says only 'Newer than size queries' where the precise tier (Newly Available, May 2026) is now nameable, and the layers row's '(since 2022)' is the year layers shipped (Newly Available), not the year they became Widely Available",
+      "guide_position": "No language version exists to pin; the guide pins a Baseline policy instead (Widely Available free, Newly Available behind @supports with a working fallback, Limited as enhancement only), with a feature-status table verified 2026-10-14 (section 2): layers, custom properties, container size queries, :has(), native nesting, color-mix()/oklch() and logical properties as Widely Available; @scope as Newly Available (Dec 2025); container style queries gated as newer than size queries; container scroll-state queries as Limited; @property as cross-engine since 2024, verify Baseline before relying. Tools are named without version numbers and must be project-local and exact-pinned: vscode-css-language-server (LSP), stylelint, prettier/prettierd",
+      "verdict": "holds"
+    }
+  },
+  "aspect_adaptations": "First audit of a stylesheet language; aspects are judged as the guide itself adapts them, not by forcing systems-language meanings. assertions_contracts = the guide's three-way split (stylelint as static assertions, @supports as runtime preconditions, computed-style tests as postconditions, guide section 4). concurrency = cascade/loading behaviour (parallel stylesheet loading and application order, the banned async-CSS media-flip pattern, font-loading races and CLS, compositor off-main-thread animation; guide section 21, titled 'Concurrency, Loading, and Async Work'). memory_ownership = rule/DOM-cost ownership discipline (every rule as a standing query re-evaluated on document change, broad-selector standing costs, containment/content-visibility as the allocation tools, will-change as a counted allocation request; guide section 15, titled 'Memory and Allocation'). error_handling = CSS's silent-failure model (dropped declarations, whole-list death vs forgiving selector contexts, invalid-at-computed-value-time for var()). No aspect was scored not-addressed on the basis of a systems-language expectation.",
+  "mechanical_fixes": [],
+  "proposals": [
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://www.w3.org/TR/css/"
+      ],
+      "evidence": "Two independent May-2026-era records fetched in this pass agree container style queries became Baseline Newly Available in May 2026 when Firefox 151 shipped (Chrome/Edge since 111, Safari since 18). The guide's section 2 table row gives no tier - only 'Newer than size queries' - and section 26 says only 'are newer - gate them per section 2'. Gating is the right treatment, so this is a precision proposal, not a stale verdict",
+      "proposal": "Name the tier in the section 2 feature table: container style queries = Baseline Newly Available (May 2026), treated exactly as the guide's Newly Available rule already prescribes (@supports-gated over a working base, decision recorded) - replacing the vaguer 'Newer than size queries' wording at the next guide refresh",
+      "recommendation": "Adopt as a one-line table correction at the next refresh; no behaviour change, since the guide already gates the feature correctly"
+    },
+    {
+      "aspect": "toolchain_pins",
+      "citations": [
+        "https://github.com/stylelint/stylelint/releases/tag/17.14.1"
+      ],
+      "evidence": "Guide section 20 requires one established minifier, pinned and reviewed, but names none; the tasking for this audit named Lightning CSS as the applicable currency check, and it is the established parser/minifier in current tooling (Vite ecosystem). The unnamed slot is a deliberate-looking choice the guide never explains, unlike its named LSP/linter/formatter slots",
+      "proposal": "Decide the minifier slot explicitly: either name Lightning CSS as the minifier of record in section 20 (with the same pin-and-review discipline the guide gives its other tools) or record the unnamed-minifier choice as deliberate, so a reader does not have to guess which slot is open",
+      "recommendation": "Name it - every other tool slot in the guide is named, and an unnamed minifier is the one place a build can silently restructure the cascade the guide's section 20 warns about"
+    }
+  ]
+}
